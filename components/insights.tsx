@@ -11,7 +11,10 @@ export function Insights() {
             Field Notes
           </p>
           <h2 className="mb-14 max-w-xl text-3xl font-semibold tracking-tight text-ink md:text-[2.5rem] md:leading-[1.1]">
-            Notes &amp; engineering write-ups.
+            Notes &amp;{" "}
+            <span className="font-serif italic font-normal text-ink">
+              engineering write-ups.
+            </span>
           </h2>
         </Reveal>
 

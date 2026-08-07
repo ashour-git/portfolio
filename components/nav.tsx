@@ -30,6 +30,14 @@ export function Nav() {
             </a>
           ))}
           <a
+            href="/resume.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-ink-soft transition-colors hover:text-ink"
+          >
+            Resume
+          </a>
+          <a
             href="#contact"
             className="rounded-full bg-ink px-4 py-1.5 text-sm font-medium text-bg transition-colors hover:opacity-85"
           >

@@ -10,7 +10,10 @@ export function Skills() {
             Core Stack
           </p>
           <h2 className="mb-14 max-w-xl text-3xl font-semibold tracking-tight text-ink md:text-[2.5rem] md:leading-[1.1]">
-            A working stack, grouped by discipline.
+            A working stack,{" "}
+            <span className="font-serif italic font-normal text-ink">
+              grouped by discipline.
+            </span>
           </h2>
         </Reveal>
 

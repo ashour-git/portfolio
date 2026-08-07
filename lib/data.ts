@@ -15,14 +15,26 @@ export const heroStats = [
   { label: "Based in", value: "Cairo, Egypt" },
 ];
 
+export type Stat = { value: string; label: string };
+
+export const stats: Stat[] = [
+  { value: "18/18", label: "security tests passing" },
+  { value: "162", label: "automated tests written" },
+  { value: "7,000+", label: "books in the semantic index" },
+  { value: "~67ms", label: "average retrieval latency" },
+];
+
 export type Project = {
   index: string;
   title: string;
   tagline: string;
+  summary?: string;
   stack: string[];
   href: string;
   note?: string;
   domain: string;
+  featured?: boolean;
+  impact?: string[];
 };
 
 export const projects: Project[] = [
@@ -30,17 +42,21 @@ export const projects: Project[] = [
     index: "01",
     title: "RestAI",
     tagline:
-      "Production restaurant-management SaaS. LLM-powered RAG assistant grounded in live menu and operational data, paired with a demand-forecasting engine.",
+      "A production restaurant-management SaaS with an LLM-powered RAG assistant and a demand-forecasting engine.",
+    summary:
+      "A RAG assistant grounded in live menu and operational data answers staff questions in seconds, while an Optuna-tuned LightGBM forecaster plans demand over lag and rolling-window features.",
     stack: ["FastAPI", "Next.js", "LightGBM", "Groq Llama 3.3", "pgvector", "RAG"],
     href: "https://github.com/ashour-git/Restaurant_AI",
-    note: "forecasting · 162 tests",
+    note: "forecasting · RAG",
     domain: "LLM · Forecasting",
+    featured: true,
+    impact: ["162 automated tests", "Optuna-tuned forecasts", "RAG over live data"],
   },
   {
     index: "02",
     title: "Storefy",
     tagline:
-      "AI-native e-commerce platform with wildcard-subdomain multi-tenancy, per-tenant data isolation, and natural-language data access.",
+      "AI-native e-commerce with wildcard-subdomain multi-tenancy and per-tenant data isolation.",
     stack: ["Next.js 15", "TypeScript", "Drizzle ORM", "PostgreSQL", "Groq Llama 3.3", "Inngest"],
     href: "https://github.com/ashour-git/storefy",
     note: "generative onboarding",
@@ -50,7 +66,9 @@ export const projects: Project[] = [
     index: "03",
     title: "Text-to-SQL Generator",
     tagline:
-      "Natural language to executable, validated SQL over LLM APIs — with defense-in-depth guards and injection protection.",
+      "Natural language to executable, validated SQL over LLM APIs — with defense-in-depth guards.",
+    summary:
+      "A validator, injection guards, and deterministic checks translate user intent into SQL that only executes when it passes every gate.",
     stack: ["Python", "Azure OpenAI GPT-4o", "GitHub Actions"],
     href: "https://github.com/ashour-git/Text2SQL-Generator",
     note: "18/18 security tests",
@@ -70,7 +88,7 @@ export const projects: Project[] = [
     index: "05",
     title: "Semantic Book Recommender",
     tagline:
-      "Semantic-search recommendation over 7,000+ books using vector embeddings — under 70 ms per query, zero API cost.",
+      "Semantic-search recommendation over 7,000+ books using vector embeddings — under 70 ms per query.",
     stack: ["Python", "sentence-transformers", "ChromaDB", "LangChain"],
     href: "https://github.com/ashour-git/semantic-book-recommender",
     note: "7k+ books · ~67 ms",
@@ -100,11 +118,11 @@ export const experience: Role[] = [
     title: "AI Engineer",
     company: "SustainGRC",
     period: "2026 — Present",
-    context: "Production AI shared across an enterprise SaaS platform",
+    context: "Production AI, shared across an enterprise SaaS platform",
     points: [
-      "Ship AI features end to end — from data pipelines and model serving to API surface and observability.",
+      "Ship AI features end to end — data pipelines, model serving, API surface, and observability.",
       "Build RAG and LLM applications on Azure AI Foundry with Anthropic Claude and OpenAI models.",
-      "Engineer data pipelines and backend services for real multi-tenant production workloads.",
+      "Engineer data pipelines and backend services for real multi-tenant workloads.",
       "Drive experimentation and evaluation to ship reliable model behavior at scale.",
     ],
   },
