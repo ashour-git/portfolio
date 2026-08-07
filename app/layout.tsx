@@ -25,16 +25,16 @@ export const metadata: Metadata = {
     template: "%s · Mohamed Ashour",
   },
   description:
-    "AI Engineer building production LLM applications, RAG systems, and MLOps pipelines for multi-tenant, audit-grade platforms. AI governance, EU AI Act, and enterprise SaaS.",
+    "AI Engineer building production LLM applications, RAG systems, recommendation engines, computer vision, and MLOps pipelines. Proven, shipped, end-to-end AI.",
   keywords: [
     "AI Engineer",
     "Machine Learning Engineer",
     "LLM",
     "RAG",
     "MLOps",
-    "AI governance",
-    "EU AI Act",
-    "Data Engineering",
+    "Computer Vision",
+    "Recommendation Systems",
+    "Deep Learning",
     "Mohamed Ashour",
   ],
   alternates: {
@@ -46,13 +46,13 @@ export const metadata: Metadata = {
     siteName: "Mohamed Ashour — AI Engineer",
     title: "Mohamed Ashour — AI Engineer",
     description:
-      "Production AI for governance-grade systems. LLMs · RAG · MLOps · Data Engineering.",
+      "Building production AI. LLMs · RAG · Computer Vision · MLOps · Data Engineering.",
   },
   twitter: {
     card: "summary",
     title: "Mohamed Ashour — AI Engineer",
     description:
-      "Production AI for governance-grade systems. LLMs · RAG · MLOps · Data Engineering.",
+      "Building production AI. LLMs · RAG · Computer Vision · MLOps · Data Engineering.",
   },
   robots: {
     index: true,
@@ -76,8 +76,9 @@ const jsonLd = {
     "RAG",
     "MLOps",
     "Machine Learning Engineering",
-    "AI Governance",
-    "EU AI Act",
+    "Computer Vision",
+    "Recommendation Systems",
+    "Deep Learning",
     "Data Engineering",
   ],
 };
@@ -91,10 +92,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="bg-paper text-ink antialiased">
+      <body className="bg-bg text-ink antialiased">
+        <div className="aurora" aria-hidden="true" />
+        <div className="grid-glow" aria-hidden="true" />
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-paper"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-bg"
         >
           Skip to content
         </a>

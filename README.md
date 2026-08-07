@@ -2,12 +2,14 @@
 
 Personal landing page for **Mohamed Ashour**, AI / Machine Learning Engineer.
 
-Production AI systems for governance-grade constraints — LLM apps, RAG, MLOps, and data engineering.
+A premium, dark **glassmorphism** portfolio centered on production AI — RAG systems,
+LLM apps, recommendation engines, computer vision, forecasting, and MLOps.
 
 ## Stack
 
 - [Next.js 15](https://nextjs.org) (App Router, fully static output)
 - [Tailwind CSS v4](https://tailwindcss.com) with a custom `@theme` design token set
+- [Framer Motion](https://www.framer.com/motion/) for restrained motion
 - TypeScript (strict)
 - Geist + Geist Mono (via `next/font`)
 
