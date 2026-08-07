@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "headers": [
+    {
+      "source": "/resume.pdf",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=604800, immutable" },
+        {
+          "key": "Content-Disposition",
+          "value": "attachment; filename=\"Mohamed-Ashour-Resume.pdf\""
+        }
+      ]
+    }
+  ]
+}
