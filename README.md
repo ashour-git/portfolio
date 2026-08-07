@@ -35,7 +35,7 @@ Deploys to Vercel. The build is fully static and prerendered — no server runti
 
 ```
 app/          # layout, metadata, page composition
-components/   # hero, portrait, projects, experience, skills, insights, contact, nav, footer
+components/   # hero, portrait, projects, case-studies, principles, experience, skills, insights, contact, nav, footer
 lib/data.ts   # all content in one place
 public/       # resume.pdf (download CTA)
 ```

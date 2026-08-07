@@ -8,13 +8,6 @@ export const profile = {
   resume: "/resume.pdf",
 };
 
-export const heroStats = [
-  { label: "Role", value: "AI Engineer @ SustainGRC" },
-  { label: "Focus", value: "LLMs · RAG · MLOps · CV" },
-  { label: "Ship", value: "Production, end-to-end" },
-  { label: "Based in", value: "Cairo, Egypt" },
-];
-
 export type Stat = { value: string; label: string };
 
 export const stats: Stat[] = [
@@ -24,20 +17,45 @@ export const stats: Stat[] = [
   { value: "~67ms", label: "average retrieval latency" },
 ];
 
+export const heroStats: Stat[] = stats.slice(0, 2);
+
 export type GithubStat = { value: string; label: string };
 
 export const githubStats: GithubStat[] = [
   { value: "15+", label: "public repositories" },
-  { value: "6", label: "AI/ML projects featured" },
-  { value: "5", label: "disciplines · LLM CV ML data" },
+  { value: "7", label: "AI/ML codebases" },
   { value: "CI", label: "tests via GitHub Actions" },
+  { value: "Docs", label: "architecture in every repo" },
 ];
+
+export type ArchNode = {
+  label: string;
+  sub?: string;
+  kind?: "client" | "api" | "model" | "gate" | "db" | "outcome";
+};
+
+export type ArchFlow = {
+  nodes: ArchNode[];
+  caption?: string;
+};
+
+export type Decision = {
+  title: string;
+  body: string;
+};
+
+export type PerformanceItem = { value: string; label: string };
 
 export type Project = {
   index: string;
   title: string;
   tagline: string;
   summary?: string;
+  problem: string;
+  solution: string;
+  decisions: Decision[];
+  architecture: ArchFlow;
+  performance: PerformanceItem[];
   stack: string[];
   href: string;
   caseStudy?: string;
@@ -58,6 +76,43 @@ export const projects: Project[] = [
       "A production restaurant-management SaaS with an LLM-powered RAG assistant and a demand-forecasting engine.",
     summary:
       "A RAG assistant grounded in live menu and operational data answers staff questions in seconds, while an Optuna-tuned LightGBM forecaster plans demand over lag and rolling-window features.",
+    problem:
+      "Restaurant staff juggle live menu, order, and staffing data scattered across screens. Answers arrive slowly, forecasts are gut-feel, and there is no single source of truth for operations.",
+    solution:
+      "A single product where a RAG assistant answers staff questions grounded in live operational data, and a LightGBM forecaster predicts demand. Both share one PostgreSQL + pgvector layer, so the answer and the number come from the same source of truth.",
+    decisions: [
+      {
+        title: "RAG over live data",
+        body: "Kept the assistant grounded in pgvector embeddings of live menu/order data instead of free-form generation — answers stay verifiable and current.",
+      },
+      {
+        title: "Optuna-tuned LightGBM",
+        body:
+          "Chose gradient boosting with lag and rolling-window features so forecast quality was tunable and reproducible, with structured experimentation baked in.",
+      },
+      {
+        title: "Tests as a shipping gate",
+        body:
+          "162 automated tests guard the pipeline — retrieval, forecasting, and API behavior must pass CI before anything is considered shippable.",
+      },
+    ],
+    architecture: {
+      nodes: [
+        { label: "Next.js dashboard", sub: "staff UI · client", kind: "client" },
+        { label: "FastAPI", sub: "REST · SSE", kind: "api" },
+        { label: "RAG orchestrator", sub: "Groq Llama 3.3", kind: "model" },
+        { label: "pgvector", sub: "semantic index", kind: "db" },
+        { label: "PostgreSQL", sub: "menu · orders · suppliers", kind: "db" },
+        { label: "Grounded answer", sub: "cited · measured ~67ms", kind: "outcome" },
+      ],
+      caption:
+        "Retrieval and forecasting share one operational data layer — no separate, stale copies.",
+    },
+    performance: [
+      { value: "162", label: "automated tests" },
+      { value: "~67ms", label: "avg retrieval" },
+      { value: "Optuna", label: "tuned forecasts" },
+    ],
     stack: ["FastAPI", "Next.js", "LightGBM", "Groq Llama 3.3", "pgvector", "RAG"],
     href: "https://github.com/ashour-git/Restaurant_AI",
     caseStudy: "https://github.com/ashour-git/Restaurant_AI",
@@ -75,6 +130,43 @@ export const projects: Project[] = [
       "AI-native e-commerce with wildcard-subdomain multi-tenancy and per-tenant data isolation.",
     summary:
       "A scalable AI e-commerce foundation — natural-language POS, per-tenant isolation, and generative storefront onboarding.",
+    problem:
+      "Most e-commerce platforms are single-tenant by accident: one mistake leaks another store's customers, and onboarding a new store means manual, repetitive setup.",
+    solution:
+      "Storefy bakes multi-tenancy into the schema and routing — wildcard subdomains isolate every store, while generative onboarding turns a brand description into a live storefront. Data is never shared between tenants.",
+    decisions: [
+      {
+        title: "Multi-tenancy from day one",
+        body:
+          "Chose tenant-scoped rows and wildcard-subdomain routing over a shared-database-everything approach so isolation is structural, not bolted on.",
+      },
+      {
+        title: "Generative onboarding",
+        body:
+          "Used Groq Llama to scaffold a storefront from a plain-language brief, cutting setup from hours to minutes without template sprawl.",
+      },
+      {
+        title: "Async where it matters",
+        body:
+          "Offloaded long-running work to Inngest so POS and onboarding stay responsive while background jobs manage the heavy lifting.",
+      },
+    ],
+    architecture: {
+      nodes: [
+        { label: "Next.js 15 storefront", sub: "wildcard subdomains", kind: "client" },
+        { label: "API layer", sub: "TypeScript · Drizzle", kind: "api" },
+        { label: "LLM service", sub: "Groq Llama 3.3", kind: "model" },
+        { label: "Inngest", sub: "background jobs", kind: "api" },
+        { label: "PostgreSQL", sub: "tenant-isolated rows", kind: "db" },
+        { label: "Isolated store", sub: "per-tenant data", kind: "outcome" },
+      ],
+      caption: "Wildcard subdomains resolve to tenant-scoped data — isolation is structural.",
+    },
+    performance: [
+      { value: "Per-tenant", label: "isolated rows" },
+      { value: "Groq", label: "gen onboarding" },
+      { value: "Drizzle", label: "typed queries" },
+    ],
     stack: ["Next.js 15", "TypeScript", "Drizzle ORM", "PostgreSQL", "Groq Llama 3.3", "Inngest"],
     href: "https://github.com/ashour-git/storefy",
     caseStudy: "https://github.com/ashour-git/storefy",
@@ -88,8 +180,43 @@ export const projects: Project[] = [
     title: "Text-to-SQL Generator",
     tagline:
       "Natural language to executable, validated SQL over LLM APIs — with defense-in-depth guards.",
-    summary:
-      "A validator, injection guards, and deterministic checks translate user intent into SQL that only executes when it passes every gate.",
+    problem:
+      "An LLM can write SQL — but letting raw model output run against a real database is how people drop tables. The problem was never generation; it was making generation safe to execute.",
+    solution:
+      "A Python service that produces a candidate query, then runs it through deterministic validation and injection guards. SQL only executes when it passes every gate — made provable by 18/18 security tests in GitHub Actions.",
+    decisions: [
+      {
+        title: "Defense in depth",
+        body:
+          "Model output is treated as untrusted input: syntactic validation, injection guards, and dry-run checks each reject before execution.",
+      },
+      {
+        title: "Deterministic guards",
+        body:
+          "The validation layer is fully deterministic — no model in the critical path — so a passing grade is reproducible, not probabilistic.",
+      },
+      {
+        title: "CI as source of truth",
+        body:
+          "18/18 security tests run on every push, so the safety contract is enforced in public, not asserted in prose.",
+      },
+    ],
+    architecture: {
+      nodes: [
+        { label: "User prompt", sub: "natural language", kind: "client" },
+        { label: "Generator API", sub: "Python · Azure OpenAI", kind: "api" },
+        { label: "GPT-4o", sub: "candidate SQL", kind: "model" },
+        { label: "Validation gates", sub: "injection · dry-run", kind: "gate" },
+        { label: "Database", sub: "read-only execution", kind: "db" },
+        { label: "Validated result", sub: "18/18 tests", kind: "outcome" },
+      ],
+      caption: "The validator sits between the model and the database — execution is gated, not trusted.",
+    },
+    performance: [
+      { value: "18/18", label: "security tests" },
+      { value: "Guarded", label: "before execute" },
+      { value: "GPT-4o", label: "on Azure" },
+    ],
     stack: ["Python", "Azure OpenAI GPT-4o", "GitHub Actions"],
     href: "https://github.com/ashour-git/Text2SQL-Generator",
     caseStudy: "https://github.com/ashour-git/Text2SQL-Generator",
@@ -103,8 +230,42 @@ export const projects: Project[] = [
     title: "Hand Gesture Recognition",
     tagline:
       "Real-time hand-gesture recognition for human-computer interaction using deep learning and computer vision.",
-    summary:
-      "A deep-learning pipeline that recognizes gestures from live camera input for HCI, VR, and accessibility applications.",
+    problem:
+      "Controllers, keyboards, and screens create friction for accessibility, VR, and hands-full interactions. There is no natural, low-latency way to map intention to a command.",
+    solution:
+      "A deep-learning pipeline recognizes gestures from live camera input via OpenCV and a CNN — framing the problem as one continuous low-latency inference loop rather than a one-shot classifier.",
+    decisions: [
+      {
+        title: "Latency as a feature",
+        body:
+          "Designed around real-time inference so gesture classification maps cleanly to an interaction loop instead of a batch job.",
+      },
+      {
+        title: "Pragmatic CV stack",
+        body:
+          "Combined OpenCV preprocessing with a deep CNN — a balance of accuracy and inference cost for interactive use.",
+      },
+      {
+        title: "Interaction-first framing",
+        body:
+          "Targeted HCI, VR, and accessibility from the start, which shaped model and post-processing choices around responsiveness.",
+      },
+    ],
+    architecture: {
+      nodes: [
+        { label: "Live camera", sub: "video frames", kind: "client" },
+        { label: "OpenCV", sub: "preprocess", kind: "api" },
+        { label: "Deep CNN", sub: "gesture classifier", kind: "model" },
+        { label: "Postprocess", sub: "landmarks · filter", kind: "gate" },
+        { label: "Interaction", sub: "HCI · VR · access", kind: "outcome" },
+      ],
+      caption: "One low-latency inference loop from frame to interaction.",
+    },
+    performance: [
+      { value: "Real-time", label: "per-frame" },
+      { value: "CNN", label: "classifier" },
+      { value: "OpenCV", label: "pipeline" },
+    ],
     stack: ["Python", "Deep Learning", "Computer Vision", "OpenCV"],
     href: "https://github.com/ashour-git/hand_gesture_reco",
     caseStudy: "https://github.com/ashour-git/hand_gesture_reco",
@@ -118,8 +279,42 @@ export const projects: Project[] = [
     title: "Semantic Book Recommender",
     tagline:
       "Semantic-search recommendation over 7,000+ books using vector embeddings — under 70 ms per query.",
-    summary:
-      "Converts books to vector embeddings, then retrieves contextually similar titles with no API cost.",
+    problem:
+      "Keyword search returns books that match text, not books the reader means. Asking 'something calm about grief and the sea' needs meaning, not string matching.",
+    solution:
+      "Converted 7,000+ books to vector embeddings with sentence-transformers, then retrieves contextually similar titles with ChromaDB — no API cost, ~67 ms per query.",
+    decisions: [
+      {
+        title: "Zero marginal retrieval cost",
+        body:
+          "Chose an open-source embedding model + local ChromaDB over a paid API so retrieval cost is near zero at scale.",
+      },
+      {
+        title: "Semantic over keyword",
+        body:
+          "Embeddings capture intent, so vague linguistic queries return books a keyword search would miss.",
+      },
+      {
+        title: "Measurable fetch",
+        body:
+          "Kept sub-70ms retrieval so the recommender feels instant, not academic.",
+      },
+    ],
+    architecture: {
+      nodes: [
+        { label: "Query", sub: "natural language", kind: "client" },
+        { label: "sentence-transformers", sub: "embed query", kind: "model" },
+        { label: "Vector index", sub: "ChromaDB · 7k+ books", kind: "db" },
+        { label: "Top-K", sub: "cosine similarity", kind: "gate" },
+        { label: "Recommendations", sub: "~67ms · no API bill", kind: "outcome" },
+      ],
+      caption: "Embed once, query forever — zero marginal retrieval cost.",
+    },
+    performance: [
+      { value: "7,000+", label: "books indexed" },
+      { value: "~67ms", label: "per query" },
+      { value: "0", label: "API cost" },
+    ],
     stack: ["Python", "sentence-transformers", "ChromaDB", "LangChain"],
     href: "https://github.com/ashour-git/semantic-book-recommender",
     caseStudy: "https://github.com/ashour-git/semantic-book-recommender",
@@ -133,6 +328,37 @@ export const projects: Project[] = [
     title: "Kepler Vision",
     tagline:
       "A computer-vision exploration focused on capable, production-minded vision models and clean inference pipelines.",
+    problem:
+      "Vision models are easy to demo and hard to operate: frames, preprocess steps, and postprocess edges are usually reverse-engineered from notebooks.",
+    solution:
+      "Kepler Vision treats inference as a pipeline — clean preprocess, a capable detector, and deterministic postprocessing — so a vision model can be operated like a service, not a script.",
+    decisions: [
+      {
+        title: "Clean inference, no scripts",
+        body:
+          "Structured the code as a repeatable pipeline, which is what makes a vision model deployable at all.",
+      },
+      {
+        title: "Production-minded model",
+        body:
+          "Chose a model that balances capability with inferable speed, matching the deployment-rethinking of the site.",
+      },
+    ],
+    architecture: {
+      nodes: [
+        { label: "Input frame", kind: "client" },
+        { label: "Preprocess", sub: "resize · normalize", kind: "api" },
+        { label: "Detector model", sub: "PyTorch", kind: "model" },
+        { label: "Postprocess", sub: "NMS · threshold", kind: "gate" },
+        { label: "Detections", kind: "outcome" },
+      ],
+      caption: "A vision pipeline you can operate, not a notebook you re-run.",
+    },
+    performance: [
+      { value: "Pipeline", label: "preprocess → detect" },
+      { value: "PyTorch", label: "serving" },
+      { value: "Deterministic", label: "postprocess" },
+    ],
     stack: ["Python", "Computer Vision", "PyTorch"],
     href: "https://github.com/ashour-git/Kepler-Vision",
     caseStudy: "https://github.com/ashour-git/Kepler-Vision",
@@ -197,7 +423,7 @@ export type SkillGroup = { title: string; items: string[] };
 
 export const skills: SkillGroup[] = [
   {
-    title: "LLM Engineering",
+    title: "AI / LLM Engineering",
     items: ["RAG", "Agentic AI", "Prompt engineering", "Vector search", "Embeddings", "Fine-tuning"],
   },
   {
@@ -205,11 +431,11 @@ export const skills: SkillGroup[] = [
     items: ["LightGBM", "Scikit-Learn", "PyTorch", "Optuna", "MLflow", "Forecasting"],
   },
   {
-    title: "Backend AI",
+    title: "Backend & Data",
     items: ["FastAPI", "Next.js", "Node.js", "PostgreSQL", "Redis", "SQLAlchemy"],
   },
   {
-    title: "MLOps",
+    title: "Cloud & MLOps",
     items: ["Azure AI Foundry", "Azure OpenAI", "Docker", "GitHub Actions", "CI/CD"],
   },
   {
@@ -217,12 +443,32 @@ export const skills: SkillGroup[] = [
     items: ["OpenCV", "YOLOv5", "MediaPipe", "ResNet-50", "CNNs"],
   },
   {
-    title: "Cloud",
-    items: ["Azure", "Docker Compose", "GitHub", "Vercel", "Linux"],
+    title: "Tooling",
+    items: ["TypeScript", "Python", "Git", "Linux", "Vercel", "Drizzle"],
+  },
+];
+
+export const principles = [
+  {
+    index: "01",
+    title: "Ground every answer",
+    body:
+      "RAG over live operational data. A model should cite a database before it speaks — not answer from memory it cannot verify.",
   },
   {
-    title: "Data Engineering",
-    items: ["PostgreSQL", "Pandas", "Pipelines", "ETL", "FAIR data"],
+    index: "02",
+    title: "Ship with evidence",
+    body: "Tests, latency numbers, and architecture diagrams live in the repo. Claims I make are claims I can reproduce.",
+  },
+  {
+    index: "03",
+    title: "Production is a system",
+    body: "A model is one layer. Serving, tenancy, observability, and CI are the rest — and they decide whether a feature survives contact with users.",
+  },
+  {
+    index: "04",
+    title: "Evaluate before you trust",
+    body: "Measure retrieval latency and pass rates before a prompt or model goes live. Confidence is earned, not asserted.",
   },
 ];
 
@@ -232,20 +478,20 @@ export const insights = [
     title: "Grounding a RAG assistant in real ops data",
     body: "pgvector, embeddings, and sub-second retrieval over live operational data.",
     href: "https://github.com/ashour-git/Restaurant_AI",
-    tag: "Engineering note",
+    tag: "RAG",
   },
   {
     index: "W2",
     title: "Making Text-to-SQL production-safe",
     body: "How a validator, injection guards, and 18/18 tests turn a raw LLM into a usable tool.",
     href: "https://github.com/ashour-git/Text2SQL-Generator",
-    tag: "Engineering note",
+    tag: "LLM Safety",
   },
   {
     index: "W3",
     title: "Recommenders without an API bill",
     body: "Vector embeddings and semantic search over 7,000+ books at ~67 ms.",
     href: "https://github.com/ashour-git/semantic-book-recommender",
-    tag: "Engineering note",
+    tag: "RAG",
   },
 ];

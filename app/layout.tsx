@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     template: "%s · Mohamed Ashour",
   },
   description:
-    "AI Engineer building production LLM applications, RAG systems, recommendation engines, computer vision, and MLOps pipelines. Proven, shipped, end-to-end AI.",
+    "Mohamed Ashour — AI Engineer building production LLM applications, RAG systems, recommendation engines, computer vision, and forecasting. Shipped end-to-end, tested, and measured.",
   keywords: [
     "AI Engineer",
     "Machine Learning Engineer",

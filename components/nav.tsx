@@ -4,10 +4,12 @@ import { ThemeToggle } from "./theme-toggle";
 import { PaletteTrigger } from "./palette-trigger";
 
 const links = [
-  { label: "Work", href: "#work" },
+  { label: "Products", href: "#work" },
+  { label: "Case Studies", href: "#case-studies" },
   { label: "Experience", href: "#experience" },
   { label: "Stack", href: "#stack" },
-  { label: "Notes", href: "#notes" },
+  { label: "Principles", href: "#principles" },
+  { label: "Writing", href: "#notes" },
   { label: "Contact", href: "#contact" },
 ];
 

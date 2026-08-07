@@ -7,7 +7,7 @@ export function Skills() {
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
         <Reveal>
           <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
-            Core Stack
+            Tech Stack
           </p>
           <h2 className="mb-14 max-w-xl text-3xl font-semibold tracking-tight text-ink md:text-[2.5rem] md:leading-[1.1]">
             A working stack,{" "}
