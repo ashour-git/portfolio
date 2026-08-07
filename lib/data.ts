@@ -65,6 +65,7 @@ export const projects: Project[] = [
     domain: "LLM & Forecasting",
     featured: true,
     impact: ["162 automated tests", "Optuna-tuned forecasts", "RAG over live data"],
+    image: "/projects/restai.png",
     gradient: "from-indigo-500 via-violet-500 to-fuchsia-500",
   },
   {
@@ -79,6 +80,7 @@ export const projects: Project[] = [
     caseStudy: "https://github.com/ashour-git/storefy",
     note: "generative onboarding",
     domain: "Backend & Agentic AI",
+    image: "/projects/storefy.png",
     gradient: "from-sky-500 via-blue-500 to-indigo-500",
   },
   {
@@ -93,6 +95,7 @@ export const projects: Project[] = [
     caseStudy: "https://github.com/ashour-git/Text2SQL-Generator",
     note: "18/18 security tests",
     domain: "LLM & Backend",
+    image: "/projects/text2sql.png",
     gradient: "from-emerald-500 via-teal-500 to-cyan-500",
   },
   {
@@ -107,6 +110,7 @@ export const projects: Project[] = [
     caseStudy: "https://github.com/ashour-git/hand_gesture_reco",
     note: "real-time inference",
     domain: "Computer Vision",
+    image: "/projects/hand-gesture.png",
     gradient: "from-rose-500 via-pink-500 to-fuchsia-500",
   },
   {
@@ -121,6 +125,7 @@ export const projects: Project[] = [
     caseStudy: "https://github.com/ashour-git/semantic-book-recommender",
     note: "7k+ books · ~67 ms",
     domain: "Recommendation",
+    image: "/projects/book-recommender.png",
     gradient: "from-amber-500 via-orange-500 to-rose-500",
   },
   {
@@ -132,6 +137,7 @@ export const projects: Project[] = [
     href: "https://github.com/ashour-git/Kepler-Vision",
     caseStudy: "https://github.com/ashour-git/Kepler-Vision",
     domain: "Computer Vision",
+    image: "/projects/kepler.png",
     gradient: "from-slate-500 via-zinc-500 to-neutral-500",
   },
 ];

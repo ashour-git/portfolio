@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { profile, stats } from "@/lib/data";
+import { Portrait } from "@/components/portrait";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -32,9 +33,9 @@ export function Hero() {
               software engineering.
             </h1>
             <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-soft">
-              Mohamed Ashour — AI, ML &amp; LLM engineer. RAG systems,
-              recommendation engines, computer vision, forecasting, and MLOps
-              pipelines — built, tested, and deployed end to end.
+              I build production AI systems, not just demos. Mohamed Ashour —
+              AI, ML &amp; LLM engineer shipping RAG systems, recommendation
+              engines, computer vision, and forecasting into real products.
             </p>
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <a
@@ -84,15 +85,7 @@ export function Hero() {
               className="absolute -inset-8 -z-10 rounded-[3rem] bg-gradient-to-br from-accent/25 to-accent-2/25 blur-3xl"
             />
             <div className="glass-strong overflow-hidden rounded-[2.5rem] p-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/portrait.svg"
-                alt="Portrait of Mohamed Ashour"
-                width={600}
-                height={760}
-                className="h-auto w-full rounded-[2rem]"
-                loading="eager"
-              />
+              <Portrait />
             </div>
 
             {/* floating stat panel */}

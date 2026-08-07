@@ -35,7 +35,32 @@ Deploys to Vercel. The build is fully static and prerendered — no server runti
 
 ```
 app/          # layout, metadata, page composition
-components/   # hero, projects, experience, skills, insights, contact, nav, footer
+components/   # hero, portrait, projects, experience, skills, insights, contact, nav, footer
 lib/data.ts   # all content in one place
 public/       # resume.pdf (download CTA)
 ```
+
+## Adding your real media
+
+Images load automatically the moment you place the files — until then the site
+shows a clean gradient fallback (no empty placeholders).
+
+**Hero portrait** — drop your professional photo here:
+
+```
+public/portrait.jpg
+```
+
+**Project screenshots** — drop cover images here (aspect ~16:10 landscape works best):
+
+```
+public/projects/restai.png
+public/projects/storefy.png
+public/projects/text2sql.png
+public/projects/hand-gesture.png
+public/projects/book-recommender.png
+public/projects/kepler.png
+```
+
+To use a different filename, update the `image` field for that project in
+`lib/data.ts` (and `Portrait` in `components/portrait.tsx` for the hero).

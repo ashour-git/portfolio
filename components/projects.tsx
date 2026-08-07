@@ -6,7 +6,10 @@ import { projects, projectFilters, type Project } from "@/lib/data";
 import { ArrowIcon } from "./icons";
 
 function ProjectImage({ p }: { p: Project }) {
-  if (p.image) {
+  const [errored, setErrored] = useState(false);
+  const showImage = p.image && !errored;
+
+  if (showImage) {
     // eslint-disable-next-line @next/next/no-img-element
     return (
       // eslint-disable-next-line @next/next/no-img-element
@@ -15,6 +18,7 @@ function ProjectImage({ p }: { p: Project }) {
         alt={`${p.title} interface`}
         className="h-full w-full object-cover"
         loading="lazy"
+        onError={() => setErrored(true)}
       />
     );
   }
