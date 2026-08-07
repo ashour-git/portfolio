@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="760" viewBox="0 0 600 760" fill="none">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f3cf5"/>
+      <stop offset="0.5" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#a855f7"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#16161c"/>
+      <stop offset="1" stop-color="#262633"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="760" rx="40" fill="url(#g2)"/>
+  <rect x="1.5" y="1.5" width="597" height="757" rx="38.5" stroke="rgba(255,255,255,0.18)" stroke-width="3"/>
+  <path d="M0 520 C 150 460, 220 590, 300 520 S 470 470, 600 560 L600 760 0 760Z" fill="url(#g1)" opacity="0.5"/>
+  <circle cx="300" cy="360" r="150" fill="none" stroke="rgba(255,255,255,0.14)" stroke-width="1.5"/>
+  <circle cx="300" cy="360" r="96" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+  <g stroke="rgba(165,180,252,0.5)" stroke-width="1.5">
+    <line x1="300" y1="210" x2="300" y2="510"/>
+    <line x1="225" y1="300" x2="390" y2="430"/>
+    <line x1="390" y1="290" x2="225" y2="430"/>
+  </g>
+  <g fill="#a5b4fc">
+    <circle cx="300" cy="200" r="6"/>
+    <circle cx="300" cy="510" r="5"/>
+    <circle cx="225" cy="300" r="5"/>
+    <circle cx="390" cy="290" r="5"/>
+    <circle cx="225" cy="430" r="5"/>
+    <circle cx="390" cy="430" r="5"/>
+  </g>
+  <text x="300" y="640" text-anchor="middle" font-family="Geist, sans-serif" font-size="28" font-weight="700" fill="#f4f5f7">Mohamed Ashour</text>
+  <text x="300" y="682" text-anchor="middle" font-family="Geist Mono, monospace" font-size="16" letter-spacing="2" fill="#a6aab4">AI ENGINEER · EGYPT</text>
+</svg>

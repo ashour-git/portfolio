@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { getSiteUrl } from "@/lib/site";
+import { ThemeInit } from "@/components/theme-init";
+import { CommandPalette } from "@/components/command-palette";
+import { CursorGlow } from "@/components/cursor-glow";
+import { Splash } from "@/components/splash";
+import { Footer } from "@/components/footer";
 import "./globals.css";
 
 const sans = Geist({
@@ -57,7 +62,7 @@ export const metadata: Metadata = {
       "Building production AI. LLMs · RAG · Computer Vision · MLOps · Data Engineering.",
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Mohamed Ashour — AI Engineer",
     description:
       "Building production AI. LLMs · RAG · Computer Vision · MLOps · Data Engineering.",
@@ -95,9 +100,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
+      data-theme="dark"
       className={`${sans.variable} ${mono.variable} ${serif.variable}`}
     >
       <head>
+        <ThemeInit />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -106,13 +113,17 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="bg-bg text-ink antialiased">
         <div className="aurora" aria-hidden="true" />
         <div className="grid-glow" aria-hidden="true" />
+        <CursorGlow />
+        <Splash />
+        <CommandPalette />
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-bg"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-bg"
         >
           Skip to content
         </a>
         {children}
+        <Footer />
       </body>
     </html>
   );

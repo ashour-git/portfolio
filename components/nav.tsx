@@ -1,3 +1,8 @@
+"use client";
+
+import { ThemeToggle } from "./theme-toggle";
+import { PaletteTrigger } from "./palette-trigger";
+
 const links = [
   { label: "Work", href: "#work" },
   { label: "Experience", href: "#experience" },
@@ -19,7 +24,7 @@ export function Nav() {
         >
           m.ashour<span className="text-accent">.</span>
         </a>
-        <div className="hidden items-center gap-7 md:flex">
+        <div className="hidden items-center gap-6 lg:flex">
           {links.map((l) => (
             <a
               key={l.href}
@@ -29,11 +34,15 @@ export function Nav() {
               {l.label}
             </a>
           ))}
+        </div>
+        <div className="flex items-center gap-3">
+          <PaletteTrigger />
+          <ThemeToggle />
           <a
             href="/resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-ink-soft transition-colors hover:text-ink"
+            className="hidden rounded-full border border-line px-4 py-1.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg sm:block"
           >
             Resume
           </a>
@@ -44,12 +53,6 @@ export function Nav() {
             Hire me
           </a>
         </div>
-        <a
-          href="#contact"
-          className="rounded-full bg-ink px-4 py-1.5 text-sm font-medium text-bg transition-colors hover:opacity-85 md:hidden"
-        >
-          Hire me
-        </a>
       </nav>
     </header>
   );

@@ -24,6 +24,15 @@ export const stats: Stat[] = [
   { value: "~67ms", label: "average retrieval latency" },
 ];
 
+export type GithubStat = { value: string; label: string };
+
+export const githubStats: GithubStat[] = [
+  { value: "15+", label: "public repositories" },
+  { value: "6", label: "AI/ML projects featured" },
+  { value: "5", label: "disciplines · LLM CV ML data" },
+  { value: "CI", label: "tests via GitHub Actions" },
+];
+
 export type Project = {
   index: string;
   title: string;
@@ -31,10 +40,14 @@ export type Project = {
   summary?: string;
   stack: string[];
   href: string;
+  caseStudy?: string;
   note?: string;
   domain: string;
   featured?: boolean;
   impact?: string[];
+  image?: string;
+  demo?: string;
+  gradient: string;
 };
 
 export const projects: Project[] = [
@@ -47,20 +60,26 @@ export const projects: Project[] = [
       "A RAG assistant grounded in live menu and operational data answers staff questions in seconds, while an Optuna-tuned LightGBM forecaster plans demand over lag and rolling-window features.",
     stack: ["FastAPI", "Next.js", "LightGBM", "Groq Llama 3.3", "pgvector", "RAG"],
     href: "https://github.com/ashour-git/Restaurant_AI",
+    caseStudy: "https://github.com/ashour-git/Restaurant_AI",
     note: "forecasting · RAG",
-    domain: "LLM · Forecasting",
+    domain: "LLM & Forecasting",
     featured: true,
     impact: ["162 automated tests", "Optuna-tuned forecasts", "RAG over live data"],
+    gradient: "from-indigo-500 via-violet-500 to-fuchsia-500",
   },
   {
     index: "02",
     title: "Storefy",
     tagline:
       "AI-native e-commerce with wildcard-subdomain multi-tenancy and per-tenant data isolation.",
+    summary:
+      "A scalable AI e-commerce foundation — natural-language POS, per-tenant isolation, and generative storefront onboarding.",
     stack: ["Next.js 15", "TypeScript", "Drizzle ORM", "PostgreSQL", "Groq Llama 3.3", "Inngest"],
     href: "https://github.com/ashour-git/storefy",
+    caseStudy: "https://github.com/ashour-git/storefy",
     note: "generative onboarding",
-    domain: "Backend · Agentic AI",
+    domain: "Backend & Agentic AI",
+    gradient: "from-sky-500 via-blue-500 to-indigo-500",
   },
   {
     index: "03",
@@ -71,28 +90,38 @@ export const projects: Project[] = [
       "A validator, injection guards, and deterministic checks translate user intent into SQL that only executes when it passes every gate.",
     stack: ["Python", "Azure OpenAI GPT-4o", "GitHub Actions"],
     href: "https://github.com/ashour-git/Text2SQL-Generator",
+    caseStudy: "https://github.com/ashour-git/Text2SQL-Generator",
     note: "18/18 security tests",
-    domain: "LLM · Backend",
+    domain: "LLM & Backend",
+    gradient: "from-emerald-500 via-teal-500 to-cyan-500",
   },
   {
     index: "04",
     title: "Hand Gesture Recognition",
     tagline:
       "Real-time hand-gesture recognition for human-computer interaction using deep learning and computer vision.",
+    summary:
+      "A deep-learning pipeline that recognizes gestures from live camera input for HCI, VR, and accessibility applications.",
     stack: ["Python", "Deep Learning", "Computer Vision", "OpenCV"],
     href: "https://github.com/ashour-git/hand_gesture_reco",
+    caseStudy: "https://github.com/ashour-git/hand_gesture_reco",
     note: "real-time inference",
     domain: "Computer Vision",
+    gradient: "from-rose-500 via-pink-500 to-fuchsia-500",
   },
   {
     index: "05",
     title: "Semantic Book Recommender",
     tagline:
       "Semantic-search recommendation over 7,000+ books using vector embeddings — under 70 ms per query.",
+    summary:
+      "Converts books to vector embeddings, then retrieves contextually similar titles with no API cost.",
     stack: ["Python", "sentence-transformers", "ChromaDB", "LangChain"],
     href: "https://github.com/ashour-git/semantic-book-recommender",
+    caseStudy: "https://github.com/ashour-git/semantic-book-recommender",
     note: "7k+ books · ~67 ms",
     domain: "Recommendation",
+    gradient: "from-amber-500 via-orange-500 to-rose-500",
   },
   {
     index: "06",
@@ -101,8 +130,19 @@ export const projects: Project[] = [
       "A computer-vision exploration focused on capable, production-minded vision models and clean inference pipelines.",
     stack: ["Python", "Computer Vision", "PyTorch"],
     href: "https://github.com/ashour-git/Kepler-Vision",
+    caseStudy: "https://github.com/ashour-git/Kepler-Vision",
     domain: "Computer Vision",
+    gradient: "from-slate-500 via-zinc-500 to-neutral-500",
   },
+];
+
+export const projectFilters = [
+  "All",
+  "LLM",
+  "Computer Vision",
+  "Recommendation",
+  "Backend",
+  "Forecasting",
 ];
 
 export type Role = {
@@ -127,7 +167,7 @@ export const experience: Role[] = [
     ],
   },
   {
-    title: "Data Engineer Intern",
+    title: "Data Engineer",
     company: "SustainGRC",
     period: "2025 — 2026",
     points: [
@@ -137,7 +177,7 @@ export const experience: Role[] = [
     ],
   },
   {
-    title: "Machine Learning Intern",
+    title: "Machine Learning",
     company: "CodeAlpha",
     period: "2024",
     points: [
@@ -151,7 +191,7 @@ export type SkillGroup = { title: string; items: string[] };
 
 export const skills: SkillGroup[] = [
   {
-    title: "AI / LLM Engineering",
+    title: "LLM Engineering",
     items: ["RAG", "Agentic AI", "Prompt engineering", "Vector search", "Embeddings", "Fine-tuning"],
   },
   {
@@ -159,11 +199,11 @@ export const skills: SkillGroup[] = [
     items: ["LightGBM", "Scikit-Learn", "PyTorch", "Optuna", "MLflow", "Forecasting"],
   },
   {
-    title: "Backend & Data",
+    title: "Backend AI",
     items: ["FastAPI", "Next.js", "Node.js", "PostgreSQL", "Redis", "SQLAlchemy"],
   },
   {
-    title: "Cloud & MLOps",
+    title: "MLOps",
     items: ["Azure AI Foundry", "Azure OpenAI", "Docker", "GitHub Actions", "CI/CD"],
   },
   {
@@ -171,8 +211,12 @@ export const skills: SkillGroup[] = [
     items: ["OpenCV", "YOLOv5", "MediaPipe", "ResNet-50", "CNNs"],
   },
   {
-    title: "Tools",
-    items: ["Git", "Linux", "Jupyter", "LangChain", "Drizzle ORM", "Figma"],
+    title: "Cloud",
+    items: ["Azure", "Docker Compose", "GitHub", "Vercel", "Linux"],
+  },
+  {
+    title: "Data Engineering",
+    items: ["PostgreSQL", "Pandas", "Pipelines", "ETL", "FAIR data"],
   },
 ];
 
@@ -180,21 +224,21 @@ export const insights = [
   {
     index: "W1",
     title: "Grounding a RAG assistant in real ops data",
-    body: "pgvector, embeddings, and sub-second retrieval over live operational data — beyond the demo.",
+    body: "pgvector, embeddings, and sub-second retrieval over live operational data.",
     href: "https://github.com/ashour-git/Restaurant_AI",
     tag: "Engineering note",
   },
   {
     index: "W2",
     title: "Making Text-to-SQL production-safe",
-    body: "How a validator, injection guards, and 18/18 security tests turn a raw LLM into a usable tool.",
+    body: "How a validator, injection guards, and 18/18 tests turn a raw LLM into a usable tool.",
     href: "https://github.com/ashour-git/Text2SQL-Generator",
     tag: "Engineering note",
   },
   {
     index: "W3",
     title: "Recommenders without an API bill",
-    body: "Vector embeddings and semantic search over 7,000+ books at ~67 ms and zero inference cost.",
+    body: "Vector embeddings and semantic search over 7,000+ books at ~67 ms.",
     href: "https://github.com/ashour-git/semantic-book-recommender",
     tag: "Engineering note",
   },

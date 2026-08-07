@@ -4,8 +4,8 @@ import { Projects } from "@/components/projects";
 import { Experience } from "@/components/experience";
 import { Skills } from "@/components/skills";
 import { Insights } from "@/components/insights";
+import { GithubStats } from "@/components/github-stats";
 import { Contact } from "@/components/contact";
-import { Footer } from "@/components/footer";
 
 export default function Page() {
   return (
@@ -17,9 +17,9 @@ export default function Page() {
         <Experience />
         <Skills />
         <Insights />
+        <GithubStats />
         <Contact />
       </main>
-      <Footer />
     </>
   );
 }
