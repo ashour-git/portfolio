@@ -7,31 +7,42 @@ export function Skills() {
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
         <Reveal>
           <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
-            Tech Stack
+            Engineering Capabilities
           </p>
-          <h2 className="mb-14 max-w-xl text-3xl font-semibold tracking-tight text-ink md:text-[2.5rem] md:leading-[1.1]">
-            A working stack,{" "}
+          <h2 className="mb-4 max-w-xl text-3xl font-semibold tracking-tight text-ink md:text-[2.5rem] md:leading-[1.1]">
+            Capabilities,{" "}
             <span className="font-serif italic font-normal text-ink">
-              grouped by discipline.
+              not tool lists.
             </span>
           </h2>
+          <p className="mb-14 max-w-2xl text-base leading-relaxed text-ink-soft">
+            Every capability below is exercised in a shipped project on GitHub —
+            each one has a case study, tests, and an architecture diagram.
+          </p>
         </Reveal>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-2">
           {skills.map((group, i) => (
-            <Reveal key={group.title} delay={(i % 3) * 60}>
-              <div className="glass h-full rounded-3xl p-7">
-                <h3 className="font-mono text-xs uppercase tracking-[0.2em] text-accent">
-                  {group.title}
-                </h3>
-                <ul className="mt-5 space-y-2.5">
+            <Reveal key={group.title} delay={(i % 2) * 60} as="div">
+              <div className="glass flex h-full flex-col rounded-3xl p-7 transition-all hover:-translate-y-1 hover:border-border-strong">
+                <div className="flex items-baseline justify-between gap-3">
+                  <h3 className="text-lg font-semibold tracking-tight text-ink">
+                    {group.title}
+                  </h3>
+                  <span className="font-mono text-xs text-ink-faint">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <div className="mt-5 flex flex-wrap gap-1.5">
                   {group.items.map((item) => (
-                    <li key={item} className="flex items-baseline gap-3">
-                      <span aria-hidden="true" className="h-px w-3 shrink-0 bg-border-strong" />
-                      <span className="text-[15px] text-ink">{item}</span>
-                    </li>
+                    <span
+                      key={item}
+                      className="rounded-full border border-line bg-surface px-2.5 py-1 font-mono text-xs text-ink-soft"
+                    >
+                      {item}
+                    </span>
                   ))}
-                </ul>
+                </div>
               </div>
             </Reveal>
           ))}

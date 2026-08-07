@@ -48,6 +48,10 @@ function ProjectImage({ p, className = "" }: { p: Project; className?: string })
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
+function studyHref(p: Project) {
+  return p.study ? `/case-studies/${p.study.slug}` : p.href;
+}
+
 export function Projects() {
   const [filter, setFilter] = useState("All");
   const featured = projects.find((p) => p.featured)!;
@@ -95,17 +99,37 @@ export function Projects() {
         </div>
 
         <Flagship p={featured} />
-        <span className="hairline my-14 block" aria-hidden="true" />
+        <span className="hairline my-16 block" aria-hidden="true" />
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-8 md:grid-cols-2">
           <AnimatePresence mode="popLayout">
             {visibleRest.map((p) => (
-              <ProductCard key={p.index} p={p} />
+              <ProductShowcase key={p.index} p={p} />
             ))}
           </AnimatePresence>
         </div>
       </div>
     </section>
+  );
+}
+
+function SectionLabel({
+  children,
+  tone = "accent",
+}: {
+  children: string;
+  tone?: "accent" | "rose" | "emerald" | "amber";
+}) {
+  const tones: Record<string, string> = {
+    accent: "text-accent",
+    rose: "text-rose-300",
+    emerald: "text-emerald-300",
+    amber: "text-amber-300",
+  };
+  return (
+    <p className={`font-mono text-[11px] uppercase tracking-[0.2em] ${tones[tone]}`}>
+      {children}
+    </p>
   );
 }
 
@@ -115,7 +139,10 @@ function Flagship({ p }: { p: Project }) {
       {/* hero image */}
       <div className="glass group relative overflow-hidden rounded-[2rem]">
         <div className="relative aspect-[16/9] w-full overflow-hidden sm:aspect-[16/8]">
-          <ProjectImage p={p} className="h-full w-full transition-transform duration-700 group-hover:scale-[1.02]" />
+          <ProjectImage
+            p={p}
+            className="h-full w-full transition-transform duration-700 group-hover:scale-[1.02]"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/10 to-transparent" />
           <span className="absolute left-4 top-4 rounded-full border border-border bg-black/30 px-3 py-1 font-mono text-[11px] uppercase tracking-wide text-white backdrop-blur">
             {p.domain}
@@ -126,6 +153,9 @@ function Flagship({ p }: { p: Project }) {
       {/* tagline + links */}
       <div className="mt-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
         <div>
+          <p className="mb-2 font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
+            Flagship product
+          </p>
           <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
             <h3 className="text-3xl font-semibold tracking-tight text-ink md:text-4xl">
               {p.title}
@@ -138,41 +168,33 @@ function Flagship({ p }: { p: Project }) {
         </div>
         <div className="flex flex-wrap items-start gap-3 lg:justify-end">
           <a
+            href={studyHref(p)}
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            Case study
+            <ArrowIcon className="h-4 w-4" />
+          </a>
+          <a
             href={p.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            className="glass inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:text-white"
           >
-            View on GitHub
-            <ArrowIcon className="h-4 w-4" />
+            GitHub
           </a>
-          {p.caseStudy && (
-            <a
-              href={p.caseStudy}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="glass inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:text-white"
-            >
-              Case study
-            </a>
-          )}
         </div>
       </div>
 
       {/* problem / solution */}
       <div className="mt-10 grid gap-5 md:grid-cols-2">
         <div className="glass rounded-3xl p-7">
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-rose-300">
-            Problem
-          </p>
+          <SectionLabel tone="rose">Problem</SectionLabel>
           <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
             {p.problem}
           </p>
         </div>
         <div className="glass rounded-3xl p-7">
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-emerald-300">
-            Solution
-          </p>
+          <SectionLabel tone="emerald">Solution</SectionLabel>
           <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
             {p.solution}
           </p>
@@ -184,10 +206,8 @@ function Flagship({ p }: { p: Project }) {
         <ArchitectureDiagram flow={p.architecture} />
         <div className="flex flex-col gap-5">
           <div className="rounded-2xl border border-line bg-bg/40 p-5 sm:p-7">
-            <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">
-              Engineering decisions
-            </p>
-            <div className="space-y-5">
+            <SectionLabel>Why this architecture</SectionLabel>
+            <div className="mt-4 space-y-5">
               {p.decisions.map((d) => (
                 <div key={d.title} className="border-l border-border-strong pl-4">
                   <p className="text-sm font-semibold text-ink">{d.title}</p>
@@ -228,38 +248,119 @@ function Flagship({ p }: { p: Project }) {
   );
 }
 
-function ProductCard({ p }: { p: Project }) {
+function ProductShowcase({ p }: { p: Project }) {
+  const [showArch, setShowArch] = useState(false);
+
   return (
-    <motion.a
+    <motion.article
       layout
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
       transition={{ duration: 0.35, ease }}
-      href={p.href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="glass group flex flex-col overflow-hidden rounded-3xl transition-all hover:-translate-y-1 hover:border-border-strong"
+      className="glass flex flex-col overflow-hidden rounded-3xl"
     >
-      <div className="relative aspect-[16/9] overflow-hidden">
-        <ProjectImage p={p} className="h-full w-full transition-transform duration-700 group-hover:scale-[1.03]" />
-        <span className="absolute right-4 top-4 rounded-full border border-border bg-black/30 px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-wide text-white backdrop-blur">
-          {p.domain}
-        </span>
+      <div className="group relative aspect-[16/9] overflow-hidden">
+        <ProjectImage
+          p={p}
+          className="h-full w-full transition-transform duration-700 group-hover:scale-[1.03]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent opacity-60" />
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-5">
+          <span className="rounded-full border border-border bg-black/30 px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-wide text-white backdrop-blur">
+            {p.domain}
+          </span>
+          <span className="font-mono text-sm text-white/80">{p.index}</span>
+        </div>
       </div>
+
       <div className="flex flex-1 flex-col p-7">
         <div className="flex items-baseline justify-between gap-3">
           <h3 className="text-xl font-semibold tracking-tight text-ink">
             {p.title}
           </h3>
-          <span className="font-mono text-sm text-ink-faint">{p.index}</span>
         </div>
         <p className="mt-2 text-sm font-medium text-ink">{p.tagline}</p>
-        <p className="mt-2.5 flex-1 text-sm leading-relaxed text-ink-soft">
-          {p.solution}
-        </p>
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div>
+            <SectionLabel tone="rose">Problem</SectionLabel>
+            <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">
+              {p.problem}
+            </p>
+          </div>
+          <div>
+            <SectionLabel tone="emerald">Solution</SectionLabel>
+            <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">
+              {p.solution}
+            </p>
+          </div>
+        </div>
+
+        {/* performance */}
+        <div className="mt-5 grid grid-cols-3 divide-x divide-border rounded-xl border border-line">
+          {p.performance.map((m) => (
+            <div key={m.label} className="px-3 py-3 text-center">
+              <p className="text-sm font-semibold tracking-tight text-ink">
+                {m.value}
+              </p>
+              <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wide text-ink-faint">
+                {m.label}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* expandable architecture — the one standout interaction */}
+        <div className="mt-5">
+          <button
+            onClick={() => setShowArch((o) => !o)}
+            aria-expanded={showArch}
+            className="flex w-full items-center justify-between gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-sm font-medium text-ink transition-colors hover:border-border-strong"
+          >
+            <span className="inline-flex items-center gap-2">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 16 16"
+                fill="none"
+                className="h-4 w-4 text-accent"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <rect x="2.5" y="2.5" width="11" height="11" rx="2" />
+                <path d="M6 2.5v11M10 2.5v11M2.5 6h11M2.5 10h11" />
+              </svg>
+              Architecture
+            </span>
+            <motion.span
+              animate={{ rotate: showArch ? 45 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="font-mono text-lg leading-none text-ink-soft"
+              aria-hidden="true"
+            >
+              +
+            </motion.span>
+          </button>
+          <AnimatePresence initial={false}>
+            {showArch && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.35, ease }}
+                className="overflow-hidden"
+              >
+                <div className="pt-4">
+                  <ArchitectureDiagram flow={p.architecture} />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* stack */}
         <div className="mt-5 flex flex-wrap gap-2">
-          {p.stack.slice(0, 4).map((t) => (
+          {p.stack.slice(0, 5).map((t) => (
             <span
               key={t}
               className="rounded-full border border-line bg-surface px-2.5 py-0.5 font-mono text-[11px] text-ink-soft"
@@ -268,18 +369,37 @@ function ProductCard({ p }: { p: Project }) {
             </span>
           ))}
         </div>
-        <div className="mt-6 flex items-center justify-between border-t border-line pt-4">
-          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-ink transition-colors group-hover:text-accent">
+
+        <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line pt-4">
+          <a
+            href={studyHref(p)}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-ink transition-colors hover:text-accent"
+          >
+            Case study
+            <ArrowIcon className="h-3.5 w-3.5" />
+          </a>
+          <a
+            href={p.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm text-ink-soft transition-colors hover:text-accent"
+          >
             GitHub
-            <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-          </span>
-          {p.caseStudy && (
-            <span className="inline-flex items-center gap-1.5 text-sm text-ink-soft transition-colors group-hover:text-accent">
-              Case study
-            </span>
+            <ArrowIcon className="h-3.5 w-3.5" />
+          </a>
+          {p.demo && (
+            <a
+              href={p.demo}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm text-ink-soft transition-colors hover:text-accent"
+            >
+              Live demo
+              <ArrowIcon className="h-3.5 w-3.5" />
+            </a>
           )}
         </div>
       </div>
-    </motion.a>
+    </motion.article>
   );
 }

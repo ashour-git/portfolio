@@ -46,6 +46,16 @@ export type Decision = {
 
 export type PerformanceItem = { value: string; label: string };
 
+export type CaseStudyContent = {
+  slug: string;
+  requirements: string[];
+  modelChoice: string;
+  tradeoffs: { choice: string; cost: string }[];
+  challenges: string[];
+  deployment: string;
+  lessons: string[];
+};
+
 export type Project = {
   index: string;
   title: string;
@@ -59,6 +69,7 @@ export type Project = {
   stack: string[];
   href: string;
   caseStudy?: string;
+  study?: CaseStudyContent;
   note?: string;
   domain: string;
   featured?: boolean;
@@ -122,6 +133,43 @@ export const projects: Project[] = [
     impact: ["162 automated tests", "Optuna-tuned forecasts", "RAG over live data"],
     image: "/projects/restai.svg",
     gradient: "from-indigo-500 via-violet-500 to-fuchsia-500",
+    study: {
+      slug: "restai",
+      requirements: [
+        "Answer staff questions grounded in live menu, order, and supplier data.",
+        "Forecast demand per item so purchasing and staffing can be planned.",
+        "One shared data layer so the assistant and the forecaster never disagree.",
+        "CI that keeps the whole pipeline shippable.",
+      ],
+      modelChoice:
+        "LightGBM with Optuna hyperparameter search for forecasting — gradient boosting trains fast, handles tabular features and missing values well, and produces defensible feature importances. Groq Llama 3.3 for the assistant because hosted LLM inference keeps ops simple while staying fast enough for interactive answers.",
+      tradeoffs: [
+        {
+          choice: "LightGBM over a deep sequence model",
+          cost: "Loses some capacity on long time-series context, wins on trainability, interpretability, and low latency for tabular features.",
+        },
+        {
+          choice: "pgvector inside PostgreSQL over a standalone vector DB",
+          cost: "Single source of truth and one deployment to run, at the cost of sharing the same Postgres instance for OLTP and embeddings.",
+        },
+        {
+          choice: "Hosted Groq inference over self-hosting an open model",
+          cost: "Zero serving infrastructure to maintain, but a dependency on an external API for assistant responses.",
+        },
+      ],
+      challenges: [
+        "Keeping RAG answers grounded in live data rather than stale snapshots.",
+        "Engineering lag and rolling-window features that actually generalize for restaurant demand.",
+        "Coordinating 162 tests across retrieval, forecasting, and API surfaces so one layer can't silently break another.",
+      ],
+      deployment:
+        "Dockerized FastAPI service with a Next.js dashboard; PostgreSQL + pgvector as the single data layer; CI via GitHub Actions runs the full test suite on every push.",
+      lessons: [
+        "Grounded retrieval and structured experimentation matter more than model novelty.",
+        "One shared data layer prevents the classic 'RAG and analytics disagree' failure.",
+        "Tests are what make an AI product operable, not the model card.",
+      ],
+    },
   },
   {
     index: "02",
@@ -174,6 +222,42 @@ export const projects: Project[] = [
     domain: "Backend & Agentic AI",
     image: "/projects/storefy.svg",
     gradient: "from-sky-500 via-blue-500 to-indigo-500",
+    study: {
+      slug: "storefy",
+      requirements: [
+        "Every store's data structurally isolated from every other store.",
+        "Onboarding a new store from a plain-language brief, not manual setup.",
+        "Background jobs that can fail, retry, and be observed.",
+      ],
+      modelChoice:
+        "Groq Llama 3.3 for generative storefront scaffolding — fast enough to make onboarding feel interactive, and cheap enough that one generation per store is a non-event.",
+      tradeoffs: [
+        {
+          choice: "Wildcard-subdomain routing over a single shared dashboard",
+          cost: "Clean per-tenant URL isolation and auth boundaries, at the cost of DNS/routing complexity.",
+        },
+        {
+          choice: "Drizzle + typed SQL over an ORM magic layer",
+          cost: "Explicit, reviewable queries that make tenant scoping auditable, at the cost of writing more SQL.",
+        },
+        {
+          choice: "Generative onboarding over a template gallery",
+          cost: "Unlimited storefront variety from one prompt, traded for needing prompt-guardrails to keep output consistent.",
+        },
+      ],
+      challenges: [
+        "Making tenant isolation structural — enforced in routing, queries, and schema — rather than a convention people remember.",
+        "Prompt-scaffolding generation so storefronts vary without looking broken.",
+        "Keeping POS and onboarding responsive while Inngest runs the heavy lifting in the background.",
+      ],
+      deployment:
+        "Next.js 15 frontend on Vercel, PostgreSQL with Drizzle, Inngest for durable background jobs, wildcard subdomains mapped per tenant.",
+      lessons: [
+        "Tenancy decided on day one is exponentially cheaper than retrofitted later.",
+        "Generative features are only as good as the guardrails around them.",
+        "Async boundaries are the natural place to make a product observable.",
+      ],
+    },
   },
   {
     index: "03",
@@ -224,6 +308,42 @@ export const projects: Project[] = [
     domain: "LLM & Backend",
     image: "/projects/text2sql.svg",
     gradient: "from-emerald-500 via-teal-500 to-cyan-500",
+    study: {
+      slug: "text2sql",
+      requirements: [
+        "Turn natural language into executable SQL against a real schema.",
+        "Never execute unsafe or destructive statements, even if prompted to.",
+        "Make the safety contract provable — 18/18 security tests in CI.",
+      ],
+      modelChoice:
+        "GPT-4o on Azure OpenAI for SQL generation — strong structured-output reliability — paired with a fully deterministic Python validator so the safety boundary never depends on model behavior.",
+      tradeoffs: [
+        {
+          choice: "Deterministic validation over prompt-based safety",
+          cost: "More code, but the safety gate is reproducible rather than probabilistic.",
+        },
+        {
+          choice: "Read-only execution by default",
+          cost: "Prevents destructive queries entirely, at the cost of limiting write workflows behind the tool.",
+        },
+        {
+          choice: "Azure OpenAI over a self-hosted model",
+          cost: "Enterprise-grade compliance and quality, traded for a vendor dependency.",
+        },
+      ],
+      challenges: [
+        "Prompt and SQL injection attempts aimed at bypassing the guard layers.",
+        "Mapping ambiguous natural language onto a precise, executable schema.",
+        "Writing tests that prove a negative — that nothing unsafe can execute.",
+      ],
+      deployment:
+        "Python service behind an API; model calls via Azure OpenAI; GitHub Actions runs the 18/18 security suite on every push before anything ships.",
+      lessons: [
+        "Treat model output as untrusted input — always.",
+        "The validator, not the model, is the product's safety story.",
+        "A CI-encoded security contract is auditable in public and stays honest.",
+      ],
+    },
   },
   {
     index: "04",
@@ -273,6 +393,41 @@ export const projects: Project[] = [
     domain: "Computer Vision",
     image: "/projects/hand-gesture.svg",
     gradient: "from-rose-500 via-pink-500 to-fuchsia-500",
+    study: {
+      slug: "hand-gesture",
+      requirements: [
+        "Recognize gestures from live camera input in real time.",
+        "Frame the problem for HCI, VR, and accessibility — not just classification benchmarks.",
+      ],
+      modelChoice:
+        "A deep CNN over a hand-tuned CV pipeline — the network absorbs pose and lighting variation that handcrafted features cannot, at a cost the CPU can meet per-frame.",
+      tradeoffs: [
+        {
+          choice: "CNN over classical computer vision",
+          cost: "More robust to real-world variation, traded for a training pipeline and data requirement.",
+        },
+        {
+          choice: "OpenCV preprocessing before the model",
+          cost: "Stable, normalized input for the network at a negligible latency cost.",
+        },
+        {
+          choice: "On-device inference over an API",
+          cost: "Zero network round-trip for interaction, at the cost of model size constraints.",
+        },
+      ],
+      challenges: [
+        "Meeting per-frame latency so gestures feel immediate, not delayed.",
+        "Robustness across lighting, skin tone, and background clutter.",
+        "Defining gesture vocabulary that is intuitive and unambiguous for users.",
+      ],
+      deployment:
+        "Python pipeline: OpenCV capture and preprocessing → CNN inference → postprocessed gesture label, designed to run interactively with no server dependency.",
+      lessons: [
+        "Latency is a product feature for HCI, not just a benchmark metric.",
+        "Preprocessing is where most real-world robustness is won or lost.",
+        "Interaction framing shapes the model more than the benchmark does.",
+      ],
+    },
   },
   {
     index: "05",
@@ -322,6 +477,42 @@ export const projects: Project[] = [
     domain: "Recommendation",
     image: "/projects/book-recommender.svg",
     gradient: "from-amber-500 via-orange-500 to-rose-500",
+    study: {
+      slug: "book-recommender",
+      requirements: [
+        "Recommend books by meaning, not keyword overlap.",
+        "Handle 7,000+ books with sub-100 ms retrieval.",
+        "Zero ongoing API cost per query.",
+      ],
+      modelChoice:
+        "sentence-transformers for embeddings and ChromaDB for the vector index — open-source, local, and fast enough that the marginal cost of a query is effectively zero.",
+      tradeoffs: [
+        {
+          choice: "Local embeddings over a paid embedding API",
+          cost: "No per-query bill and full control, at the cost of running the index yourself.",
+        },
+        {
+          choice: "ChromaDB over a hosted vector database",
+          cost: "Zero infrastructure overhead for 7k documents, traded for less horizontal scale-out.",
+        },
+        {
+          choice: "Approximate nearest-neighbor search over exact search",
+          cost: "~67 ms at this scale instead of slower exact scans — accuracy loss is negligible for book similarity.",
+        },
+      ],
+      challenges: [
+        "Choosing the right text representation so whole-book meaning, not just titles, is embedded.",
+        "Keeping retrieval under ~67 ms as the index grows.",
+        "Evaluating semantic quality without a labeled similarity dataset.",
+      ],
+      deployment:
+        "Python service: query → sentence-transformers embedding → ChromaDB similarity search → top-K results, orchestrated with LangChain; the index is rebuilt offline from the catalog.",
+      lessons: [
+        "Semantic retrieval removes the API bill from personalization.",
+        "Sub-100 ms latency turns a recommender into a real-time product.",
+        "Embedding choice matters more than index choice at this scale.",
+      ],
+    },
   },
   {
     index: "06",
@@ -365,6 +556,39 @@ export const projects: Project[] = [
     domain: "Computer Vision",
     image: "/projects/kepler.svg",
     gradient: "from-slate-500 via-zinc-500 to-neutral-500",
+    study: {
+      slug: "kepler-vision",
+      requirements: [
+        "Turn vision models into repeatable, operable pipelines.",
+        "Deterministic postprocessing so outputs are stable and testable.",
+      ],
+      modelChoice:
+        "PyTorch for model authoring and inference — a production-minded ecosystem that keeps the pipeline portable from research to serving.",
+      tradeoffs: [
+        {
+          choice: "Full pipeline discipline over notebook-style exploration",
+          cost: "More structure up front, but outputs that can be operated and compared.",
+        },
+        {
+          choice: "PyTorch over a higher-level wrapper",
+          cost: "Direct control over the inference graph, at the cost of writing more plumbing.",
+        },
+        {
+          choice: "Deterministic postprocessing over learned thresholds",
+          cost: "Stable, explainable detections, traded for manual threshold tuning.",
+        },
+      ],
+      challenges: [
+        "Reproducibility across environments and runs.",
+        "Keeping inference fast enough for near-real-time use without sacrificing quality.",
+      ],
+      deployment:
+        "Structured Python pipeline — preprocess → detector → postprocess — designed to run like a service rather than a re-run notebook.",
+      lessons: [
+        "A clean inference pipeline is what makes a vision model deployable.",
+        "Deterministic postprocessing is underrated for production trust.",
+      ],
+    },
   },
 ];
 
@@ -423,28 +647,36 @@ export type SkillGroup = { title: string; items: string[] };
 
 export const skills: SkillGroup[] = [
   {
-    title: "AI / LLM Engineering",
-    items: ["RAG", "Agentic AI", "Prompt engineering", "Vector search", "Embeddings", "Fine-tuning"],
+    title: "LLM Engineering",
+    items: ["RAG", "Agentic AI", "Prompt engineering", "Fine-tuning", "Evaluation"],
+  },
+  {
+    title: "Retrieval-Augmented Generation",
+    items: ["Vector search", "Embeddings", "pgvector", "ChromaDB", "Hybrid retrieval"],
   },
   {
     title: "Machine Learning",
     items: ["LightGBM", "Scikit-Learn", "PyTorch", "Optuna", "MLflow", "Forecasting"],
   },
   {
-    title: "Backend & Data",
-    items: ["FastAPI", "Next.js", "Node.js", "PostgreSQL", "Redis", "SQLAlchemy"],
+    title: "Backend APIs",
+    items: ["FastAPI", "Next.js", "Node.js", "SQLAlchemy", "REST · SSE"],
   },
   {
-    title: "Cloud & MLOps",
-    items: ["Azure AI Foundry", "Azure OpenAI", "Docker", "GitHub Actions", "CI/CD"],
+    title: "Data Engineering",
+    items: ["PostgreSQL", "Pandas", "Pipelines", "ETL", "FAIR data"],
   },
   {
     title: "Computer Vision",
     items: ["OpenCV", "YOLOv5", "MediaPipe", "ResNet-50", "CNNs"],
   },
   {
-    title: "Tooling",
-    items: ["TypeScript", "Python", "Git", "Linux", "Vercel", "Drizzle"],
+    title: "MLOps",
+    items: ["Azure AI Foundry", "Azure OpenAI", "Docker", "GitHub Actions", "CI/CD"],
+  },
+  {
+    title: "Cloud & Deployment",
+    items: ["Azure", "Docker Compose", "Vercel", "Linux", "Multi-tenancy"],
   },
 ];
 

@@ -30,6 +30,14 @@ export function CommandPalette() {
       hint: `${p.domain} · open GitHub`,
       action: () => { window.open(p.href, "_blank", "noopener,noreferrer"); close(); },
     })),
+    ...projects
+      .filter((p) => p.study)
+      .map((p) => ({
+        id: `cs-${p.index}`,
+        label: `Case study · ${p.title}`,
+        hint: "Engineering decisions & tradeoffs",
+        action: () => { window.open(`/case-studies/${p.study!.slug}`, "_self"); close(); },
+      })),
   ];
 
   useEffect(() => {
