@@ -46,8 +46,9 @@ export function Hero() {
               demos.
             </h1>
             <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-soft">
-              LLMs, RAG, computer vision, forecasting — engineered as systems
-              and shipped end to end. Built, tested, deployed, and measured.
+              LLMs, RAG, ML pipelines, and computer vision — engineered as
+              products, shipped end to end, and measured in production. I ship
+              real engineering work you can verify on GitHub.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-2">
               {stackRow.map((s) => (

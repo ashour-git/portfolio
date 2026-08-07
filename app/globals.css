@@ -10,7 +10,7 @@
 
   --color-ink: #f4f5f7;
   --color-ink-soft: #a6aab4;
-  --color-ink-faint: #6b6f7a;
+  --color-ink-faint: #8b8fa2;
 
   --color-accent: #6366f1;
   --color-accent-2: #a855f7;
@@ -35,8 +35,8 @@
   --color-border-strong: rgba(24, 24, 29, 0.18);
 
   --color-ink: #141419;
-  --color-ink-soft: #4a4a52;
-  --color-ink-faint: #85858e;
+  --color-ink-soft: #45454d;
+  --color-ink-faint: #6f6f7a;
 
   --color-accent: #4f46e5;
   --color-accent-2: #9333ea;
@@ -172,19 +172,6 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-}
-
-/* card hover elevation */
-.lift {
-  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 0.3s ease, box-shadow 0.4s ease;
-}
-.lift:hover {
-  transform: translateY(-4px);
-  border-color: var(--color-border-strong);
-  box-shadow:
-    0 1px 0 var(--color-border) inset,
-    0 32px 70px -36px rgba(0, 0, 0, 0.6);
 }
 
 /* thin custom scrollbar */

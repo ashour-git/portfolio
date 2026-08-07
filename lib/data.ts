@@ -46,6 +46,12 @@ export type Decision = {
 
 export type PerformanceItem = { value: string; label: string };
 
+export type Observability = {
+  tools: string[];
+  watch: string[];
+  logs: string[];
+};
+
 export type CaseStudyContent = {
   slug: string;
   requirements: string[];
@@ -54,6 +60,7 @@ export type CaseStudyContent = {
   challenges: string[];
   deployment: string;
   lessons: string[];
+  observability: Observability;
 };
 
 export type Project = {
@@ -169,6 +176,19 @@ export const projects: Project[] = [
         "One shared data layer prevents the classic 'RAG and analytics disagree' failure.",
         "Tests are what make an AI product operable, not the model card.",
       ],
+      observability: {
+        tools: ["MLflow", "Grafana", "Structured logs", "RAG trace"],
+        watch: [
+          "Answer latency and retrieval latency tracked per request from the same ~67ms claim.",
+          "Optuna experiment runs recorded in MLflow, tuned locally and re-run in CI.",
+          "Grounding quality sampled from logs: citations present, source counts, empty-answer rate.",
+        ],
+        logs: [
+          'INFO trace query="chicken shawarma availability" retrieval_ms=67 sources=4 cited=1',
+          "INFO forecast horizon=7d model=lightgbm optuna_trial=14 rmse=…",
+          "WARN evaluator source_mismatch=0.03 precision=0.96",
+        ],
+      },
     },
   },
   {
@@ -257,6 +277,19 @@ export const projects: Project[] = [
         "Generative features are only as good as the guardrails around them.",
         "Async boundaries are the natural place to make a product observable.",
       ],
+      observability: {
+        tools: ["Inngest events", "Structured logs", "Per-tenant metrics"],
+        watch: [
+          "Background-job success, retry, and timeout rates from Inngest event streams.",
+          "Tenant-scoped request counts to prove per-store isolation holds under load.",
+          "Onboarding generation quality sampled from generated storefront records.",
+        ],
+        logs: [
+          'INFO tenant=acme request scope="tenant_scoped" rows=12 ok',
+          "INFO job=storefront-gen tenant=acme duration_ms=3400 completed",
+          "ERROR job=pos-sync tenant=acme retry=2 backoff_ms=8000",
+        ],
+      },
     },
   },
   {
@@ -343,6 +376,19 @@ export const projects: Project[] = [
         "The validator, not the model, is the product's safety story.",
         "A CI-encoded security contract is auditable in public and stays honest.",
       ],
+      observability: {
+        tools: ["GitHub Actions", "Validation counters", "Command logs"],
+        watch: [
+          "18/18 security tests green on every push, surfaced as a CI gate.",
+          "Injection-guard rejection rate: how often the validator blocks prompts.",
+          "Dry-run vs. execution counts so read-only guarantees break loudly.",
+        ],
+        logs: [
+          "PASS gate=injection scan=3 blocked=1 risk=high → dry-run only",
+          "RUN 18/18 security: validator:12 injection:6 dry-run:1",
+          "INFO SQL executed=true read_only=true cached_result=true",
+        ],
+      },
     },
   },
   {
@@ -427,6 +473,19 @@ export const projects: Project[] = [
         "Preprocessing is where most real-world robustness is won or lost.",
         "Interaction framing shapes the model more than the benchmark does.",
       ],
+      observability: {
+        tools: ["Frame timing", "Confidence histograms", "FPS meter"],
+        watch: [
+          "Per-frame inference time to keep the HCI loop under its latency budget.",
+          "Class confidence and confusion-rate per gesture class.",
+          "Long captures monitored for pose and lighting drift.",
+        ],
+        logs: [
+          "INFO fps=28 latency_ms=35 conf=0.94 gesture=peace",
+          "WARN low_confidence conf=0.51 → rejected",
+          "INFO session=… frames=1200 avg_fps=31 p99=41ms",
+        ],
+      },
     },
   },
   {
@@ -512,6 +571,19 @@ export const projects: Project[] = [
         "Sub-100 ms latency turns a recommender into a real-time product.",
         "Embedding choice matters more than index choice at this scale.",
       ],
+      observability: {
+        tools: ["ChromaDB stats", "Latency log", "Query sampler"],
+        watch: [
+          "p95 query latency held under ~67 ms as the index grows.",
+          "Index staleness: how often the offline rebuild runs and how long it takes.",
+          "Zero marginal cost stays true — embedding calls logged, no paid API seen.",
+        ],
+        logs: [
+          "INFO query='grief and the sea' top_k=5 latency_ms=62 best='The Old Man and the Sea'",
+          "INFO reindex_books count=7,214 duration_ms=18…",
+          "STATS p50=41ms p95=67ms cache_hit=0.88",
+        ],
+      },
     },
   },
   {
@@ -585,9 +657,22 @@ export const projects: Project[] = [
       deployment:
         "Structured Python pipeline — preprocess → detector → postprocess — designed to run like a service rather than a re-run notebook.",
       lessons: [
-        "A clean inference pipeline is what makes a vision model deployable.",
+        "A clean inference pipeline is what makes a vision model deployment-grade.",
         "Deterministic postprocessing is underrated for production trust.",
       ],
+      observability: {
+        tools: ["Model card", "Threshold dashboards", "Inference logs"],
+        watch: [
+          "Deterministic postprocess outputs: NMS and thresholds versioned, not silent.",
+          "Detection quality per threshold as the operating point is tuned.",
+          "Model-file identity and runtime in the inference log at boot.",
+        ],
+        logs: [
+          "INFO model=… torch=2.x device=cuda:0 pipeline v2",
+          "INFO det=frame:00142 conf=0.93 box=(x,y,w,h) labels=…",
+          "INFO postprocess deterministic=true nms_iou=0.45",
+        ],
+      },
     },
   },
 ];
@@ -640,6 +725,40 @@ export const experience: Role[] = [
       "Fine-tuned a ResNet-50 image classifier for a computer-vision task.",
       "Built a music recommendation prototype using collaborative filtering.",
     ],
+  },
+];
+
+export type Progression = {
+  period: string;
+  title: string;
+  body: string;
+  tags: string[];
+};
+
+export const trajectory: Progression[] = [
+  {
+    period: "2024",
+    title: "ML experiments",
+    body: "First models: fine-tuned ResNet-50 for image classification, a collaborative-filtering music recommender, and OpenCV gesture recognition.",
+    tags: ["PyTorch", "CNN", "OpenCV"],
+  },
+  {
+    period: "2025",
+    title: "From notebooks to pipelines",
+    body: "Data engineering in production: Text-to-SQL over a real schema with deterministic guards, backup pipelines, and FAIR data discipline.",
+    tags: ["GPT-4o", "Validation", "CI"],
+  },
+  {
+    period: "2025 — 2026",
+    title: "Applied ML in products",
+    body: "Turned approaches into shippable AI: RAG assistants, semantic recommenders at 7k+ scale, forecasting, and multi-tenant AI e-commerce.",
+    tags: ["RAG", "pgvector", "LightGBM", "Multi-tenancy"],
+  },
+  {
+    period: "2026+",
+    title: "Production AI systems",
+    body: "Enterprise AI as a system: RAG and LLM apps on Azure AI Foundry, XR & computer vision at the edge, observability and evaluation as first-class.",
+    tags: ["Azure AI", "LLMOps", "Observability", "Eval"],
   },
 ];
 
@@ -708,7 +827,7 @@ export const insights = [
   {
     index: "W1",
     title: "Grounding a RAG assistant in real ops data",
-    body: "pgvector, embeddings, and sub-second retrieval over live operational data.",
+    body: "pgvector, embeddings, and sub-second retrieval over live operational data — no stale answer sources.",
     href: "https://github.com/ashour-git/Restaurant_AI",
     tag: "RAG",
   },
@@ -724,6 +843,27 @@ export const insights = [
     title: "Recommenders without an API bill",
     body: "Vector embeddings and semantic search over 7,000+ books at ~67 ms.",
     href: "https://github.com/ashour-git/semantic-book-recommender",
-    tag: "RAG",
+    tag: "Recommendation",
+  },
+  {
+    index: "W4",
+    title: "Multi-tenancy structural, not bolted on",
+    body: "Wildcard subdomains, tenant-scoped rows, and how Storefy isolates every store.",
+    href: "https://github.com/ashour-git/storefy",
+    tag: "Backend",
+  },
+  {
+    index: "W5",
+    title: "Latency as a product feature in CV",
+    body: "Designing gesture recognition as one continuous HCI loop, not a batch classifier.",
+    href: "https://github.com/ashour-git/hand_gesture_reco",
+    tag: "Computer Vision",
+  },
+  {
+    index: "W6",
+    title: "Operating vision models like services",
+    body: "Why Kepler Vision treats inference as a deterministic, operable pipeline.",
+    href: "https://github.com/ashour-git/Kepler-Vision",
+    tag: "MLOps",
   },
 ];

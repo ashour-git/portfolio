@@ -67,6 +67,10 @@ export function Contact() {
                 Resume (PDF)
               </a>
             </div>
+            <p className="mt-6 font-mono text-xs leading-relaxed text-ink-faint">
+              References from internships and collaborators available on request
+              via LinkedIn — verified by the teams I've shipped with.
+            </p>
           </div>
         </motion.div>
       </div>

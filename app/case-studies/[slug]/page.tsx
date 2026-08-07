@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { projects } from "@/lib/data";
 import { ArchitectureDiagram } from "@/components/architecture-diagram";
+import { Monitoring } from "@/components/monitoring";
 import { ArrowIcon } from "@/components/icons";
 
 export const dynamicParams = false;
@@ -241,6 +242,36 @@ export default async function CaseStudyPage({
               </p>
             </Section>
 
+            {/* monitoring */}
+            <Section label="Monitoring & observability" tone="emerald">
+              <Monitoring observability={s.observability} />
+            </Section>
+
+            {/* write-up */}
+            <Section label="Engineering write-up" tone="amber">
+              <div className="glass flex flex-col gap-4 rounded-2xl p-6 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-ink">
+                    How this was built, start to finish
+                  </p>
+                  <p className="mt-1 text-sm leading-relaxed text-ink-soft">
+                    Full design narrative, code, and test results live in the
+                    repository — trace architecture, decisions, and commits
+                    directly.
+                  </p>
+                </div>
+                <a
+                  href={p.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-full border border-line px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg"
+                >
+                  Read the write-up
+                  <ArrowIcon className="h-4 w-4" />
+                </a>
+              </div>
+            </Section>
+
             {/* lessons */}
             <Section label="Lessons learned">
               <ul className="space-y-3">
@@ -260,7 +291,9 @@ export default async function CaseStudyPage({
           {/* next project */}
           <nav className="mt-14 border-t border-line pt-10" aria-label="Next project">
             {(() => {
-              const next = projects.find((pr) => pr.study?.slug !== slug);
+              const studies = projects.filter((pr) => pr.study);
+              const idx = studies.findIndex((pr) => pr.study!.slug === slug);
+              const next = studies[(idx + 1) % studies.length];
               if (!next) return null;
               return (
                 <Link

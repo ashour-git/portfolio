@@ -1,4 +1,4 @@
-import { experience } from "@/lib/data";
+import { experience, trajectory } from "@/lib/data";
 import { Reveal } from "./reveal";
 
 export function Experience() {
@@ -55,6 +55,53 @@ export function Experience() {
               </div>
             </Reveal>
           ))}
+        </div>
+
+        {/* progression timeline: ML projects → production AI */}
+        <div className="mt-20 md:mt-24">
+          <Reveal>
+            <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
+              Progression
+            </p>
+            <h3 className="mb-12 max-w-xl text-2xl font-semibold tracking-tight text-ink md:text-3xl">
+              From ML{" "}
+              <span className="font-serif italic font-normal text-ink">
+                experiments
+              </span>{" "}
+              to production{" "}
+              <span className="font-serif italic font-normal text-ink">
+                AI systems.
+              </span>
+            </h3>
+          </Reveal>
+
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {trajectory.map((stage, i) => (
+              <Reveal key={stage.period} delay={i * 70} as="div">
+                <div className="glass flex h-full flex-col rounded-3xl p-6">
+                  <span className="font-mono text-xs tracking-wide text-ink-faint">
+                    {stage.period}
+                  </span>
+                  <h4 className="mt-3 text-lg font-semibold tracking-tight text-ink">
+                    {stage.title}
+                  </h4>
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-ink-soft">
+                    {stage.body}
+                  </p>
+                  <div className="mt-5 flex flex-wrap gap-1.5">
+                    {stage.tags.map((t) => (
+                      <span
+                        key={t}
+                        className="rounded-full border border-line bg-surface px-2.5 py-0.5 font-mono text-[11px] text-ink-soft"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </div>
     </section>

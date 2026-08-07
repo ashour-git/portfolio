@@ -4,10 +4,21 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function Splash() {
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState(true);
 
   useEffect(() => {
-    const t = setTimeout(() => setDone(true), 900);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem("ma:splash-seen") === "1";
+      sessionStorage.setItem("ma:splash-seen", "1");
+    } catch {
+      /* storage unavailable — skip splash entirely */
+      return;
+    }
+    if (seen) return;
+    setDone(false);
+    const t = setTimeout(() => setDone(true), 450);
     return () => clearTimeout(t);
   }, []);
 
