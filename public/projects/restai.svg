@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1a1145"/>
+      <stop offset="0.55" stop-color="#2d1b6e"/>
+      <stop offset="1" stop-color="#4a1f8f"/>
+    </linearGradient>
+    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#a855f7"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.3" r="0.9">
+      <stop offset="0" stop-color="#a855f7" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#a855f7" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="800" rx="32" fill="url(#bg)"/>
+  <rect width="1280" height="800" rx="32" fill="url(#glow)"/>
+  <rect x="1.5" y="1.5" width="1277" height="797" rx="30.5" stroke="rgba(255,255,255,0.12)" stroke-width="3"/>
+
+  <!-- sidebar -->
+  <rect x="0" y="0" width="236" height="800" fill="#141028" opacity="0.6"/>
+  <text x="36" y="52" font-family="Geist, sans-serif" font-size="22" font-weight="700" fill="#ffffff">RestAI</text>
+  <g font-family="Geist, sans-serif" font-size="15">
+    <rect x="24" y="90" width="188" height="40" rx="10" fill="rgba(255,255,255,0.08)"/>
+    <text x="44" y="115" fill="#e5e7eb">Dashboard</text>
+    <text x="44" y="165" fill="#8b8fa3">Orders</text>
+    <text x="44" y="205" fill="#8b8fa3">Menu</text>
+    <text x="44" y="245" fill="#8b8fa3">Forecast</text>
+    <text x="44" y="285" fill="#8b8fa3">Assistant</text>
+    <text x="44" y="420" fill="#8b8fa3">Settings</text>
+  </g>
+
+  <!-- header -->
+  <g font-family="Geist, sans-serif">
+    <text x="290" y="52" font-size="24" font-weight="600" fill="#f4f5f7">Operations</text>
+    <rect x="290" y="76" width="300" height="34" rx="17" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)"/>
+    <text x="304" y="98" font-size="13" fill="#9ca3af">Search orders, menu, docs…  ⌘K</text>
+    <rect x="1000" y="78" width="120" height="32" rx="16" fill="url(#acc)"/>
+    <text x="1020" y="99" font-size="13" font-weight="500" fill="#ffffff">+ New order</text>
+  </g>
+
+  <!-- KPI cards -->
+  <g font-family="Geist, sans-serif">
+    <rect x="290" y="140" width="236" height="130" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+    <text x="312" y="180" font-size="13" fill="#9ca3af">Revenue today</text>
+    <text x="312" y="225" font-size="30" font-weight="600" fill="#f4f5f7">$4,820</text>
+    <rect x="512" y="140" width="236" height="130" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+    <text x="534" y="180" font-size="13" fill="#9ca3af">Predicted demand</text>
+    <text x="534" y="225" font-size="30" font-weight="600" fill="#f4f5f7">312 · +8%</text>
+    <rect x="734" y="140" width="236" height="130" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+    <text x="756" y="180" font-size="13" fill="#9ca3af">Avg retrieval</text>
+    <text x="756" y="225" font-size="30" font-weight="600" fill="#f4f5f7">67 ms</text>
+  </g>
+
+  <!-- forecast chart -->
+  <rect x="290" y="296" width="690" height="248" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+  <text x="312" y="336" font-family="Geist, sans-serif" font-size="14" font-weight="500" fill="#d1d5db">Demand forecast · lightGBM</text>
+  <polyline points="320,500 420,470 520,482 620,440 720,452 820,420" stroke="#a855f7" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <polyline points="320,505 420,478 520,488 620,448 720,458 820,428 830,426" stroke="#6366f1" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <g stroke="rgba(255,255,255,0.06)">
+    <line x1="320" y1="420" x2="830" y2="420"/>
+  </g>
+
+  <!-- assistant panel -->
+  <rect x="866" y="296" width="344" height="248" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+  <g font-family="Geist, sans-serif">
+    <text x="886" y="336" font-size="14" font-weight="500" fill="#d1d5db">Assistant AI · RAG</text>
+    <rect x="886" y="356" width="120" height="22" rx="11" fill="rgba(167,139,250,0.2)"/>
+    <text x="898" y="371" font-size="11" fill="#c4b5fd">gathered: 3 sources</text>
+    <rect x="886" y="392" width="244" height="96" rx="14" fill="rgba(255,255,255,0.04)"/>
+    <text x="900" y="414" font-size="12.5" fill="#e5e7eb">Tonight’s forecast peaks at 7pm.</text>
+    <text x="900" y="434" font-size="12.5" fill="#9ca3af">Stock ~34 units to avoid under capacity.</text>
+    <text x="900" y="454" font-size="12.5" fill="#9ca3af">Reservations are tracking +8% vs last wk.</text>
+    <rect x="886" y="500" width="244" height="30" rx="15" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.1)"/>
+    <text x="900" y="520" font-size="12" fill="#9ca3af">Ask about menu, sales, staff…</text>
+  </g>
+
+  <!-- recent orders -->
+  <g font-family="Geist, sans-serif">
+    <text x="290" y="590" font-size="14" font-weight="500" fill="#d1d5db">Recent orders</text>
+    <g fill="rgba(255,255,255,0.03)">
+      <rect x="290" y="608" width="934" height="58" rx="12"/>
+      <rect x="290" y="676" width="934" height="58" rx="12"/>
+    </g>
+    <g font-size="14">
+      <text x="312" y="644" fill="#e5e7eb">#1042 · Dine in</text>
+      <text x="560" y="644" fill="#9ca3af">Grilled salmon · 2</text>
+      <text x="900" y="644" fill="#a5b4fc">$84.50</text>
+      <text x="312" y="712" fill="#e5e7eb">#1043 · Takeaway</text>
+      <text x="560" y="712" fill="#9ca3af">Margherita · 1</text>
+      <text x="900" y="712" fill="#a5b4fc">$21.00</text>
+    </g>
+  </g>
+</svg>

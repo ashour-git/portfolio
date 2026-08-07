@@ -43,9 +43,10 @@ public/       # resume.pdf (download CTA)
 ## Adding your real media
 
 Images load automatically the moment you place the files — until then the site
-shows a clean gradient fallback (no empty placeholders).
+shows a designed cover (no broken paths, no empty placeholders).
 
-**Hero portrait** — drop your professional photo here:
+**Hero portrait** — drop your professional photo here (replaces the shipped
+designed cover automatically):
 
 ```
 public/portrait.jpg
@@ -54,13 +55,13 @@ public/portrait.jpg
 **Project screenshots** — drop cover images here (aspect ~16:10 landscape works best):
 
 ```
-public/projects/restai.png
-public/projects/storefy.png
-public/projects/text2sql.png
-public/projects/hand-gesture.png
-public/projects/book-recommender.png
-public/projects/kepler.png
+public/projects/restai.svg
+public/projects/storefy.svg
+public/projects/text2sql.svg
+public/projects/hand-gesture.svg
+public/projects/book-recommender.svg
+public/projects/kepler.svg
 ```
 
-To use a different filename, update the `image` field for that project in
-`lib/data.ts` (and `Portrait` in `components/portrait.tsx` for the hero).
+Use `.jpg`/`.png` if preferred and update the `image` field for that project in
+`lib/data.ts`.

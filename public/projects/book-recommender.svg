@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3a2210"/>
+      <stop offset="0.55" stop-color="#573014"/>
+      <stop offset="1" stop-color="#7a4517"/>
+    </linearGradient>
+    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#f43f5e"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.25" r="0.9">
+      <stop offset="0" stop-color="#fbbf24" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#fbbf24" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="800" rx="32" fill="url(#bg)"/>
+  <rect width="1280" height="800" rx="32" fill="url(#glow)"/>
+  <rect x="1.5" y="1.5" width="1277" height="797" rx="30.5" stroke="rgba(255,255,255,0.12)" stroke-width="3"/>
+
+  <!-- search box -->
+  <g font-family="Geist, sans-serif">
+    <text x="60" y="84" font-size="22" font-weight="700" fill="#ffffff">Semantic Book Search</text>
+    <rect x="60" y="104" width="720" height="56" rx="28" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)"/>
+    <text x="84" y="139" font-size="16" fill="#fcd34d">“A calm novel about grief, the sea, and quiet isolation”</text>
+    <circle cx="720" cy="132" r="20" fill="url(#acc)"/>
+    <path d="M712 140 L716 140 L726 126" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- results -->
+  <g font-family="Geist, sans-serif">
+    <text x="60" y="210" font-size="13" fill="#fcd34d">7,000+ books · 6 results · 67 ms</text>
+  </g>
+  <g>
+    <g>
+      <rect x="60" y="230" width="1160" height="156" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+      <rect x="80" y="250" width="96" height="118" rx="10" fill="rgba(245,158,11,0.25)"/>
+      <text x="196" y="296" font-family="Geist, sans-serif" font-size="18" font-weight="600" fill="#fef3c7">The Sea, The Sea</text>
+      <text x="196" y="322" font-family="Geist, sans-serif" font-size="13" fill="#fde68a">Iris Murdoch · 1978</text>
+      <text x="196" y="352" font-family="Geist, sans-serif" font-size="13.5" fill="#e7c98b">A playwright withdraws to the sea, where memory and solitude collide.</text>
+      <text x="1040" y="330" font-family="Geist, sans-serif" font-size="12" fill="#f59e0b">similarity 0.94</text>
+    </g>
+    <g>
+      <rect x="60" y="402" width="1160" height="156" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
+      <rect x="80" y="422" width="96" height="118" rx="10" fill="rgba(244,63,94,0.22)"/>
+      <text x="196" y="468" font-family="Geist, sans-serif" font-size="18" font-weight="600" fill="#fef3c7">The Sea, The Sea</text>
+      <text x="196" y="494" font-family="Geist, sans-serif" font-size="13" fill="#fde68a">Ann Quin · 1973</text>
+      <text x="196" y="524" font-family="Geist, sans-serif" font-size="13.5" fill="#e7c98b">Fragmentary, coastal, quietly devastating modernist memoir.</text>
+      <text x="1040" y="500" font-family="Geist, sans-serif" font-size="12" fill="#f59e0b">similarity 0.91</text>
+    </g>
+    <g>
+      <rect x="80" y="530" width="1160" height="110" rx="20" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>
+      <text x="96" y="590" font-family="Geist, sans-serif" font-size="14" fill="#fde68a">+ 4 more contextual matches</text>
+    </g>
+  </g>
+
+  <!-- pipeline -->
+  <g font-family="Geist, monospace" font-size="12" text-anchor="middle">
+    <text x="80" y="650" fill="#fbbf24">sentence-transformers</text>
+    <text x="80" y="668" fill="#8a6b2b">embeddings</text>
+    <circle cx="240" cy="656" r="14" fill="rgba(245,158,11,0.2)"/>
+    <line x1="254" y1="656" x2="320" y2="656" stroke="rgba(245,158,11,0.4)"/>
+    <circle cx="334" cy="656" r="14" fill="rgba(245,158,11,0.2)"/>
+    <line x1="348" y1="656" x2="414" y2="656" stroke="rgba(245,158,11,0.4)"/>
+    <circle cx="428" cy="656" r="14" fill="rgba(245,158,11,0.2)"/>
+    <line x1="442" y1="656" x2="508" y2="656" stroke="rgba(245,158,11,0.4)"/>
+    <circle cx="522" cy="656" r="14" fill="rgba(245,158,11,0.2)"/>
+    <g fill="#fcd34d">
+      <circle cx="240" cy="656" r="4"/><circle cx="334" cy="656" r="4"/><circle cx="428" cy="656" r="4"/><circle cx="522" cy="656" r="4"/>
+    </g>
+  </g>
+</svg>
