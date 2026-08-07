@@ -3,7 +3,7 @@ export function getSiteUrl(): string {
     process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.VERCEL_PROJECT_PRODUCTION_URL ||
     process.env.VERCEL_URL ||
-    "https://ashour-git-portfolio.vercel.app";
+    "https://mohamed-ashour.vercel.app";
 
   return raw.startsWith("http") ? raw : `https://${raw}`;
 }
