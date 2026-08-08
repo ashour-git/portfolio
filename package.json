@@ -8,7 +8,7 @@
     "build:kb": "tsx scripts/build-kb.ts",
     "start": "next start",
     "lint": "next lint",
-    "test": "tsx --test tests/"
+    "test": "tsx --test \"tests/**/*.test.ts\""
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",
