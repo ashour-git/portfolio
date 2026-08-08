@@ -306,7 +306,8 @@ test("project chunks carry source slug, url, keywords and rich text", () => {
   assert.ok(restai.source.url);
   assert.ok(restai.keywords.includes("restai"));
   assert.ok(restai.text.length > 200);
-  assert.ok(restai.text.includes("study") || restai.text.includes("architecture"));
+  const lower = restai.text.toLowerCase();
+  assert.ok(lower.includes("study") || lower.includes("architecture"));
 });
 
 test("support sections are present", () => {
@@ -568,7 +569,7 @@ test("mode boost reorders recruiter results toward experience/skills", () => {
   const weights = { cosine: 1, keyword: 0, boost: 0.05 };
   const out = retrieveTopK(query, [], chunks, { k: 5, minScore: 0, embeddings, weights, mode: "recruiter" });
   assert.equal(out[0].id, "exp");
-  assert.ok(MODE_BOOST.recruiter.experience! > MODE_BOOST.recruiter.project!);
+  assert.ok((MODE_BOOST.recruiter.experience ?? 0) > (MODE_BOOST.recruiter.project ?? 0));
 });
 ```
 
