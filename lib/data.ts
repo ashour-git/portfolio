@@ -19,6 +19,27 @@ export const stats: Stat[] = [
 
 export const heroStats: Stat[] = stats.slice(0, 2);
 
+export type CommandWidget = {
+  id: string;
+  label: string;
+  value: string;
+  meta?: string;
+  status: "ready" | "warn" | "busy";
+  anchor: "top-left" | "top-right" | "mid-left" | "mid-right" | "bottom";
+  offsetX: number;
+  offsetY: number;
+  drift: number;
+  flow?: string[];
+};
+
+export const commandWidgets: CommandWidget[] = [
+  { id: "model", label: "Model", value: "Llama 3.3 · GPT-4o", meta: "multi-provider", status: "ready", anchor: "top-left", offsetX: 0, offsetY: 0, drift: 19, flow: ["prompt", "LLM", "answer"] },
+  { id: "latency", label: "Retrieval", value: "~67 ms", meta: "p95 avg", status: "ready", anchor: "top-right", offsetX: 0, offsetY: 0, drift: 27, flow: ["embed", "index", "top-k"] },
+  { id: "api", label: "API / deploy", value: "FastAPI · Docker", meta: "all green", status: "ready", anchor: "mid-right", offsetX: 0, offsetY: 0, drift: 23, flow: ["route", "gateway", "service"] },
+  { id: "mlflow", label: "Experiments", value: "162", meta: "runs tracked", status: "busy", anchor: "mid-left", offsetX: 0, offsetY: 0, drift: 31, flow: ["trial", "eval", "metric"] },
+  { id: "registry", label: "Azure AI", value: "Foundry · OpenAI", meta: "connected", status: "ready", anchor: "bottom", offsetX: 0, offsetY: 0, drift: 17, flow: ["asset", "deploy", "monitor"] },
+];
+
 export type GithubStat = { value: string; label: string };
 
 export const githubStats: GithubStat[] = [
