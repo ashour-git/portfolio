@@ -30,7 +30,7 @@ export function ThemeToggle() {
     >
       <span
         aria-hidden="true"
-        className={`flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-tr from-accent to-accent-2 text-[10px] leading-none text-white transition-transform duration-300 ${
+        className={`flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-tr from-accent to-accent-2 text-[10px] leading-none text-bg transition-transform duration-300 ${
           theme === "light" ? "translate-x-5" : "translate-x-0"
         }`}
       >

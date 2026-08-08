@@ -37,7 +37,7 @@ export function Contact() {
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <a
                 href={`mailto:${profile.email}`}
-                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-6 py-3 text-sm font-semibold text-bg transition-opacity hover:opacity-90"
               >
                 {profile.email}
                 <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

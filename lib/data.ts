@@ -139,7 +139,7 @@ export const projects: Project[] = [
     featured: true,
     impact: ["162 automated tests", "Optuna-tuned forecasts", "RAG over live data"],
     image: "/projects/restai.svg",
-    gradient: "from-indigo-500 via-violet-500 to-fuchsia-500",
+    gradient: "from-teal-500 via-emerald-500 to-cyan-500",
     study: {
       slug: "restai",
       requirements: [
@@ -241,7 +241,7 @@ export const projects: Project[] = [
     note: "generative onboarding",
     domain: "Backend & Agentic AI",
     image: "/projects/storefy.svg",
-    gradient: "from-sky-500 via-blue-500 to-indigo-500",
+    gradient: "from-cyan-500 via-sky-600 to-blue-600",
     study: {
       slug: "storefy",
       requirements: [
@@ -438,7 +438,7 @@ export const projects: Project[] = [
     note: "real-time inference",
     domain: "Computer Vision",
     image: "/projects/hand-gesture.svg",
-    gradient: "from-rose-500 via-pink-500 to-fuchsia-500",
+    gradient: "from-cyan-500 via-teal-500 to-emerald-500",
     study: {
       slug: "hand-gesture",
       requirements: [

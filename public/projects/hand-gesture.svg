@@ -1,17 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" fill="none">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#3b0d26"/>
-      <stop offset="0.55" stop-color="#5c1238"/>
-      <stop offset="1" stop-color="#7f1d45"/>
+      <stop offset="0" stop-color="#06221f"/>
+      <stop offset="0.55" stop-color="#0a332c"/>
+      <stop offset="1" stop-color="#0d453b"/>
     </linearGradient>
     <linearGradient id="acc" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#f43f5e"/>
-      <stop offset="1" stop-color="#d946ef"/>
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#2ee6a3"/>
     </linearGradient>
     <radialGradient id="glow" cx="0.5" cy="0.3" r="0.9">
-      <stop offset="0" stop-color="#fb7185" stop-opacity="0.3"/>
-      <stop offset="1" stop-color="#fb7185" stop-opacity="0"/>
+      <stop offset="0" stop-color="#67e8f9" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#67e8f9" stop-opacity="0"/>
     </radialGradient>
   </defs>
   <rect width="1280" height="800" rx="32" fill="url(#bg)"/>
@@ -19,12 +19,12 @@
   <rect x="1.5" y="1.5" width="1277" height="797" rx="30.5" stroke="rgba(255,255,255,0.12)" stroke-width="3"/>
 
   <!-- video feed frame -->
-  <rect x="60" y="60" width="760" height="560" rx="24" fill="#140a10" stroke="rgba(244,63,94,0.3)"/>
+  <rect x="60" y="60" width="760" height="560" rx="24" fill="#07100e" stroke="rgba(34,211,238,0.3)"/>
   <g font-family="Geist, sans-serif">
-    <text x="84" y="100" font-size="13" fill="#fda4af">● REC · camera 0 — real-time inference @ 30fps</text>
+    <text x="84" y="100" font-size="13" fill="#67e8f9">● REC · camera 0 — real-time inference @ 30fps</text>
   </g>
   <!-- hand skeleton -->
-  <g stroke="#fda4af" stroke-width="6" stroke-linecap="round" fill="none">
+  <g stroke="#67e8f9" stroke-width="6" stroke-linecap="round" fill="none">
     <line x1="440" y1="260" x2="440" y2="420"/>
     <line x1="440" y1="300" x2="360" y2="350"/>
     <line x1="440" y1="330" x2="520" y2="360"/>
@@ -35,7 +35,7 @@
     <line x1="520" y1="360" x2="560" y2="310"/>
     <line x1="520" y1="360" x2="560" y2="410"/>
   </g>
-  <g fill="#fda4af">
+  <g fill="#67e8f9">
     <circle cx="440" cy="260" r="10"/>
     <circle cx="360" cy="350" r="8"/>
     <circle cx="330" cy="300" r="8"/>
@@ -48,32 +48,32 @@
     <circle cx="500" cy="450" r="8"/>
   </g>
   <!-- bounding box -->
-  <rect x="200" y="180" width="500" height="420" rx="16" stroke="#fb7185" stroke-width="3" fill="none" stroke-dasharray="14 10"/>
+  <rect x="200" y="180" width="500" height="420" rx="16" stroke="#22d3ee" stroke-width="3" fill="none" stroke-dasharray="14 10"/>
   <g font-family="Geist, sans-serif">
-    <rect x="200" y="180" width="150" height="30" rx="8" fill="#fb7185"/>
-    <text x="212" y="200" font-size="13" font-weight="600" fill="#1c0a10">hand 0.97</text>
+    <rect x="200" y="180" width="150" height="30" rx="8" fill="#22d3ee"/>
+    <text x="212" y="200" font-size="13" font-weight="600" fill="#07202c">hand 0.97</text>
   </g>
 
   <!-- right panel -->
   <g font-family="Geist, sans-serif">
     <rect x="856" y="60" width="364" height="260" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
-    <text x="878" y="104" font-size="14" font-weight="500" fill="#ffe4e6">Detected gesture</text>
+    <text x="878" y="104" font-size="14" font-weight="500" fill="#cffafe">Detected gesture</text>
     <rect x="878" y="120" width="180" height="52" rx="14" fill="url(#acc)"/>
-    <text x="898" y="153" font-size="20" font-weight="600" fill="#ffffff">THUMBS UP</text>
-    <text x="878" y="210" font-size="12.5" fill="#fda4af">Landmarks · 21 keypoints</text>
-    <text x="878" y="236" font-size="12.5" fill="#fda4af">Model · deep CNN · ~11ms/frame</text>
-    <text x="878" y="262" font-size="12.5" fill="#fda4af">Use case · HCI / VR / accessibility</text>
+    <text x="898" y="153" font-size="20" font-weight="600" fill="#06231f">THUMBS UP</text>
+    <text x="878" y="210" font-size="12.5" fill="#67e8f9">Landmarks · 21 keypoints</text>
+    <text x="878" y="236" font-size="12.5" fill="#67e8f9">Model · deep CNN · ~11ms/frame</text>
+    <text x="878" y="262" font-size="12.5" fill="#67e8f9">Use case · HCI / VR / accessibility</text>
 
     <rect x="856" y="340" width="364" height="280" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
-    <text x="878" y="384" font-size="14" font-weight="500" fill="#ffe4e6">Confidence</text>
+    <text x="878" y="384" font-size="14" font-weight="500" fill="#cffafe">Confidence</text>
     <rect x="878" y="404" width="300" height="12" rx="6" fill="rgba(255,255,255,0.1)"/>
     <rect x="878" y="404" width="285" height="12" rx="6" fill="url(#acc)"/>
-    <text x="878" y="450" font-size="12.5" fill="#fda4af">Thumbs up · 0.97</text>
+    <text x="878" y="450" font-size="12.5" fill="#67e8f9">Thumbs up · 0.97</text>
     <rect x="878" y="470" width="300" height="12" rx="6" fill="rgba(255,255,255,0.1)"/>
-    <rect x="878" y="470" width="120" height="12" rx="6" fill="rgba(251,113,133,0.7)"/>
-    <text x="878" y="516" font-size="12.5" fill="#fda4af">Open palm · 0.31</text>
+    <rect x="878" y="470" width="120" height="12" rx="6" fill="rgba(103,232,249,0.7)"/>
+    <text x="878" y="516" font-size="12.5" fill="#67e8f9">Open palm · 0.31</text>
     <rect x="878" y="536" width="300" height="12" rx="6" fill="rgba(255,255,255,0.1)"/>
-    <rect x="878" y="536" width="54" height="12" rx="6" fill="rgba(251,113,133,0.4)"/>
-    <text x="878" y="582" font-size="12.5" fill="#fda4af">Pointing · 0.08</text>
+    <rect x="878" y="536" width="54" height="12" rx="6" fill="rgba(103,232,249,0.4)"/>
+    <text x="878" y="582" font-size="12.5" fill="#67e8f9">Pointing · 0.08</text>
   </g>
 </svg>

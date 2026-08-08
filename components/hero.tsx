@@ -65,7 +65,7 @@ export function Hero() {
                 href={profile.resume}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full bg-gradient-to-r from-accent to-accent-2 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-accent/25 transition-all hover:shadow-accent/40"
+                className="rounded-full bg-gradient-to-r from-accent to-accent-2 px-6 py-3 text-sm font-semibold text-bg shadow-lg shadow-accent/25 transition-all hover:shadow-accent/40"
               >
                 Resume
               </a>

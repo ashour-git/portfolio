@@ -4,21 +4,21 @@ import { motion } from "framer-motion";
 import type { ArchFlow } from "@/lib/data";
 
 const kindColor: Record<string, string> = {
-  client: "text-sky-300 border-sky-400/30 bg-sky-400/10",
-  api: "text-indigo-300 border-indigo-400/30 bg-indigo-400/10",
-  model: "text-violet-300 border-violet-400/30 bg-violet-400/10",
-  gate: "text-emerald-300 border-emerald-400/30 bg-emerald-400/10",
-  db: "text-amber-300 border-amber-400/30 bg-amber-400/10",
-  outcome: "text-fuchsia-300 border-fuchsia-400/30 bg-fuchsia-400/10",
+  client: "text-cyan-300 border-cyan-400/30 bg-cyan-400/10",
+  api: "text-teal-300 border-teal-400/30 bg-teal-400/10",
+  model: "text-emerald-300 border-emerald-400/30 bg-emerald-400/10",
+  gate: "text-amber-300 border-amber-400/30 bg-amber-400/10",
+  db: "text-sky-300 border-sky-400/30 bg-sky-400/10",
+  outcome: "text-rose-300 border-rose-400/30 bg-rose-400/10",
 };
 
 const kindDot: Record<string, string> = {
-  client: "bg-sky-400",
-  api: "bg-indigo-400",
-  model: "bg-violet-400",
-  gate: "bg-emerald-400",
-  db: "bg-amber-400",
-  outcome: "bg-fuchsia-400",
+  client: "bg-cyan-400",
+  api: "bg-teal-400",
+  model: "bg-emerald-400",
+  gate: "bg-amber-400",
+  db: "bg-sky-400",
+  outcome: "bg-rose-400",
 };
 
 export function ArchitectureDiagram({ flow }: { flow: ArchFlow }) {

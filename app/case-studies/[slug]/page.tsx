@@ -108,7 +108,7 @@ export default async function CaseStudyPage({
                 href={p.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-6 py-3 text-sm font-semibold text-bg transition-opacity hover:opacity-90"
               >
                 View source on GitHub
                 <ArrowIcon className="h-4 w-4" />

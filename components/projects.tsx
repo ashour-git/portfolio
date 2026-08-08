@@ -64,38 +64,37 @@ export function Projects() {
   return (
     <section id="work" className="relative scroll-mt-24 py-24 md:py-32">
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
-        <div className="mb-12 flex flex-col gap-8 md:mb-16 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
+        <div className="mb-12 md:mb-16">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
+            <p className="font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
               Featured AI Products
             </p>
-            <h2 className="max-w-xl text-3xl font-semibold tracking-tight text-ink md:text-[2.5rem] md:leading-[1.1]">
-              Built as systems,{" "}
-              <span className="font-serif italic font-normal text-ink">
-                shipped as products.
-              </span>
-            </h2>
+            <div
+              className="ml-auto flex flex-wrap items-center gap-2"
+              role="group"
+              aria-label="Filter projects by domain"
+            >
+              {projectFilters.map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`rounded-full border px-3.5 py-1.5 font-mono text-xs transition-colors ${
+                    filter === f
+                      ? "border-transparent bg-gradient-to-r from-accent to-accent-2 text-bg"
+                      : "border-line bg-surface text-ink-soft hover:text-ink"
+                  }`}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
           </div>
-
-          <div
-            className="flex flex-wrap gap-2"
-            role="group"
-            aria-label="Filter projects by domain"
-          >
-            {projectFilters.map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`rounded-full border px-3.5 py-1.5 font-mono text-xs transition-colors ${
-                  filter === f
-                    ? "border-transparent bg-gradient-to-r from-accent to-accent-2 text-white"
-                    : "border-line bg-surface text-ink-soft hover:text-ink"
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
+          <h2 className="mt-5 max-w-2xl text-3xl font-semibold tracking-tight text-ink md:text-[2.5rem] md:leading-[1.1]">
+            Built as systems,{" "}
+            <span className="font-serif italic font-normal text-ink">
+              shipped as products.
+            </span>
+          </h2>
         </div>
 
         <Flagship p={featured} />
@@ -151,7 +150,7 @@ function Flagship({ p }: { p: Project }) {
       </div>
 
       {/* tagline + links */}
-      <div className="mt-10 grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+      <div className="mt-10 grid items-center gap-8 lg:grid-cols-[1.2fr_0.8fr]">
         <div>
           <p className="mb-2 font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
             Flagship product
@@ -166,10 +165,10 @@ function Flagship({ p }: { p: Project }) {
             {p.tagline}
           </p>
         </div>
-        <div className="flex flex-wrap items-start gap-3 lg:justify-end">
+        <div className="flex flex-wrap items-center gap-3 lg:justify-end">
           <a
             href={studyHref(p)}
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-5 py-2.5 text-sm font-semibold text-bg transition-opacity hover:opacity-90"
           >
             Case study
             <ArrowIcon className="h-4 w-4" />
