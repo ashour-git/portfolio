@@ -27,7 +27,29 @@ components** (`CommandCenter`, `SectionHeader`, `PipelineSeparator`, and the
 small shared `PipelineStrip`), consolidates existing project components, and
 drives content from `lib/data.ts`.
 
-## 2. Brand rules / signature grammar
+### 1.1 Success criteria
+
+> The portfolio should be immediately recognizable even if the user's name
+> and text are removed. Its visual language alone should identify it as
+> Pipeline OS.
+
+The single test that every decision in this document serves.
+
+## 2. Design principles (north star)
+
+Every visual decision must satisfy:
+
+- **Communicate engineering before aesthetics.** Surfaces exist to explain
+  systems, not to decorate.
+- **Motion guides attention, never demands it.** If a user has to notice the
+  motion, it's too loud.
+- **Every decorative element conveys information.** Ornament that carries no
+  signal is removed (see §2.2 restraint and §2.3 motion budget).
+- **Whitespace is part of the interface.** Gaps do the work that extra UI
+  would otherwise do.
+- **Build one memorable interaction, not many.** The hero command center is
+  that interaction; the rest of the site stays quiet.
+- **The portfolio should feel like an AI product, not a developer template.**
 
 ### 2.1 Pipeline motif (the spoken identity)
 
@@ -68,6 +90,30 @@ Reduced-motion and coarse pointers are handled globally via
 
 Ambient drift timings are **per-widget randomized primes** (organic, not
 identical): e.g. `19s, 27s, 23s, 31s, 17s`.
+
+#### Motion budget
+
+Maximum simultaneous ambient (always-looping) animations **= 4 systems**:
+
+1. Mesh backdrop phase drift
+2. Widget idle drift
+3. Light sweep on the frame
+4. Pipeline rail pulse
+
+Everything else is **event-driven** (hover/focus/reveal) and stops when
+inactive. Hover and focus animations resolve on pointer-leave. No other
+infinite animation is permitted anywhere on the site. This is the explicit
+guardrail against animation creep in later iterations.
+
+#### Premium rules (what "premium" means here)
+
+- No unnecessary shadows; shadows earn their existence by separating layers.
+- No heavy blur; `backdrop-blur` levels stay at the existing glass tokens.
+- No bright neon; all glow ≤ `accent/25` opacity, blur-smoothed.
+- No decorative gradients without a purpose; gradients label system layers.
+- One accent color family (jade→cyan), one typography system (Geist +
+  Geist Mono + Instrument Serif), one motion language (`lib/motion.ts`).
+  Everything else stays quiet.
 
 ## 3. CommandCenter — hero centerpiece
 
@@ -112,7 +158,7 @@ identical): e.g. `19s, 27s, 23s, 31s, 17s`.
 
 ```ts
 export type CommandWidget = {
-  id: string;               // "model", "latency", "api", "mlflow", "azure", "track"
+  id: string;               // "model", "latency", "api", "mlflow", "registry"
   label: string;            // short mono label
   value: string;            // real metric, e.g. "~67ms"
   meta?: string;            // e.g. "p95 retrieval"
@@ -146,6 +192,19 @@ An additional **track-record card** (from `stats`, real: 18/18 security tests +
 
 ### 3.4 Interaction model (uniform)
 
+**Interaction priority** — enforced everywhere, resolves conflicts without
+special-casing:
+
+```
+Hover  >  Focus  >  Ambient  >  Idle
+```
+
+- If hover occurs, idle drift pauses for that widget.
+- If keyboard focus occurs (widgets are focusable), hover styling is reused —
+  `:focus-visible` shows the same affordance as hover.
+- Ambient layers never compete with user input; they yield instantly.
+- At most one widget is "active" (hovered or focused) at a time.
+
 Unified: **every widget hovers-expands its Engineering Context** — a tiny overlay
 chip-strip `embed → pgvector → retriever → LLM` (from `widget.flow`), fade/scale
 in under the widget. **No click, no modal.** (The one-off "API/RAG expand only"
@@ -176,6 +235,18 @@ others soften; idle = faint 1px `border-line` lines (≤ 6 paths, forward
 
 ### 4.1 Card consolidation
 
+**Explicit project hierarchy** (visual dominance rationale):
+
+```
+Flagship  → RestAI              (hero-sized cover, architecture strip)
+Tier 1    → Storefy, Text-to-SQL  (large showcase cards, micro flow-strip)
+Tier 2    → Book Recommender, Hand Gesture, Kepler Vision  (showcase cards)
+```
+
+The flagship renders at full width with the architecture preview strip; tier
+levels share the `showcase` presentation with identical anatomy so hierarchy
+reads as intent, not inconsistency.
+
 **Merge `ProjectImage`, `Flagship`, `ProductShowcase` → one component**
 `ProjectCard` with a `prominence?: "flagship" | "showcase"` prop
 (`components/projects.tsx`, reduced from 3 components).
@@ -191,7 +262,7 @@ component consumed by both projects + case-studies) to protect the signature.
 
 ### 4.2 Imagery: elevate the six SVG covers (in-repo)
 
-Elevate in place — no external/external screenshot sourcing, no new pipeline:
+Elevate in place — no external screenshot sourcing, no new asset pipeline:
 
 - **Readable at card size**: min font ≥ 11–14px at 1280×800 viewBox;
   increase contrast (#d1fae5 → #f0fdf6 where legibility fails).
@@ -211,6 +282,15 @@ Cover set: `restai.svg`, `storefy.svg`, `text2sql.svg`, `hand-gesture.svg`,
 - Reduce `problem`/`solution` blocks in showcase cards slightly — one
   sentence lead plus the flow-strip does the storytelling; full narrative
   stays in case-studies.
+
+### 4.4 Empty states
+
+If a future project has no case study yet (`p.study` undefined and `p.href`
+absent), render a graceful mono placeholder instead of a broken link:
+`"NO_WRITEUP_YET → README"` fallback to `p.href`, or a disabled
+`"COMING SOON"` chip. The card anatomy never breaks when data is missing.
+No project today is missing data; this is a forward guard for the
+hierarchy tiers.
 
 ## 5. Editorial rhythm / flow
 
@@ -249,6 +329,21 @@ Insights — Contact` (unchanged; separators inserted per §2.2).
 - Case-study `[slug]/page.tsx`: swap image treatment to the elevated cover +
   keep architecture section; no structural changes.
 
+### 6.1 Accessibility
+
+Elevated to first-class because the interactive hero is sophisticated:
+
+- Every interaction is keyboard-reachable. Widgets are focusable; `Enter`/
+  `Space` behaves like the hover path.
+- Focus Mode works via keyboard focus, not only pointer hover (same styling
+  reused per §3.4 priority).
+- No hover-only information — Engineering Context is also revealed on focus.
+- All decorative layers (`MeshBackdrop`, `WireLayer`, sweep, rails) are
+  `aria-hidden="true"` and removed from the a11y tree.
+- Text meets WCAG AA contrast on glass surfaces (verify badge/pill contrast).
+- Reduced-motion path tested manually on every task; interactive pair still
+  operable when reduced motion is on (static but visible).
+
 ## 7. Non-goals / YAGNI
 
 - No SPA framework, no shared global state (widget focus state stays local to
@@ -258,14 +353,29 @@ Insights — Contact` (unchanged; separators inserted per §2.2).
 - No new motion library; no new global CSS utilities unless mesh/sweep
   keyframes require them (keep those in `globals.css` beside the glass rules).
 
-## 8. Testing / verification
+## 8. Testing / performance / verification
 
-- `npm run build` (13 routes) must stay green; `lint` via
-  `next lint`.
+- `npm run build` (13 routes) must stay green; `lint` via `next lint`.
 - Manual smoke: reduced-motion + coarse-pointer path (widgets static but
   visible; sweep/wires/pulse off).
 - Visual parity on mobile (`hidden md:block` for CommandCenter layers and
   widgets as today).
+
+### 8.1 Performance budget
+
+Committed runtime targets for the homepage:
+
+- Lighthouse Performance ≥ 95 (desktop), ≥ 90 (mobile, if measurable locally).
+- CLS < 0.05.
+- LCP < 2.5 s.
+- INP < 200 ms.
+- Homepage first-load JS stays at/below today's ~166 kB (build checkpoints
+  in every implementation task).
+- 60 FPS maintained on modern hardware; idle drift uses transform/opacity
+  only (no layout thrash), `will-change` scoped to layers that transform.
+
+Motion budget from §2.3 and performance targets above are checked at each
+task review, not only at the end.
 
 ## 9. Delivery (one plan)
 
@@ -273,3 +383,17 @@ One implementation plan, executed via Superpowers SDD subagents:
 T1 bedrock/theme + motion-big, T2 CommandCenter, T3 projects + imagery,
 T4 section rhythm + separators, T5 case-study polish, T6 final build/push to
 `origin/main` (Vercel auto-deploys).
+
+## 10. Future extensions (explicitly out of scope for v1)
+
+Listed for reference, never shipped in this pass:
+
+- Interactive architecture explorer (pan/zoom node graph)
+- Live GitHub activity / contribution feed
+- Research & experiment notebook
+- Public benchmark dashboard
+- Blog / writing with search
+- Conference talks & speaking page
+
+These are future, scoped work — new cards only ever extend
+`lib/data.ts` behind the existing `ProjectCard` contract.
