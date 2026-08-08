@@ -144,7 +144,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.6, ease }}
-              className="glass absolute -left-4 top-8 hidden rounded-2xl px-5 py-4 md:block"
+              className="glass absolute -left-4 bottom-6 hidden rounded-2xl px-5 py-4 md:block"
             >
               <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-faint">
                 Track record
