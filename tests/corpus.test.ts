@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { buildChunks } from "../lib/copilot/corpus";
 import { projects } from "../lib/data";
+import type { SourceKind } from "../lib/copilot/types";
 
 test("corpus has one project chunk per project", () => {
   const chunks = buildChunks();
@@ -29,7 +30,7 @@ test("project chunks carry source slug, url, keywords and rich text", () => {
 
 test("support sections are present", () => {
   const kinds = buildChunks().map((c) => c.source.kind);
-  for (const k of ["skill", "principle", "experience", "insight", "resume", "stats"]) {
+  for (const k of ["skill", "principle", "experience", "insight", "resume", "stats"] satisfies SourceKind[]) {
     assert.ok(kinds.includes(k), `missing ${k}`);
   }
 });

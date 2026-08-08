@@ -312,7 +312,7 @@ test("project chunks carry source slug, url, keywords and rich text", () => {
 
 test("support sections are present", () => {
   const kinds = buildChunks().map((c) => c.source.kind);
-  for (const k of ["skill", "principle", "experience", "insight", "resume", "stats"]) {
+  for (const k of ["skill", "principle", "experience", "insight", "resume", "stats"] satisfies SourceKind[]) {
     assert.ok(kinds.includes(k), `missing ${k}`);
   }
 });
