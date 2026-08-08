@@ -26,7 +26,9 @@ test("hourly limit is independent and stricter over time", () => {
     assert.equal(rl.check("ip").ok, true);
     t += 30_000; // each request a fresh minute window
   }
-  assert.equal(rl.check("ip").ok, false);
+  const blocked = rl.check("ip");
+  assert.equal(blocked.ok, false);
+  assert.ok((blocked as { retryAfterSec: number }).retryAfterSec > 0);
 });
 
 test("different IPs are isolated", () => {
