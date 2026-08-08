@@ -4,13 +4,11 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { projects, projectFilters, type Project } from "@/lib/data";
 import { ArchitectureDiagram } from "./architecture-diagram";
+import { PipelineStrip } from "./pipeline-strip";
 import { ArrowIcon } from "./icons";
 
-function ProjectImage({ p, className = "" }: { p: Project; className?: string }) {
-  const [errored, setErrored] = useState(false);
-  const showImage = p.image && !errored;
-
-  if (showImage) {
+function Cover({ p, className = "" }: { p: Project; className?: string }) {
+  if (p.image) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
@@ -18,7 +16,6 @@ function ProjectImage({ p, className = "" }: { p: Project; className?: string })
         alt={`${p.title} interface`}
         className={`object-cover ${className}`}
         loading="lazy"
-        onError={() => setErrored(true)}
       />
     );
   }
@@ -28,20 +25,6 @@ function ProjectImage({ p, className = "" }: { p: Project; className?: string })
       aria-hidden="true"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_45%)]" />
-      <svg
-        viewBox="0 0 120 120"
-        className="relative h-16 w-16 opacity-80"
-        fill="none"
-        stroke="rgba(255,255,255,0.9)"
-        strokeWidth="2"
-      >
-        <circle cx="20" cy="20" r="6" />
-        <circle cx="100" cy="24" r="6" />
-        <circle cx="60" cy="60" r="6" />
-        <circle cx="30" cy="98" r="6" />
-        <circle cx="95" cy="96" r="6" />
-        <path d="M20 20 L60 60 M100 24 L60 60 M60 60 L30 98 M60 60 L95 96" />
-      </svg>
     </div>
   );
 }
@@ -97,13 +80,13 @@ export function Projects() {
           </h2>
         </div>
 
-        <Flagship p={featured} />
+        <ProjectCard p={featured} prominence="flagship" />
         <span className="hairline my-16 block" aria-hidden="true" />
 
         <div className="grid gap-8 md:grid-cols-2">
           <AnimatePresence mode="popLayout">
             {visibleRest.map((p, i) => (
-              <ProductShowcase key={p.index} p={p} index={i} />
+              <ProjectCard key={p.index} p={p} prominence="showcase" index={i} />
             ))}
           </AnimatePresence>
         </div>
@@ -132,7 +115,20 @@ function SectionLabel({
   );
 }
 
-function Flagship({ p }: { p: Project }) {
+function ProjectCard({
+  p,
+  prominence,
+  index = 0,
+}: {
+  p: Project;
+  prominence: "flagship" | "showcase";
+  index?: number;
+}) {
+  if (prominence === "flagship") return <FlagshipCard p={p} />;
+  return <ShowcaseCard p={p} index={index} />;
+}
+
+function FlagshipCard({ p }: { p: Project }) {
   return (
     <motion.div
       id={`project-${p.index}`}
@@ -145,7 +141,7 @@ function Flagship({ p }: { p: Project }) {
       {/* hero image */}
       <div className="glass group relative overflow-hidden rounded-[2rem]">
         <div className="relative aspect-[16/9] w-full overflow-hidden sm:aspect-[16/8]">
-          <ProjectImage
+          <Cover
             p={p}
             className="h-full w-full transition-transform duration-700 group-hover:scale-[1.02]"
           />
@@ -239,6 +235,10 @@ function Flagship({ p }: { p: Project }) {
         </div>
       </div>
 
+      <div className="mt-6">
+        <PipelineStrip flow={p.architecture} />
+      </div>
+
       {/* stack */}
       <div className="mt-6 flex flex-wrap gap-2">
         {p.stack.map((t) => (
@@ -254,7 +254,7 @@ function Flagship({ p }: { p: Project }) {
   );
 }
 
-function ProductShowcase({ p, index = 0 }: { p: Project; index?: number }) {
+function ShowcaseCard({ p, index = 0 }: { p: Project; index?: number }) {
   const [showArch, setShowArch] = useState(false);
 
   return (
@@ -273,7 +273,7 @@ function ProductShowcase({ p, index = 0 }: { p: Project; index?: number }) {
       className="glass flex flex-col overflow-hidden rounded-3xl transition-shadow duration-300 hover:shadow-2xl hover:shadow-black/30"
     >
       <div className="group relative aspect-[16/9] overflow-hidden">
-        <ProjectImage
+        <Cover
           p={p}
           className="h-full w-full transition-transform duration-700 group-hover:scale-[1.03]"
         />
@@ -293,6 +293,8 @@ function ProductShowcase({ p, index = 0 }: { p: Project; index?: number }) {
           </h3>
         </div>
         <p className="mt-2 text-sm font-medium text-ink">{p.tagline}</p>
+
+        <PipelineStrip flow={p.architecture} className="mt-4" />
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>

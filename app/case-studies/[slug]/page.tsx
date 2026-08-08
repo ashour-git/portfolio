@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { projects } from "@/lib/data";
+import { PipelineStrip } from "@/components/pipeline-strip";
 import { ArchitectureDiagram } from "@/components/architecture-diagram";
 import { Monitoring } from "@/components/monitoring";
 import { ArrowIcon } from "@/components/icons";
@@ -123,6 +124,9 @@ export default async function CaseStudyPage({
                   Live demo
                 </a>
               )}
+            </div>
+            <div className="mt-6">
+              <PipelineStrip flow={p.architecture} />
             </div>
           </header>
 

@@ -18,10 +18,19 @@
   <rect width="1280" height="800" rx="32" fill="url(#glow)"/>
   <rect x="1.5" y="1.5" width="1277" height="797" rx="30.5" stroke="rgba(255,255,255,0.12)" stroke-width="3"/>
 
+  <!-- browser chrome -->
+  <g aria-hidden="true">
+    <circle cx="36" cy="26" r="8" fill="rgba(255,255,255,0.55)"/>
+    <circle cx="64" cy="26" r="8" fill="rgba(255,255,255,0.55)"/>
+    <circle cx="92" cy="26" r="8" fill="rgba(255,255,255,0.55)"/>
+    <rect x="1020" y="12" width="220" height="28" rx="14" fill="rgba(0,0,0,0.3)"/>
+    <text x="1036" y="32" font-family="Geist Mono, monospace" font-size="18" fill="rgba(255,255,255,0.5)">https://gesture-recog.local</text>
+  </g>
+
   <!-- video feed frame -->
   <rect x="60" y="60" width="760" height="560" rx="24" fill="#07100e" stroke="rgba(34,211,238,0.3)"/>
   <g font-family="Geist, sans-serif">
-    <text x="84" y="100" font-size="13" fill="#67e8f9">● REC · camera 0 — real-time inference @ 30fps</text>
+    <text x="84" y="100" font-size="15" fill="#67e8f9">● REC · camera 0 — real-time inference @ 30fps</text>
   </g>
   <!-- hand skeleton -->
   <g stroke="#67e8f9" stroke-width="6" stroke-linecap="round" fill="none">
@@ -51,29 +60,29 @@
   <rect x="200" y="180" width="500" height="420" rx="16" stroke="#22d3ee" stroke-width="3" fill="none" stroke-dasharray="14 10"/>
   <g font-family="Geist, sans-serif">
     <rect x="200" y="180" width="150" height="30" rx="8" fill="#22d3ee"/>
-    <text x="212" y="200" font-size="13" font-weight="600" fill="#07202c">hand 0.97</text>
+    <text x="212" y="200" font-size="14" font-weight="600" fill="#07202c">hand 0.97</text>
   </g>
 
   <!-- right panel -->
   <g font-family="Geist, sans-serif">
     <rect x="856" y="60" width="364" height="260" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
-    <text x="878" y="104" font-size="14" font-weight="500" fill="#cffafe">Detected gesture</text>
+    <text x="878" y="104" font-size="15" font-weight="500" fill="#cffafe">Detected gesture</text>
     <rect x="878" y="120" width="180" height="52" rx="14" fill="url(#acc)"/>
     <text x="898" y="153" font-size="20" font-weight="600" fill="#06231f">THUMBS UP</text>
-    <text x="878" y="210" font-size="12.5" fill="#67e8f9">Landmarks · 21 keypoints</text>
-    <text x="878" y="236" font-size="12.5" fill="#67e8f9">Model · deep CNN · ~11ms/frame</text>
-    <text x="878" y="262" font-size="12.5" fill="#67e8f9">Use case · HCI / VR / accessibility</text>
+    <text x="878" y="210" font-size="15" fill="#67e8f9">Landmarks · 21 keypoints</text>
+    <text x="878" y="236" font-size="15" fill="#67e8f9">Model · deep CNN · ~11ms/frame</text>
+    <text x="878" y="262" font-size="15" fill="#67e8f9">Use case · HCI / VR / accessibility</text>
 
     <rect x="856" y="340" width="364" height="280" rx="20" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)"/>
-    <text x="878" y="384" font-size="14" font-weight="500" fill="#cffafe">Confidence</text>
+    <text x="878" y="384" font-size="15" font-weight="500" fill="#cffafe">Confidence</text>
     <rect x="878" y="404" width="300" height="12" rx="6" fill="rgba(255,255,255,0.1)"/>
     <rect x="878" y="404" width="285" height="12" rx="6" fill="url(#acc)"/>
-    <text x="878" y="450" font-size="12.5" fill="#67e8f9">Thumbs up · 0.97</text>
+    <text x="878" y="450" font-size="15" fill="#67e8f9">Thumbs up · 0.97</text>
     <rect x="878" y="470" width="300" height="12" rx="6" fill="rgba(255,255,255,0.1)"/>
     <rect x="878" y="470" width="120" height="12" rx="6" fill="rgba(103,232,249,0.7)"/>
-    <text x="878" y="516" font-size="12.5" fill="#67e8f9">Open palm · 0.31</text>
+    <text x="878" y="516" font-size="15" fill="#67e8f9">Open palm · 0.31</text>
     <rect x="878" y="536" width="300" height="12" rx="6" fill="rgba(255,255,255,0.1)"/>
     <rect x="878" y="536" width="54" height="12" rx="6" fill="rgba(103,232,249,0.4)"/>
-    <text x="878" y="582" font-size="12.5" fill="#67e8f9">Pointing · 0.08</text>
+    <text x="878" y="582" font-size="15" fill="#67e8f9">Pointing · 0.08</text>
   </g>
 </svg>
