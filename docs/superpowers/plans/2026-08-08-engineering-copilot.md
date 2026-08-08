@@ -55,7 +55,7 @@ In `package.json`, set `scripts` to:
   "build:kb": "tsx scripts/build-kb.ts",
   "start": "next start",
   "lint": "next lint",
-  "test": "tsx --test tests/types.test.ts tests/corpus.test.ts tests/scoring.test.ts tests/rate-limit.test.ts tests/index.test.ts tests/prompt.test.ts tests/groq.test.ts tests/service.test.ts"
+  "test": "tsx --test tests/"
 }
 ```
 
@@ -974,7 +974,7 @@ Verify the model files were staged (e.g. `models/Xenova/all-MiniLM-L6-V2/...`). 
 - Consumes: `CopilotMode`, `ChatMessage`, `RetrievalResult` from `lib/copilot/types`; `profile` from `lib/data`.
 - Produces:
   - `buildSystemPrompt(mode: CopilotMode): string` — persona + scope gate + mode instructions.
-  - `serializeContext(results: RetrievalResult[]): string` — numbered source excerpts.
+  - `serializeContext(results: (RetrievalResult & { text?: string })[]): string` — numbered source excerpts.
   - `buildMessages(input: { message: string; mode?: CopilotMode; history?: ChatMessage[]; results: RetrievalResult[] }): ChatMessage[]` — returns `[system, ...history(sliced), context user msg, final user msg]`.
 
 - [ ] **Step 1: Write the failing test**
@@ -1522,7 +1522,9 @@ export async function* runCopilot(
   let retrievalMs: number;
 
   const compute = async (): Promise<RetrievalResult[]> => {
-    const embedder = deps.getEmbedder ? await deps.getEmbedder() : (await import("@/lib/copilot/index")).getEmbedder();
+    const embedder = deps.getEmbedder
+      ? await deps.getEmbedder()
+      : await (await import("@/lib/copilot/index")).getEmbedder();
     const vec = await embedder(body.message);
     return retrieveTopK(vec, tokenize(body.message), chunks, { k: 5, minScore: 0.25, mode, embeddings });
   };
@@ -2227,8 +2229,7 @@ In `app/layout.tsx`, add a dynamic import and render it next to `CommandPalette`
 ```tsx
 import dynamic from "next/dynamic";
 
-const Copilot = dynamic(() => import("@/components/copilot").then((m) => m.Copilot), {
-  ssr: false,
+const Copilot = dynamic(() => import("@/components/copilot"), {
   loading: () => null,
 });
 ```
