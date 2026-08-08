@@ -3,8 +3,9 @@
 @theme {
   --color-bg: #060a09;
   --color-bg-2: #0b1211;
-  --color-surface: rgba(255, 255, 255, 0.04);
-  --color-surface-2: rgba(255, 255, 255, 0.07);
+  --color-surface: rgba(255, 255, 255, 0.06);
+  --color-surface-2: rgba(255, 255, 255, 0.1);
+  --color-surface-3: rgba(255, 255, 255, 0.14);
   --color-border: rgba(255, 255, 255, 0.09);
   --color-border-strong: rgba(255, 255, 255, 0.16);
 
@@ -29,8 +30,9 @@
 :root[data-theme="light"] {
   --color-bg: #f4f7f5;
   --color-bg-2: #fafcfa;
-  --color-surface: rgba(255, 255, 255, 0.6);
-  --color-surface-2: rgba(255, 255, 255, 0.75);
+  --color-surface: rgba(255, 255, 255, 0.72);
+  --color-surface-2: rgba(255, 255, 255, 0.82);
+  --color-surface-3: rgba(255, 255, 255, 0.9);
   --color-border: rgba(16, 44, 32, 0.1);
   --color-border-strong: rgba(16, 44, 32, 0.18);
 
@@ -117,38 +119,63 @@ body {
 
 /* ---------- glass surfaces ---------- */
 .glass {
-  background: linear-gradient(
-    160deg,
-    var(--color-surface-2),
-    var(--color-surface)
-  );
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(160deg, var(--color-surface-2), var(--color-surface-3)),
+    var(--color-bg);
   border: 1px solid var(--color-border);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
   box-shadow:
-    0 1px 0 var(--color-border) inset,
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
     0 24px 60px -32px rgba(0, 0, 0, 0.5);
 }
 
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.1), transparent 38%);
+  pointer-events: none;
+}
+
 .glass-strong {
-  background: linear-gradient(
-    160deg,
-    var(--color-surface-2),
-    var(--color-surface)
-  );
+  background:
+    linear-gradient(160deg, var(--color-surface-3), var(--color-surface-2)),
+    var(--color-bg);
   border: 1px solid var(--color-border-strong);
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
   box-shadow:
-    0 1px 0 var(--color-border) inset,
-    0 32px 60px -36px rgba(0, 0, 0, 0.55);
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 32px 60px -36px rgba(0, 0, 0, 0.6);
+}
+
+.glass-strong::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.12), transparent 40%);
+  pointer-events: none;
 }
 
 :root[data-theme="light"] .glass,
 :root[data-theme="light"] .glass-strong {
   box-shadow:
-    0 1px 0 var(--color-border) inset,
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
     0 24px 50px -32px rgba(24, 24, 29, 0.18);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  .glass-strong {
+    background: var(--color-bg);
+  }
 }
 
 .hairline {
