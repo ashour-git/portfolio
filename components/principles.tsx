@@ -20,7 +20,7 @@ export function Principles() {
         <div className="grid gap-5 sm:grid-cols-2">
           {principles.map((p, i) => (
             <Reveal key={p.index} delay={(i % 2) * 60} as="div">
-              <div className="glass group flex h-full flex-col gap-4 rounded-3xl p-7 transition-all hover:-translate-y-1 hover:border-border-strong">
+              <div className="glass group flex h-full flex-col gap-4 rounded-3xl p-7 transition-all hover:-translate-y-1 hover:border-border-strong hover:shadow-xl hover:shadow-black/30">
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-sm text-accent-2">
                     {p.index}

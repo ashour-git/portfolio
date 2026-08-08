@@ -25,7 +25,7 @@ export function Insights() {
                 href={note.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="glass group flex h-full flex-col justify-between gap-10 rounded-3xl p-7 transition-all hover:-translate-y-1 hover:border-border-strong"
+                className="glass group flex h-full flex-col justify-between gap-10 rounded-3xl p-7 transition-all hover:-translate-y-1 hover:border-border-strong hover:shadow-xl hover:shadow-black/30"
               >
                 <div>
                   <div className="flex items-center justify-between">

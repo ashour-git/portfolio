@@ -102,8 +102,8 @@ export function Projects() {
 
         <div className="grid gap-8 md:grid-cols-2">
           <AnimatePresence mode="popLayout">
-            {visibleRest.map((p) => (
-              <ProductShowcase key={p.index} p={p} />
+            {visibleRest.map((p, i) => (
+              <ProductShowcase key={p.index} p={p} index={i} />
             ))}
           </AnimatePresence>
         </div>
@@ -134,7 +134,14 @@ function SectionLabel({
 
 function Flagship({ p }: { p: Project }) {
   return (
-    <div id={`project-${p.index}`} className="scroll-mt-28">
+    <motion.div
+      id={`project-${p.index}`}
+      className="scroll-mt-28"
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.6, ease }}
+    >
       {/* hero image */}
       <div className="glass group relative overflow-hidden rounded-[2rem]">
         <div className="relative aspect-[16/9] w-full overflow-hidden sm:aspect-[16/8]">
@@ -243,21 +250,27 @@ function Flagship({ p }: { p: Project }) {
           </span>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
-function ProductShowcase({ p }: { p: Project }) {
+function ProductShowcase({ p, index = 0 }: { p: Project; index?: number }) {
   const [showArch, setShowArch] = useState(false);
 
   return (
     <motion.article
       layout
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.97 }}
-      transition={{ duration: 0.35, ease }}
-      className="glass flex flex-col overflow-hidden rounded-3xl"
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.3, ease } }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{
+        duration: 0.55,
+        delay: (index % 2) * 0.08,
+        ease,
+      }}
+      whileHover={{ y: -4 }}
+      className="glass flex flex-col overflow-hidden rounded-3xl transition-shadow duration-300 hover:shadow-2xl hover:shadow-black/30"
     >
       <div className="group relative aspect-[16/9] overflow-hidden">
         <ProjectImage

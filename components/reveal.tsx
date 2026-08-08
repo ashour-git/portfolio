@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { EASE, DURATION } from "@/lib/motion";
 
 export function Reveal({
   children,
@@ -48,8 +49,10 @@ export function Reveal({
       className={className}
       style={{
         ...style,
-        transition:
-          "opacity 700ms cubic-bezier(0.22, 1, 0.36, 1), transform 700ms cubic-bezier(0.22, 1, 0.36, 1)",
+        transition: `opacity ${DURATION.base}ms cubic-bezier(${EASE.join(
+          ",",
+        )}), transform ${DURATION.base}ms cubic-bezier(${EASE.join(",")})`,
+        willChange: "opacity, transform",
       }}
     >
       {children}

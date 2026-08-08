@@ -30,7 +30,7 @@ export function CaseStudies() {
                 href={p.study ? `/case-studies/${p.study.slug}` : p.href}
                 target={p.study ? undefined : "_blank"}
                 rel={p.study ? undefined : "noopener noreferrer"}
-                className="glass group flex h-full flex-col rounded-3xl p-7 transition-all hover:-translate-y-1 hover:border-border-strong"
+                className="glass group flex h-full flex-col rounded-3xl p-7 transition-all hover:-translate-y-1 hover:border-border-strong hover:shadow-xl hover:shadow-black/30"
               >
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs text-ink-faint">

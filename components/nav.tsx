@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { EASE, DURATION } from "@/lib/motion";
 import { ThemeToggle } from "./theme-toggle";
 import { PaletteTrigger } from "./palette-trigger";
 
@@ -14,8 +16,44 @@ const links = [
   { label: "Contact", href: "#contact" },
 ];
 
+const sectionIds = links.map((l) => l.href.slice(1));
+
 export function Nav() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [active, setActive] = useState<string | null>(null);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible.length > 0) {
+          setActive(visible[0].target.id);
+        } else {
+          const anyInside = entries.some(
+            (e) => e.boundingClientRect.top < 0 && e.boundingClientRect.bottom > 0,
+          );
+          if (!anyInside) setActive(null);
+        }
+      },
+      { rootMargin: "-35% 0px -55% 0px", threshold: [0, 0.2, 0.6, 1] },
+    );
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -30,26 +68,41 @@ export function Nav() {
     <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 md:px-6">
       <nav
         aria-label="Primary"
-        className="glass mx-auto flex h-14 w-full max-w-6xl items-center justify-between rounded-2xl px-5"
+        className={`glass mx-auto flex h-14 w-full max-w-6xl items-center justify-between rounded-2xl px-5 transition-shadow duration-300 ${
+          scrolled ? "shadow-lg shadow-black/30" : ""
+        }`}
       >
         <a
           href="#top"
-          className="font-mono text-sm font-semibold tracking-tight text-ink"
+          className="font-mono text-sm font-semibold tracking-tight text-ink transition-colors hover:text-accent"
         >
           m.ashour<span className="text-accent">.</span>
         </a>
 
         {/* desktop links */}
         <div className="hidden items-center gap-6 lg:flex">
-          {links.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              className="text-sm text-ink-soft transition-colors hover:text-ink"
-            >
-              {l.label}
-            </a>
-          ))}
+          {links.map((l) => {
+            const isActive = active === l.href.slice(1);
+            return (
+              <a
+                key={l.href}
+                href={l.href}
+                aria-current={isActive ? "true" : undefined}
+                className={`relative py-1 text-sm transition-colors duration-300 ${
+                  isActive ? "text-ink" : "text-ink-soft hover:text-ink"
+                }`}
+              >
+                {l.label}
+                {isActive && (
+                  <motion.span
+                    layoutId="nav-underline"
+                    transition={{ duration: DURATION.fast, ease: EASE }}
+                    className="absolute inset-x-0 -bottom-0.5 h-px bg-gradient-to-r from-accent to-accent-2"
+                  />
+                )}
+              </a>
+            );
+          })}
         </div>
 
         <div className="flex items-center gap-3">

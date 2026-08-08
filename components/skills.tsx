@@ -24,7 +24,7 @@ export function Skills() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-2">
           {skills.map((group, i) => (
             <Reveal key={group.title} delay={(i % 2) * 60} as="div">
-              <div className="glass flex h-full flex-col rounded-3xl p-7 transition-all hover:-translate-y-1 hover:border-border-strong">
+              <div className="glass flex h-full flex-col rounded-3xl p-7 transition-all hover:-translate-y-1 hover:border-border-strong hover:shadow-xl hover:shadow-black/30">
                 <div className="flex items-baseline justify-between gap-3">
                   <h3 className="text-lg font-semibold tracking-tight text-ink">
                     {group.title}

@@ -6,6 +6,7 @@ import { ThemeInit } from "@/components/theme-init";
 import { CommandPalette } from "@/components/command-palette";
 import { CursorGlow } from "@/components/cursor-glow";
 import { Splash } from "@/components/splash";
+import { MotionProvider } from "@/components/motion-provider";
 import { Footer } from "@/components/footer";
 import "./globals.css";
 
@@ -131,7 +132,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         >
           Skip to content
         </a>
-        {children}
+        <MotionProvider>{children}</MotionProvider>
         <Footer />
       </body>
     </html>
