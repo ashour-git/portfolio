@@ -1,21 +1,12 @@
 import { principles } from "@/lib/data";
 import { Reveal } from "./reveal";
+import { SectionHeader } from "./section-header";
 
 export function Principles() {
   return (
     <section id="principles" className="relative scroll-mt-24 py-24 md:py-32">
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
-        <Reveal>
-          <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
-            Engineering Principles
-          </p>
-          <h2 className="mb-14 max-w-xl text-3xl font-semibold tracking-tight text-ink md:text-[2.5rem] md:leading-[1.1]">
-            How I{" "}
-            <span className="font-serif italic font-normal text-ink">
-              decide.
-            </span>
-          </h2>
-        </Reveal>
+        <SectionHeader eyebrow="DECISION RULES" title="How I" accent="decide." />
 
         <div className="grid gap-5 sm:grid-cols-2">
           {principles.map((p, i) => (

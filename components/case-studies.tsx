@@ -1,27 +1,18 @@
 import { projects, githubStats, profile } from "@/lib/data";
 import { Reveal } from "./reveal";
 import { ArrowIcon } from "./icons";
+import { SectionHeader } from "./section-header";
 
 export function CaseStudies() {
   return (
     <section id="case-studies" className="relative scroll-mt-24 py-24 md:py-32">
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
-        <Reveal>
-          <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
-            Engineering Case Studies
-          </p>
-          <h2 className="max-w-2xl text-3xl font-semibold tracking-tight text-ink md:text-[2.5rem] md:leading-[1.1]">
-            Decisions,{" "}
-            <span className="font-serif italic font-normal text-ink">
-              not just tools.
-            </span>
-          </h2>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-ink-soft">
-            Recruiters hire engineers for the choices they make under
-            constraints. Each project below is a record of the architecture,
-            the tradeoffs, and the proof that it works.
-          </p>
-        </Reveal>
+        <SectionHeader
+          eyebrow="BUILD → EVIDENCE"
+          title="Decisions,"
+          accent="not just tools."
+          pull="Recruiters hire engineers for the choices they make under constraints. Each project below is a record of the architecture, the tradeoffs, and the proof that it works."
+        />
 
         <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((p, i) => (

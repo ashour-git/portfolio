@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { profile } from "@/lib/data";
 import { ArrowIcon } from "./icons";
+import { SectionHeader } from "./section-header";
 
 export function Contact() {
   return (
@@ -24,12 +25,7 @@ export function Contact() {
             className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-accent-2/20 blur-3xl"
           />
           <div className="relative">
-            <p className="mb-4 font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
-              Contact
-            </p>
-            <h2 className="max-w-2xl text-4xl font-semibold tracking-tight text-ink md:text-5xl">
-              Let's build something intelligent.
-            </h2>
+            <SectionHeader eyebrow="OPEN → BUILD" title="Let's build something intelligent." />
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink-soft">
               Open to AI engineering, LLM, MLOps, and applied ML roles — and to
               building production systems that actually ship.

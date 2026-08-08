@@ -1,22 +1,13 @@
 import { insights } from "@/lib/data";
 import { Reveal } from "./reveal";
 import { ArrowIcon } from "./icons";
+import { SectionHeader } from "./section-header";
 
 export function Insights() {
   return (
     <section id="notes" className="relative scroll-mt-24 py-24 md:py-32">
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
-        <Reveal>
-          <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
-            Writing &amp; Research
-          </p>
-          <h2 className="mb-14 max-w-xl text-3xl font-semibold tracking-tight text-ink md:text-[2.5rem] md:leading-[1.1]">
-            Notes &amp;{" "}
-            <span className="font-serif italic font-normal text-ink">
-              engineering write-ups.
-            </span>
-          </h2>
-        </Reveal>
+        <SectionHeader eyebrow="WRITING & RESEARCH" title="Notes &" accent="engineering write-ups." />
 
         <div className="grid gap-5 md:grid-cols-3">
           {insights.map((note, i) => (

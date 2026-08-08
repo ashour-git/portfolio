@@ -6,6 +6,7 @@ import { projects, projectFilters, type Project } from "@/lib/data";
 import { ArchitectureDiagram } from "./architecture-diagram";
 import { PipelineStrip } from "./pipeline-strip";
 import { ArrowIcon } from "./icons";
+import { SectionHeader } from "./section-header";
 
 function Cover({ p, className = "" }: { p: Project; className?: string }) {
   if (p.image) {
@@ -49,9 +50,6 @@ export function Projects() {
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
         <div className="mb-12 md:mb-16">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
-            <p className="font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
-              Featured AI Products
-            </p>
             <div
               className="ml-auto flex flex-wrap items-center gap-2"
               role="group"
@@ -72,12 +70,9 @@ export function Projects() {
               ))}
             </div>
           </div>
-          <h2 className="mt-5 max-w-2xl text-3xl font-semibold tracking-tight text-ink md:text-[2.5rem] md:leading-[1.1]">
-            Built as systems,{" "}
-            <span className="font-serif italic font-normal text-ink">
-              shipped as products.
-            </span>
-          </h2>
+          <div className="mt-5">
+            <SectionHeader eyebrow="FEATURED AI PRODUCTS" title="Built as systems," accent="shipped as products." />
+          </div>
         </div>
 
         <ProjectCard p={featured} prominence="flagship" />

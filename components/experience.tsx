@@ -1,21 +1,12 @@
 import { experience, trajectory } from "@/lib/data";
 import { Reveal } from "./reveal";
+import { SectionHeader } from "./section-header";
 
 export function Experience() {
   return (
     <section id="experience" className="relative scroll-mt-24 py-24 md:py-32">
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
-        <Reveal>
-          <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
-            Experience
-          </p>
-          <h2 className="mb-14 max-w-xl text-3xl font-semibold tracking-tight text-ink md:text-[2.5rem] md:leading-[1.1]">
-            Owning AI products{" "}
-            <span className="font-serif italic font-normal text-ink">
-              end to end.
-            </span>
-          </h2>
-        </Reveal>
+        <SectionHeader eyebrow="ACROSS ROLES" title="Owning AI products" accent="end to end." />
 
         <div className="relative space-y-8 border-l border-border pl-8 md:pl-12">
           {experience.map((role, i) => (

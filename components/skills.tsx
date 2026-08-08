@@ -1,25 +1,17 @@
 import { skills } from "@/lib/data";
 import { Reveal } from "./reveal";
+import { SectionHeader } from "./section-header";
 
 export function Skills() {
   return (
     <section id="stack" className="relative scroll-mt-24 py-24 md:py-32">
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
-        <Reveal>
-          <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
-            Engineering Capabilities
-          </p>
-          <h2 className="mb-4 max-w-xl text-3xl font-semibold tracking-tight text-ink md:text-[2.5rem] md:leading-[1.1]">
-            Capabilities,{" "}
-            <span className="font-serif italic font-normal text-ink">
-              not tool lists.
-            </span>
-          </h2>
-          <p className="mb-14 max-w-2xl text-base leading-relaxed text-ink-soft">
-            Every capability below is exercised in a shipped project on GitHub —
-            each one has a case study, tests, and an architecture diagram.
-          </p>
-        </Reveal>
+        <SectionHeader
+          eyebrow="CAPABILITIES"
+          title="Capabilities,"
+          accent="not tool lists."
+          pull="Every capability below is exercised in a shipped project on GitHub — each one has a case study, tests, and an architecture diagram."
+        />
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-2">
           {skills.map((group, i) => (

@@ -7,6 +7,7 @@ import { Skills } from "@/components/skills";
 import { Principles } from "@/components/principles";
 import { Insights } from "@/components/insights";
 import { Contact } from "@/components/contact";
+import { PipelineSeparator } from "@/components/pipeline-separator";
 
 export default function Page() {
   return (
@@ -14,8 +15,11 @@ export default function Page() {
       <Nav />
       <main id="main">
         <Hero />
+        <PipelineSeparator from="engineering" to="shipped products" />
         <Projects />
+        <PipelineSeparator from="built" to="verified" />
         <CaseStudies />
+        <PipelineSeparator from="why" to="what it takes" />
         <Experience />
         <Skills />
         <Principles />
