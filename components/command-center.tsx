@@ -55,8 +55,12 @@ function Widget({
       <motion.div
         role="button"
         tabIndex={0}
-        aria-expanded={active}
-        onClick={() => setActive(active ? null : w.id)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setActive(w.id);
+          }
+        }}
         onFocus={() => setActive(w.id)}
         onBlur={() => setActive(null)}
         onMouseEnter={() => setActive(w.id)}
@@ -155,8 +159,9 @@ function WireLayer({ activeId }: { activeId: string | null }) {
           <path
             key={w.id}
             d={`M ${x} ${y} C ${cx} ${cy}, ${cx} ${cy + 40}, ${240} ${330}`}
-            stroke={active ? "url(#wire-active)" : "rgba(255,255,255,0.07)"}
+            stroke={active ? "url(#wire-active)" : "var(--color-border)"}
             strokeWidth={active ? 1.2 : 0.8}
+            strokeOpacity={active ? 1 : 0.35}
             strokeDasharray="3 4"
             strokeLinecap="round"
           />
@@ -179,8 +184,8 @@ export function CommandCenter() {
 
   const handleMove = (e: React.PointerEvent) => {
     const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    mx.set(((e.clientX - r.left) / r.width - 0.5) * 4000);
-    my.set(((e.clientY - r.top) / r.height - 0.5) * 4000);
+    mx.set((e.clientX - r.left) / r.width - 0.5);
+    my.set((e.clientY - r.top) / r.height - 0.5);
   };
 
   return (
