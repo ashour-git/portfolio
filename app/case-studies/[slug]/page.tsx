@@ -128,6 +128,10 @@ export default async function CaseStudyPage({
             <div className="mt-6">
               <PipelineStrip flow={p.architecture} />
             </div>
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 font-mono text-[11px] uppercase tracking-wide text-ink-faint">
+              <span>source <span className="text-ink-soft">/</span> {p.domain}</span>
+              <span>tests <span className="text-ink-soft">/</span> {p.performance.find((m) => m.label.includes("test"))?.value ?? "CI"}</span>
+            </div>
           </header>
 
           {/* screenshot */}
