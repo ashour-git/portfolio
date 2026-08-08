@@ -770,8 +770,13 @@ export class RateLimiter {
     if (minWindow.length >= this.opts.limitPerMinute || hourWindow.length >= this.opts.limitPerHour) {
       this.minute.set(ip, minWindow);
       this.hour.set(ip, hourWindow);
-      const oldest = hourWindow[0] ?? minWindow[0] ?? t;
-      return { ok: false, retryAfterSec: Math.ceil((oldest + 60_000 - t) / 1000) };
+      const minuteRetry = minWindow.length >= this.opts.limitPerMinute
+        ? Math.ceil((minWindow[0] + 60_000 - t) / 1000)
+        : 0;
+      const hourRetry = hourWindow.length >= this.opts.limitPerHour
+        ? Math.ceil((hourWindow[0] + 3_600_000 - t) / 1000)
+        : 0;
+      return { ok: false, retryAfterSec: Math.max(minuteRetry, hourRetry, 1) };
     }
 
     minWindow.push(t);
@@ -903,6 +908,7 @@ If the run fails on a missing network (model download blocked), set `HUGGINGFACE
 Create `lib/copilot/index.ts`:
 
 ```ts
+import path from "node:path";
 import type { Chunk } from "@/lib/copilot/types";
 import meta from "@/lib/index/meta.json";
 import vectors from "@/lib/index/vectors.json";
@@ -932,6 +938,8 @@ async function createEmbedder(): Promise<Embedder> {
   const { pipeline, env } = await import("@huggingface/transformers");
   env.allowLocalModels = true;
   env.allowRemoteModels = false;
+  env.cacheDir = path.join(process.cwd(), "models");
+  env.localModelPath = path.join(process.cwd(), "models");
   const extractor = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-V2", {
     dtype: "q8",
   });
