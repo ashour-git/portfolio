@@ -2240,7 +2240,7 @@ In `app/layout.tsx`, add a dynamic import and render it next to `CommandPalette`
 ```tsx
 import dynamic from "next/dynamic";
 
-const Copilot = dynamic(() => import("@/components/copilot"), {
+const Copilot = dynamic(() => import("@/components/copilot").then((m) => m.Copilot), {
   loading: () => null,
 });
 ```
