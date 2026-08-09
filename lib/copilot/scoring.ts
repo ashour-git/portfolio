@@ -65,6 +65,7 @@ export function retrieveTopK(
 
       return {
         id: chunk.id,
+        label: chunk.label,
         title: chunk.title,
         source: chunk.source,
         score,
@@ -74,6 +75,7 @@ export function retrieveTopK(
           boost: boost > 0 ? boost : undefined,
         },
         reasons,
+        breakdown: [],
       };
     })
     .filter((r) => r.score >= minScore)

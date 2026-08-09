@@ -18,8 +18,8 @@ test("recruiter and architecture prompts are distinct", () => {
 
 test("serializeContext numbers sources with titles", () => {
   const results: RetrievalResult[] = [
-    { id: "x", title: "RestAI", source: { kind: "project", slug: "restai" }, score: 0.9, parts: {}, reasons: [] },
-    { id: "y", title: "Experience", source: { kind: "experience" }, score: 0.5, parts: {}, reasons: [] },
+    { id: "x", label: "RestAI", title: "RestAI", source: { kind: "project", slug: "restai" }, score: 0.9, parts: {}, reasons: [], breakdown: [] },
+    { id: "y", label: "RestAI", title: "Experience", source: { kind: "experience" }, score: 0.5, parts: {}, reasons: [], breakdown: [] },
   ];
   const s = serializeContext(results);
   assert.ok(s.includes("[1] RestAI"));

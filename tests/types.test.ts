@@ -3,6 +3,9 @@ import assert from "node:assert/strict";
 import type {
   CopilotEvent,
   CopilotMode,
+  Intent,
+  IntentResult,
+  Plan,
   RetrievalResult,
   RequestBody,
 } from "../lib/copilot/types";
@@ -13,33 +16,76 @@ test("modes are the five approved values", () => {
   assert.deepEqual(modes.sort(), ["architecture", "explore", "general", "interview", "recruiter"]);
 });
 
-test("a RetrievalResult carries decomposed parts and reasons", () => {
+test("v2 RetrievalResult carries label and machine-readable breakdown", () => {
   const r: RetrievalResult = {
-    id: "chunk-restai-1",
-    title: "RestAI — study",
-    source: { kind: "project", slug: "restai" },
+    id: "hire",
+    title: "Why hire Mohamed",
+    label: "Hire",
+    source: { kind: "resume" },
     score: 0.81,
     parts: { cosine: 0.81, keyword: 0.4, boost: 0.1 },
-    reasons: ["cosine 0.81", "keyword 'restai'"],
+    reasons: ["cosine 0.81", "intent: recruiter"],
+    breakdown: [
+      { signal: "cosine", value: 0.81, weight: 0.4 },
+      { signal: "intent", value: 0.2, weight: 0.12 },
+    ],
   };
-  assert.equal(r.parts.cosine, 0.81);
-  assert.ok(r.reasons.length >= 1);
+  assert.equal(r.label, "Hire");
+  assert.ok(r.breakdown.some((b) => b.signal === "cosine"));
+});
+
+test("plan event and enriched stats satisfy the union", () => {
+  const ir: IntentResult = { primary: "recruiter", confidence: 0.9 };
+  const plan: Plan = { template: "recruiter", stance: "high", card: "resume" };
+  const events: CopilotEvent[] = [
+    { type: "plan", plan },
+    {
+      type: "stats",
+      tokens: { in: 10, out: 5 },
+      retrievalMs: 12,
+      totalMs: 50,
+      cache: "miss",
+      intent: ir.primary,
+      confidence: ir.confidence,
+      strategy: "primary",
+    },
+  ];
+  assert.equal(events[0].type, "plan");
+  assert.equal(events[0].plan.stance, "high");
+  assert.equal(events[1].type, "stats");
+  assert.equal(events[1].intent, "recruiter");
+  assert.equal(events[1].strategy, "primary");
 });
 
 test("every CopilotEvent literal satisfies the union discriminator", () => {
-  const events: CopilotEvent[] = [
+  const all: CopilotEvent[] = [
     { type: "meta", id: "req-1", mode: "general", model: "llama-3.3-70b-versatile", startedAt: 1 },
+    { type: "plan", plan: { template: "general", stance: "medium", card: "none" } },
     { type: "delta", text: "hi" },
     { type: "sources", sources: [] },
     { type: "card", card: { kind: "project", slug: "restai", title: "RestAI" } },
-    { type: "stats", tokens: { in: 10, out: 5 }, retrievalMs: 12, totalMs: 50, cache: "miss" },
     { type: "done", finish: "stop" },
     { type: "error", code: 429, message: "rate limited" },
+    {
+      type: "stats",
+      tokens: { in: 10, out: 5 },
+      retrievalMs: 12,
+      totalMs: 50,
+      cache: "build",
+      intent: "general",
+      confidence: 0,
+      strategy: "primary",
+    },
   ];
-  for (const e of events) assert.ok("type" in e);
+  for (const e of all) assert.ok("type" in e);
 });
 
 test("RequestBody shape matches the wire contract", () => {
   const body: RequestBody = { message: "What did you build?", mode: "recruiter", history: [] };
   assert.equal(body.message.length > 0, true);
+});
+
+test("Intent covers the nine approved values", () => {
+  const i: Intent[] = ["general", "recruiter", "project", "architecture", "interview", "resume", "skills", "experience", "decision"];
+  assert.equal(new Set(i).size, 9);
 });

@@ -55,6 +55,7 @@ export function buildChunks(): Chunk[] {
     chunks.push({
       id: `project-${p.study?.slug ?? slugify(p.title)}`,
       title: `${p.title} — ${p.domain}`,
+      label: p.title,
       text,
       source: {
         kind: "project",
@@ -62,11 +63,22 @@ export function buildChunks(): Chunk[] {
         url: p.href,
       },
       keywords: keywordsFrom(p.title, p.domain, p.tagline, p.stack.join(" ")),
+      authority: "metrics",
+      priority: 0.4,
     });
   }
 
   const push = (id: string, kind: SourceKind, title: string, text: string, kw: string[]) =>
-    chunks.push({ id, title, text, source: { kind }, keywords: kw });
+    chunks.push({
+      id,
+      title,
+      label: title,
+      text,
+      source: { kind },
+      keywords: kw,
+      authority: "first-party",
+      priority: 0.1,
+    });
 
   push(
     "resume",

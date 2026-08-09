@@ -87,11 +87,13 @@ test("cache hit skips embedding and reports cache status", async () => {
         results: [
           {
             id: "project-restai",
+            label: "RestAI",
             title: "RestAI — Backend & Agentic AI",
             source: { kind: "project", slug: "restai" },
             score: 0.9,
             parts: { cosine: 0.9 },
             reasons: ["cached"],
+            breakdown: [],
           },
         ],
         retrievalMs: 0,

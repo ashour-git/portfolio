@@ -21,9 +21,9 @@ test("retrieveTopK scores, ranks, and caps results", () => {
     c: new Float32Array([0, 1]),
   };
   const chunks: Chunk[] = [
-    { id: "a", title: "A", text: "a", source: { kind: "project" }, keywords: ["rag"] },
-    { id: "b", title: "B", text: "b", source: { kind: "project" }, keywords: ["rag", "retrieval"] },
-    { id: "c", title: "C", text: "c", source: { kind: "skill" }, keywords: ["cv"] },
+    { id: "a", title: "A", label: "a", text: "a", source: { kind: "project" }, keywords: ["rag"], authority: "metrics", priority: 0.15 },
+    { id: "b", title: "B", label: "b", text: "b", source: { kind: "project" }, keywords: ["rag", "retrieval"], authority: "metrics", priority: 0.15 },
+    { id: "c", title: "C", label: "c", text: "c", source: { kind: "skill" }, keywords: ["cv"], authority: "metrics", priority: 0.15 },
   ];
   const out = retrieveTopK(new Float32Array([1, 0]), ["rag"], chunks, {
     k: 2,
@@ -39,8 +39,8 @@ test("retrieveTopK scores, ranks, and caps results", () => {
 
 test("minScore filters weak matches", () => {
   const chunks: Chunk[] = [
-    { id: "a", title: "A", text: "a", source: { kind: "project" }, keywords: [] },
-    { id: "b", title: "B", text: "b", source: { kind: "project" }, keywords: [] },
+    { id: "a", title: "A", label: "a", text: "a", source: { kind: "project" }, keywords: [], authority: "metrics", priority: 0.15 },
+    { id: "b", title: "B", label: "b", text: "b", source: { kind: "project" }, keywords: [], authority: "metrics", priority: 0.15 },
   ];
   const out = retrieveTopK(new Float32Array([1, 0]), [], chunks, {
     k: 5,
@@ -58,8 +58,8 @@ test("minScore filters weak matches", () => {
 test("mode boost reorders recruiter results toward experience/skills", () => {
   const query = new Float32Array([1, 0]);
   const chunks: Chunk[] = [
-    { id: "proj", title: "P", text: "p", source: { kind: "project" }, keywords: [] },
-    { id: "exp", title: "E", text: "e", source: { kind: "experience" }, keywords: [] },
+    { id: "proj", title: "P", label: "P", text: "p", source: { kind: "project" }, keywords: [], authority: "metrics", priority: 0.15 },
+    { id: "exp", title: "E", label: "E", text: "e", source: { kind: "experience" }, keywords: [], authority: "metrics", priority: 0.15 },
   ];
   const embeddings = {
     proj: new Float32Array([1, 0]),

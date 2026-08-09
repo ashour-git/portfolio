@@ -143,6 +143,6 @@ export async function* runCopilot(
   }
 
   const totalMs = Date.now() - startedAt;
-  yield { type: "stats", tokens: { in: tokensIn, out: tokensOut }, retrievalMs, totalMs, cache: cacheStatus };
+  yield { type: "stats", tokens: { in: tokensIn, out: tokensOut }, retrievalMs, totalMs, cache: cacheStatus, intent: "general", confidence: 0, strategy: "primary" };
   yield { type: "done", finish };
 }
