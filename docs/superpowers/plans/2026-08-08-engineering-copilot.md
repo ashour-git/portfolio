@@ -1956,6 +1956,9 @@ export function Copilot() {
     setStreaming(true);
     setInput("");
 
+    const update = (fn: (r: Run) => Run) =>
+      setRuns((prev) => ({ ...prev, [runId]: fn(prev[runId]) }));
+
     try {
       const res = await fetch("/api/copilot", {
         method: "POST",
@@ -1967,9 +1970,6 @@ export function Copilot() {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
-
-      const update = (fn: (r: Run) => Run) =>
-        setRuns((prev) => ({ ...prev, [runId]: fn(prev[runId]) }));
 
       while (true) {
         const { done, value } = await reader.read();
@@ -1990,7 +1990,7 @@ export function Copilot() {
           } else if (ev.type === "card") {
             update((r) => ({ ...r, card: ev.card }));
           } else if (ev.type === "stats") {
-            update((r) => ({ ...r, stats: ev.stats }));
+            update((r) => ({ ...r, stats: { tokens: ev.tokens, retrievalMs: ev.retrievalMs, totalMs: ev.totalMs, cache: ev.cache } }));
           } else if (ev.type === "error") {
             setMessages((prev) =>
               prev.map((m) => (m.id === runId ? { ...m, text: `⚠ ${ev.message}` } : m)),
