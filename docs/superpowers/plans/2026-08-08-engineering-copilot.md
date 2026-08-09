@@ -1775,9 +1775,9 @@ export function CopilotMarkdown({ text }: { text: string }) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          code({ inline, className, children }) {
+          code({ className, children }) {
             const match = /language-(\w+)/.exec(className ?? "");
-            if (inline || !match) {
+            if (!match) {
               return (
                 <code className="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-[0.85em] text-ink">
                   {children}
