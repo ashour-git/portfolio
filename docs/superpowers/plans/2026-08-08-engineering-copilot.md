@@ -1312,17 +1312,19 @@ import { runCopilot, validateInput } from "../lib/copilot/service";
 import type { RequestBody, RetrievalResult } from "../lib/copilot/types";
 
 function fakeGroq(parts: string[]): typeof fetch {
-  const encoder = new TextEncoder();
-  const body = new ReadableStream<Uint8Array>({
-    start(c) {
-      for (const p of parts) c.enqueue(encoder.encode(p));
-      c.close();
-    },
-  });
-  return (async () => ({ ok: true, status: 200, body }) as unknown as Response) as typeof fetch;
+  return (async () => {
+    const encoder = new TextEncoder();
+    const body = new ReadableStream<Uint8Array>({
+      start(c) {
+        for (const p of parts) c.enqueue(encoder.encode(p));
+        c.close();
+      },
+    });
+    return { ok: true, status: 200, body } as unknown as Response;
+  }) as typeof fetch;
 }
 
-const fastEmbed = async (t: string) => new Float32Array(384).fill(0.01);
+const fastEmbed = async (t: string) => loadIndex().embeddings["project-restai"];
 
 test("validateInput enforces message cap", () => {
   assert.equal(validateInput({ message: "x".repeat(601) }).ok, false);
