@@ -107,6 +107,14 @@ export function Nav() {
 
         <div className="flex items-center gap-3">
           <PaletteTrigger />
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event("ma:open-copilot"))}
+            className="hidden items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 font-mono text-xs text-ink-faint transition-colors hover:text-ink md:flex"
+          >
+            <span className="text-ink-soft">⌘J</span>
+            copilot
+          </button>
           <ThemeToggle />
           <a
             href="/resume.pdf"

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import dynamic from "next/dynamic";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { getSiteUrl } from "@/lib/site";
 import { ThemeInit } from "@/components/theme-init";
@@ -28,6 +29,10 @@ const serif = Instrument_Serif({
   style: ["italic"],
   variable: "--font-serif",
   display: "swap",
+});
+
+const Copilot = dynamic(() => import("@/components/copilot").then((m) => m.Copilot), {
+  loading: () => null,
 });
 
 const siteUrl = getSiteUrl();
@@ -126,6 +131,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <CursorGlow />
         <Splash />
         <CommandPalette />
+        <Copilot />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-bg"

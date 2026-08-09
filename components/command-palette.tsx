@@ -24,6 +24,12 @@ export function CommandPalette() {
     { id: "principles", label: "Engineering principles", hint: "How I decide", action: () => { document.querySelector("#principles")?.scrollIntoView({ behavior: "smooth" }); close(); } },
     { id: "notes", label: "Writing & research", hint: "Write-ups & case studies", action: () => { document.querySelector("#notes")?.scrollIntoView({ behavior: "smooth" }); close(); } },
     { id: "contact", label: "Contact", hint: "Email & links", action: () => { document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" }); close(); } },
+    {
+      id: "copilot",
+      label: "Engineering Copilot",
+      hint: "Ask anything · ⌘J",
+      action: () => { window.dispatchEvent(new Event("ma:open-copilot")); close(); },
+    },
     ...projects.map((p) => ({
       id: `p-${p.index}`,
       label: `Project · ${p.title}`,
