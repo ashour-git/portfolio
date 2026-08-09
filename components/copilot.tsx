@@ -37,13 +37,22 @@ export function Copilot() {
   const [explain, setExplain] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<Message[]>([]);
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  const close = useCallback(() => {
+    abortRef.current?.abort();
+    setOpen(false);
+  }, []);
 
   const openModal = useCallback(() => {
     setOpen(true);
     requestAnimationFrame(() => inputRef.current?.focus());
   }, []);
-
-  const close = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -79,10 +88,18 @@ export function Copilot() {
       setRuns((prev) => ({ ...prev, [runId]: fn(prev[runId]) }));
 
     try {
+      const history = messagesRef.current
+        .map((m) => ({ role: m.role, content: m.text }))
+        .filter((m) => m.content.trim().length > 0)
+        .slice(-6);
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
       const res = await fetch("/api/copilot", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ message: text, mode }),
+        body: JSON.stringify({ message: text, mode, history }),
+        signal: controller.signal,
       });
       if (!res.body) throw new Error("no body");
 
@@ -120,10 +137,12 @@ export function Copilot() {
           nl = buffer.indexOf("\n");
         }
       }
-    } catch {
-      setMessages((prev) =>
-        prev.map((m) => (m.id === runId ? { ...m, text: "⚠ Failed to reach the copilot." } : m)),
-      );
+    } catch (err) {
+      if (!(err instanceof DOMException && err.name === "AbortError")) {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === runId ? { ...m, text: "⚠ Failed to reach the copilot." } : m)),
+        );
+      }
     } finally {
       update((r) => ({ ...r, done: true }));
       setStreaming(false);

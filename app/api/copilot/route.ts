@@ -1,4 +1,4 @@
-import type { CopilotEvent } from "@/lib/copilot/types";
+import type { CopilotEvent, RetrievalResult } from "@/lib/copilot/types";
 import { runCopilot, validateInput } from "@/lib/copilot/service";
 import { RateLimiter } from "@/lib/copilot/rate-limit";
 
@@ -6,6 +6,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const limiter = new RateLimiter({ limitPerMinute: 5, limitPerHour: 30 });
+const cacheHits = new Map<string, { results: RetrievalResult[]; retrievalMs: number }>();
 
 function clientIp(req: Request): string {
   const fwd = req.headers.get("x-forwarded-for");
@@ -33,19 +34,38 @@ export async function POST(req: Request) {
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const encoder = new TextEncoder();
+      const enqueue = (event: CopilotEvent) => {
+        if (req.signal.aborted) return;
+        controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
+      };
+      const abort = () => {
+        try {
+          controller.close();
+        } catch {
+          /* stream already closed */
+        }
+      };
+      req.signal.addEventListener("abort", abort, { once: true });
       try {
-        for await (const event of runCopilot(parsed.data, { ip, limiter })) {
-          controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
+        for await (const event of runCopilot(parsed.data, { ip, limiter, cacheHits, signal: req.signal })) {
+          enqueue(event);
         }
       } catch (err) {
+        if (req.signal.aborted) return;
         const fallback: CopilotEvent = {
           type: "error",
           code: 500,
           message: err instanceof Error ? err.message : "internal error",
         };
-        controller.enqueue(encoder.encode(JSON.stringify(fallback) + "\n"));
+        enqueue(fallback);
       } finally {
-        controller.close();
+        if (!req.signal.aborted) {
+          try {
+            controller.close();
+          } catch {
+            /* stream already closed */
+          }
+        }
       }
     },
   });

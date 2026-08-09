@@ -36,6 +36,7 @@ export type RunDeps = {
   now?: () => number;
   limiter?: RateLimiter;
   ip?: string;
+  signal?: AbortSignal;
   fetchImpl?: typeof fetch;
   getEmbedder?: () => Promise<(t: string) => Promise<Float32Array>>;
   cacheHits?: Map<string, { results: RetrievalResult[]; retrievalMs: number }>;
@@ -126,6 +127,7 @@ export async function* runCopilot(
       apiKey,
       model,
       messages,
+      signal: deps.signal,
       fetchImpl: deps.fetchImpl,
     })) {
       if (ev.delta) yield { type: "delta", text: ev.delta };
