@@ -20,7 +20,10 @@ export type SourceKind =
   | "experience"
   | "insight"
   | "resume"
-  | "stats";
+  | "stats"
+  | "hire"
+  | "about"
+  | "linkedin";
 
 export type Intent =
   | "recruiter"
