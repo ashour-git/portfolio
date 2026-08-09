@@ -1,4 +1,13 @@
-import type { Chunk, CopilotMode, RetrievalResult, SourceKind } from "@/lib/copilot/types";
+import type {
+  Chunk,
+  CopilotMode,
+  DocAuthority,
+  Intent,
+  RetrievalResult,
+  RetrievalSignal,
+  SignalBreakdown,
+  SourceKind,
+} from "@/lib/copilot/types";
 
 export function cosine(a: Float32Array, b: Float32Array): number {
   let dot = 0;
@@ -29,11 +38,32 @@ export const MODE_BOOST: Record<CopilotMode, Partial<Record<SourceKind, number>>
   explore: { principle: 0.08, insight: 0.08, project: 0.03 },
 };
 
+export const INTENT_BOOST: Record<Intent, Partial<Record<SourceKind, number>>> = {
+  recruiter: { hire: 0.22, resume: 0.12, experience: 0.1, skill: 0.06, stats: 0.04 },
+  project: { project: 0.15 },
+  architecture: { project: 0.2 },
+  interview: { project: 0.1, principle: 0.08, insight: 0.05 },
+  resume: { resume: 0.2 },
+  skills: { skill: 0.2 },
+  experience: { experience: 0.2 },
+  decision: { project: 0.12, principle: 0.06, insight: 0.05 },
+  general: {},
+};
+
+export const AUTHORITY_REASON: Record<DocAuthority, string> = {
+  "first-party": "authority: first-party",
+  metrics: "authority: metrics",
+  external: "authority: external",
+};
+
+export const DEFAULT_WEIGHTS = { cosine: 0.45, keyword: 0.2, intent: 0.15, mode: 0.1, priority: 0.1 };
+
 export type RetrieveOpts = {
   k?: number;
   minScore?: number;
-  weights?: { cosine: number; keyword: number; boost: number };
+  weights?: Partial<typeof DEFAULT_WEIGHTS>;
   mode?: CopilotMode;
+  intent?: Intent;
   embeddings: Record<string, Float32Array>;
 };
 
@@ -45,22 +75,41 @@ export function retrieveTopK(
 ): RetrievalResult[] {
   const k = opts.k ?? 5;
   const minScore = opts.minScore ?? 0.25;
-  const weights = opts.weights ?? { cosine: 0.6, keyword: 0.3, boost: 0.1 };
+  const weights = { ...DEFAULT_WEIGHTS, ...opts.weights };
   const mode = opts.mode ?? "general";
-  const boostMap = MODE_BOOST[mode];
+  const intent = opts.intent ?? "general";
+  const modeBoost = MODE_BOOST[mode];
+  const intentBoost = INTENT_BOOST[intent];
 
   const scored = chunks
     .map((chunk): RetrievalResult => {
       const vec = opts.embeddings[chunk.id];
       const cosineScore = vec ? cosine(queryVec, vec) : 0;
       const keywordScore = keywordOverlap(queryTokens, chunk.keywords);
-      const boost = boostMap[chunk.source.kind] ?? 0;
-      const score = weights.cosine * cosineScore + weights.keyword * keywordScore + weights.boost * boost;
+      const intentScore = intentBoost[chunk.source.kind] ?? 0;
+      const modeScore = modeBoost[chunk.source.kind] ?? 0;
+      const priorityScore = chunk.priority ?? 0;
+      const score =
+        weights.cosine * cosineScore +
+        weights.keyword * keywordScore +
+        weights.intent * intentScore +
+        weights.mode * modeScore +
+        weights.priority * priorityScore;
+
+      const breakdown: SignalBreakdown[] = [
+        { signal: "cosine", value: cosineScore, weight: weights.cosine },
+        { signal: "keyword", value: keywordScore, weight: weights.keyword },
+      ];
+      if (intentScore > 0) breakdown.push({ signal: "intent", value: intentScore, weight: weights.intent });
+      if (modeScore > 0) breakdown.push({ signal: "mode", value: modeScore, weight: weights.mode });
+      breakdown.push({ signal: "priority", value: priorityScore, weight: weights.priority });
 
       const reasons: string[] = [];
       if (vec) reasons.push(`cosine ${cosineScore.toFixed(2)}`);
       if (keywordScore > 0) reasons.push(`keyword '${queryTokens.join(" ")}'`);
-      if (boost > 0) reasons.push(`mode: ${mode} boost`);
+      if (intentScore > 0) reasons.push(`intent: ${intent} boost`);
+      if (modeScore > 0) reasons.push(`mode: ${mode} boost`);
+      reasons.push(AUTHORITY_REASON[chunk.authority]);
       if (reasons.length === 0) reasons.push("index match");
 
       return {
@@ -72,10 +121,10 @@ export function retrieveTopK(
         parts: {
           cosine: vec ? cosineScore : undefined,
           keyword: keywordScore > 0 ? keywordScore : undefined,
-          boost: boost > 0 ? boost : undefined,
+          boost: intentScore + modeScore > 0 ? intentScore + modeScore : undefined,
         },
         reasons,
-        breakdown: [],
+        breakdown,
       };
     })
     .filter((r) => r.score >= minScore)
