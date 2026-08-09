@@ -1,7 +1,7 @@
 # Engineering Copilot — Groq-Grounded AI Assistant for the Portfolio
 
 **Date:** 2026-08-08
-**Status:** Approved (design); pending implementation plan
+**Status:** Implemented
 **Owner:** Site (`D:\GitHub\ashour-git\site`, Next.js 15 App Router, Tailwind v4, framer-motion ^13)
 
 ---
