@@ -1164,7 +1164,7 @@ test("streams deltas then final usage", async () => {
 });
 
 test("surfaces non-ok responses as errors", async () => {
-  const bad = (async () => ({ ok: false, status: 429, text: async () => "rate limited" })) as typeof fetch;
+  const bad = (async () => ({ ok: false, status: 429, text: async () => "rate limited" })) as unknown as typeof fetch;
   await assert.rejects(
     async () => {
       for await (const _ of streamGroq({
