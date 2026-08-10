@@ -397,6 +397,7 @@ git commit -m "feat(copilot): emit detected language in the meta event"
   - `export function contextLabel(mode: CopilotMode, lang: Lang): string`
   - `export const RELATED: Record<Lang, string>`
   - `export const STAT_LABEL_AR: Record<string, string>`
+  - `export function showMetricsStrip(plan: Plan | null | undefined): boolean`
   - `export const PANEL_TITLES: Record<Lang, { skills: string; timeline: string; stats: string; links: string; resume: string; tech: string; architecture: string; caseStudy: string; github: string }>`
 
 - [ ] **Step 1: Write the failing test**
@@ -460,7 +461,7 @@ Expected: FAIL — module not resolved.
 Create `lib/copilot/i18n.ts`:
 
 ```ts
-import type { CopilotMode, Lang, SourceKind } from "@/lib/copilot/types";
+import type { CopilotMode, Lang, Plan, SourceKind } from "@/lib/copilot/types";
 
 const AR_MODE: Record<CopilotMode, string> = {
   general: "عام",
@@ -547,6 +548,10 @@ export const STAT_LABEL_AR: Record<string, string> = {
   "books in the semantic index": "كتب في الفهرس الدلالي",
   "average retrieval latency": "متوسط زمن الاسترجاع",
 };
+
+export function showMetricsStrip(plan: Plan | null | undefined): boolean {
+  return plan?.template === "recruiter" || plan?.card === "stats";
+}
 
 export const PANEL_TITLES: Record<Lang, { skills: string; timeline: string; stats: string; links: string; resume: string; tech: string; architecture: string; caseStudy: string; github: string }> = {
   en: {
@@ -1343,9 +1348,9 @@ function isolateChildren(children: ReactNode): ReactNode {
 const ISOLATE_BLOCKS = ["p", "li", "td", "th", "h1", "h2", "h3"];
 
 export function CopilotMarkdown({ text, lang }: { text: string; lang: Lang }) {
-  const blockOverrides: Record<string, (props: React.ComponentProps<typeof ReactMarkdown> extends never ? any : any) => ReactNode> = {};
+  const blockOverrides: Record<string, (props: any) => ReactNode> = {};
   for (const tag of ISOLATE_BLOCKS) {
-    blockOverrides[tag] = (props: any) =>
+    blockOverrides[tag] = ({ node: _node, ...props }: any) =>
       React.createElement(tag, props, isolateChildren(props.children));
   }
   return (
@@ -1455,25 +1460,26 @@ git commit -m "feat(copilot): bidi-aware markdown renderer with LTR token isolat
   - `Run` type gains `lang: Lang`.
   - The assistant message container passes `lang` into `CopilotMarkdown`.
   - Mode pills, quick actions, placeholder, footer, context header, dev labels, and Related block localize via i18n.
-  - Metrics strip (`KeyNumbers`) rendered when `plan.template === "recruiter" || plan.card === "stats"`.
+  - Metrics strip (`KeyNumbers`) rendered when `showMetricsStrip(lastRun?.plan)` is true.
   - Footer `Grounded in …` labels become clickable source chips (URL when available).
   - `CopilotCardPanel` gains a `lang` prop (default `"en"`).
 
 - [ ] **Step 1: Write the failing test**
 
-Append to `tests/i18n.test.ts` (KeyNumbers contract is pure — add a helper export test):
+Append to `tests/i18n.test.ts` (uses the real `showMetricsStrip` export):
 
 ```ts
-test("KeyNumbers selects profile stats for recruiter/stats plans", () => {
-  const show = (template: string, card: string) =>
-    template === "recruiter" || card === "stats";
-  assert.equal(show("recruiter", "none"), true);
-  assert.equal(show("general", "stats"), true);
-  assert.equal(show("general", "none"), false);
+import { showMetricsStrip } from "../lib/copilot/i18n";
+
+test("showMetricsStrip gates the metrics strip to recruiter/stats plans", () => {
+  assert.equal(showMetricsStrip({ template: "recruiter", stance: "high", card: "resume" }), true);
+  assert.equal(showMetricsStrip({ template: "general", stance: "high", card: "stats" }), true);
+  assert.equal(showMetricsStrip({ template: "general", stance: "high", card: "none" }), false);
+  assert.equal(showMetricsStrip(null), false);
 });
 ```
 
-(Replace the inline `show` with the real export from `i18n.ts` if you prefer; the UI test is a documentation-level check.)
+(Note: the metrics-strip gate is intentionally a pure helper in `i18n.ts` — the UI condition and its test use the same exported function.)
 
 - [ ] **Step 2: Run the test**
 
@@ -1501,6 +1507,7 @@ import {
   RELATED,
   PANEL_TITLES,
   STAT_LABEL_AR,
+  showMetricsStrip,
 } from "@/lib/copilot/i18n";
 import { stats, githubStats } from "@/lib/data";
 ```
@@ -1570,7 +1577,7 @@ type Run = {
 7. Render the metrics strip between the dev panel and the Related block:
 
 ```tsx
-{(lastRun?.plan?.template === "recruiter" || lastRun?.plan?.card === "stats") && (
+{showMetricsStrip(lastRun?.plan) && (
   <div className="flex flex-wrap items-center gap-2 border-t border-line bg-bg/40 px-5 py-2.5">
     {[...stats, ...githubStats].map((s) => (
       <span key={s.label} className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1 font-mono text-[10px] text-ink-soft">
