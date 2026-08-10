@@ -20,23 +20,66 @@ export type SourceKind =
   | "experience"
   | "insight"
   | "resume"
-  | "stats";
+  | "stats"
+  | "hire"
+  | "about"
+  | "linkedin";
+
+export type Intent =
+  | "recruiter"
+  | "project"
+  | "architecture"
+  | "interview"
+  | "resume"
+  | "skills"
+  | "experience"
+  | "decision"
+  | "general";
+
+export type IntentResult = { primary: Intent; secondary?: Intent; confidence: number };
+
+export type DocAuthority = "first-party" | "metrics" | "external";
+
+export type RetrievalSignal = "cosine" | "keyword" | "intent" | "mode" | "priority" | "authority";
+
+export type SignalBreakdown = { signal: RetrievalSignal; value: number; weight: number };
+
+export type PlanTemplate =
+  | "recruiter"
+  | "project"
+  | "interview"
+  | "resume"
+  | "skills"
+  | "experience"
+  | "decision"
+  | "general";
+
+export type PlanStance = "high" | "medium" | "fallback";
+
+export type PlanCard = "project" | "resume" | "skills" | "timeline" | "stats" | "links" | "none";
+
+export type Plan = { template: PlanTemplate; stance: PlanStance; card: PlanCard; suggestions?: string[] };
 
 export type Chunk = {
   id: string;
   title: string;
+  label: string;
   text: string;
   source: { kind: SourceKind; slug?: string; url?: string };
   keywords: string[];
+  authority: DocAuthority;
+  priority: number;
 };
 
 export type RetrievalResult = {
   id: string;
+  label: string;
   title: string;
   source: { kind: SourceKind; slug?: string; url?: string };
   score: number;
   parts: { cosine?: number; keyword?: number; boost?: number };
   reasons: string[];
+  breakdown: SignalBreakdown[];
 };
 
 export type CopilotCard =
@@ -45,6 +88,7 @@ export type CopilotCard =
 
 export type CopilotEvent =
   | { type: "meta"; id: string; mode: CopilotMode; model: string; startedAt: number }
+  | { type: "plan"; plan: Plan }
   | { type: "delta"; text: string }
   | { type: "sources"; sources: RetrievalResult[] }
   | { type: "card"; card: CopilotCard | null }
@@ -54,6 +98,9 @@ export type CopilotEvent =
       retrievalMs: number;
       totalMs: number;
       cache: "hit" | "build" | "miss";
+      intent: Intent;
+      confidence: number;
+      strategy: "primary" | "relaxed";
     }
   | { type: "done"; finish: "stop" | "length" }
   | { type: "error"; code: number; message: string };

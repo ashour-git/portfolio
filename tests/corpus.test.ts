@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { buildChunks } from "../lib/copilot/corpus";
-import { projects } from "../lib/data";
+import { profile, projects } from "../lib/data";
 import type { SourceKind } from "../lib/copilot/types";
 
 test("corpus has one project chunk per project", () => {
@@ -37,4 +37,32 @@ test("support sections are present", () => {
 
 test("buildChunks is deterministic", () => {
   assert.deepEqual(buildChunks(), buildChunks());
+});
+
+test("v2: each chunk carries label, authority, and a normalized priority", () => {
+  const chunks = buildChunks();
+  for (const c of chunks) {
+    assert.ok(typeof c.label === "string" && c.label.length > 0, `label missing for ${c.id}`);
+    assert.ok(["first-party", "metrics", "external"].includes(c.authority), `authority missing for ${c.id}`);
+    assert.ok(c.priority > 0 && c.priority <= 1, `priority out of range for ${c.id}`);
+  }
+});
+
+test("v2: hire, about, linkedin chunks are derived from site data", () => {
+  const byId = new Map(buildChunks().map((c) => [c.id, c]));
+  for (const id of ["hire", "about", "linkedin"]) {
+    assert.ok(byId.has(id), `missing chunk ${id}`);
+    const c = byId.get(id)!;
+    assert.ok(c.text.length > 40, `${id} text too short`);
+  }
+  const hire = byId.get("hire")!;
+  assert.ok(hire.text.includes(profile.name), "hire chunk must name the profile");
+  assert.equal(hire.authority, "metrics");
+  const linkedin = byId.get("linkedin")!;
+  assert.equal(linkedin.authority, "external");
+  assert.ok(
+    linkedin.text.includes(profile.linkedin) || linkedin.text.includes(profile.github),
+    "linkedin chunk must carry profile links",
+  );
+  assert.ok(hire.keywords.includes("hire"), "hire chunk must keyword 'hire'");
 });

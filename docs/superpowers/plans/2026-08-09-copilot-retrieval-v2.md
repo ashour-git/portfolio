@@ -47,7 +47,7 @@
   - `CopilotEvent` gains `{ type: "plan"; plan: Plan }`; the `stats` member gains `intent: Intent`, `confidence: number`, `strategy: "primary" | "relaxed"`.
 - Consumes: existing `CopilotMode`, `SourceKind`, `Chunk`, `RetrievalResult`, `CopilotEvent`, `ChatMessage`, `RequestBody`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Replace `tests/types.test.ts` with:
 
@@ -145,12 +145,12 @@ test("Intent covers the nine approved values", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm test -- tests/types.test.ts`
 Expected: FAIL — new types and `stats`/`plan` fields do not exist yet.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Edit `lib/copilot/types.ts`:
 
@@ -246,12 +246,12 @@ export type CopilotEvent =
   | { type: "error"; code: number; message: string };
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- tests/types.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Keep the suite green**
+- [x] **Step 5: Keep the suite green**
 
 Run `npx tsc --noEmit`. Fix now-stale literal shapes (re-verified against current sources). Each edit is a minimal placeholder; the owning tasks rewrite these files wholesale:
 
@@ -276,7 +276,7 @@ priority: 0.1,
 
 Resolve conflicts in this task only to keep tsc green; the later owning tasks rewrite these files.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/copilot/types.ts tests/types.test.ts
@@ -295,7 +295,7 @@ git commit -m "feat(copilot): v2 protocol types — intent, plan, authority, bre
 - Consumes: `Chunk`, `DocAuthority`, `SourceKind`, `lib/data` exports (`profile`, `stats`, `projects`, `experience`, `skills`, `principles`, `insights`, `trajectory`, `githubStats`).
 - Produces: `buildChunks()` — v1 ids plus `hire`, `about`, `linkedin` (all derived; no canned prose). All chunks carry `label`, `authority`, `priority`. `hire` → `metrics`; `linkedin` → `external`; project/resume/stats → `metrics`; skills/principles → `first-party`; experience/insight → `external`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/corpus.test.ts`:
 
@@ -335,12 +335,12 @@ Update the file's import line to include `profile`:
 import { profile } from "../lib/data";
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm test -- tests/corpus.test.ts`
 Expected: FAIL — missing chunks/metadata.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 First, extend `SourceKind` in `lib/copilot/types.ts` with the three derived kinds (keeps intent-boost, authority, and mode maps type-safe):
 
@@ -595,16 +595,16 @@ export function buildChunks(): Chunk[] {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- tests/corpus.test.ts`
 Expected: PASS — all v1 tests plus the three v2 assertions (metadata on every chunk; `hire`/`about`/`linkedin` present with derived text and correct authorities).
 
-- [ ] **Step 5: Keep the suite green**
+- [x] **Step 5: Keep the suite green**
 
 Run `npx tsc --noEmit`. Because `buildChunks()` is the single source of chunks, every `Chunk` literal in tests already gained `label`/`authority`/`priority` in Task 1. `SourceKind` is only typed (never constructed directly), so the three new kinds cannot break a literal. The committed `lib/index/meta.json` is now stale (13 v1 chunks without metadata) — that is expected and is regenerated in Task 8.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/copilot/types.ts lib/copilot/corpus.ts tests/corpus.test.ts
@@ -630,7 +630,7 @@ git commit -m "feat(copilot): corpus v2 — hire/about/linkedin chunks, authorit
   - `classifyMessage({ message, embedder, centroids }): Promise<IntentResult>` — rule first, centroid second, `general` last
 - Consumes: `Intent`, `IntentResult` (Task 1), `cosine` from `lib/copilot/scoring.ts`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/intent.test.ts`:
 
@@ -710,12 +710,12 @@ test("centroid fallback returns general for an unrelated vector", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm test -- tests/intent.test.ts`
 Expected: FAIL — `../lib/copilot/intent` does not exist, and the test references helpers not yet written.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Create `lib/copilot/intent.ts`:
 
@@ -917,16 +917,16 @@ export async function classifyMessage(input: {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- tests/intent.test.ts`
 Expected: PASS — all nine intents rule-mapped, centroid fallback hits the nearest intent, noise vector degrades to `general`.
 
-- [ ] **Step 5: Keep the suite green**
+- [x] **Step 5: Keep the suite green**
 
 Run `npx tsc --noEmit`. `intent.ts` imports `cosine` from `scoring.ts` — existing exports are unchanged, so no other file needs edits here.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/copilot/intent.ts tests/intent.test.ts
@@ -945,7 +945,7 @@ git commit -m "feat(copilot): deterministic intent classifier with centroid fall
 - Produces: `INTENT_EXPANSIONS: Record<Intent, string[]>`, `tokenize(query): string[]`, `rewriteQuery(message, intent): string[]` (token sets only — the embedding still runs on the original message in Task 9).
 - Consumes: `Intent`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/rewrite.test.ts`:
 
@@ -985,12 +985,12 @@ test("architecture intent pulls flow and decisions vocabulary", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm test -- tests/rewrite.test.ts`
 Expected: FAIL — module missing.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Create `lib/copilot/rewrite.ts`:
 
@@ -1027,16 +1027,16 @@ export function rewriteQuery(message: string, intent: Intent): string[] {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- tests/rewrite.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Keep the suite green**
+- [x] **Step 5: Keep the suite green**
 
 Run `npx tsc --noEmit`. No consumer changes yet; the service wiring lands in Task 9.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/copilot/rewrite.ts tests/rewrite.test.ts
@@ -1055,7 +1055,7 @@ git commit -m "feat(copilot): intent-aware deterministic query rewriting"
 - Produces: `INTENT_BOOST`, `AUTHORITY_REASON`, `DEFAULT_WEIGHTS`, `RetrieveOpts` gains `intent` and extended `weights`; `retrieveTopK` unchanged in signature semantics, scoring now blends cosine + keyword + intent + mode + priority and emits `reasons` plus `breakdown`.
 - Consumes: `Chunk`, `CopilotMode`, `Intent`, `RetrievalResult`, `SignalBreakdown`, `DocAuthority`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Replace `tests/scoring.test.ts` in full:
 
@@ -1177,12 +1177,12 @@ test("mode boost still reorders toward the selected mode", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm test -- tests/scoring.test.ts`
 Expected: FAIL — new weights keys, `INTENT_BOOST`, and `breakdown`/`label` are not implemented yet.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Rewrite `lib/copilot/scoring.ts` in full:
 
@@ -1323,16 +1323,16 @@ export function retrieveTopK(
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- tests/scoring.test.ts`
 Expected: PASS — including the recruiter→`hire` reorder and the ≥2-signal `breakdown` assertion.
 
-- [ ] **Step 5: Keep the suite green**
+- [x] **Step 5: Keep the suite green**
 
 Run `npx tsc --noEmit`. The scoring change is contained here; `service.ts` still calls `retrieveTopK` with the old opts shape (it passes `weights` for cosine/keyword/boost only) — `Partial` accepts it, and untouched `mode`/`embeddings` remain. No other edits needed.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/copilot/scoring.ts tests/scoring.test.ts
@@ -1351,7 +1351,7 @@ git commit -m "feat(copilot): five-signal hybrid retrieval with structured break
 - Produces: `buildPlan({ intent, results }): Plan` — deterministic mapping of intent + retrieval health to template/stance/card/suggestions.
 - Consumes: `IntentResult`, `Plan`, `RetrievalResult`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/planner.test.ts`:
 
@@ -1423,12 +1423,12 @@ test("general intent stays general and derives stats card from stats docs", () =
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm test -- tests/planner.test.ts`
 Expected: FAIL — module missing.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Create `lib/copilot/planner.ts`:
 
@@ -1488,16 +1488,16 @@ export function buildPlan(input: {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- tests/planner.test.ts`
 Expected: PASS.
 
-- [ ] **Step 5: Keep the suite green**
+- [x] **Step 5: Keep the suite green**
 
 Run `npx tsc --noEmit`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/copilot/planner.ts tests/planner.test.ts
@@ -1516,7 +1516,7 @@ git commit -m "feat(copilot): deterministic answer planner (template/stance/card
 - Produces: `TEMPLATE_HINTS: Record<Plan["template"], string>` (per-intent H3-section + table hints), `buildSystemPrompt(mode, plan?)`, `buildMessages({ message, mode?, history?, results, plan? })`.
 - Consumes: `Plan`, `RetrievalResult`, `ChatMessage`, `CopilotMode`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Merge `TEMPLATE_HINTS` into the existing import line at the top of `tests/prompt.test.ts`:
 
@@ -1548,12 +1548,12 @@ test("recruiter template hints mention skills or experience sections", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm test -- tests/prompt.test.ts`
 Expected: FAIL — `TEMPLATE_HINTS` missing and `buildSystemPrompt` has no `plan` branch.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Rewrite `lib/copilot/prompt.ts` in full:
 
@@ -1646,16 +1646,16 @@ export function buildMessages(input: {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- tests/prompt.test.ts` and `npx tsc --noEmit`.
 Expected: PASS — the two original tests still pass (they call `buildSystemPrompt(mode)` without a plan and `buildMessages` without a plan), plus the three new ones.
 
-- [ ] **Step 5: Keep the suite green**
+- [x] **Step 5: Keep the suite green**
 
 Run: `npm test` (full). The new `plan` parameter is optional, so `service.ts` still compiles; the service wiring updates in Task 9.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/copilot/prompt.ts tests/prompt.test.ts
@@ -1676,7 +1676,7 @@ git commit -m "feat(copilot): plan-driven structured response templates"
 - Produces: `build-kb` emits per-intent centroid vectors; `loadCentroids()` returns `Record<string, Float32Array>` from the committed JSON.
 - Consumes: `buildChunks()`, `INTENT_CENTROIDS` + `INTENTS` from `lib/copilot/intent.ts`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Replace `tests/index.test.ts` in full:
 
@@ -1705,12 +1705,12 @@ test("centroids cover the eight non-general intents", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm test -- tests/index.test.ts`
 Expected: FAIL — `lib/index/centroids.json` does not exist; committed `meta.json` still has 13 legacy chunks.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Update `lib/copilot/index.ts` — add a centroid loader:
 
@@ -1766,16 +1766,16 @@ and after the existing writes:
   console.log(`wrote ${chunks.length} chunks, ${centroidIds.length} centroids, dim ${dim}, to ${indexDir}`);
 ```
 
-- [ ] **Step 4: Regenerate and verify**
+- [x] **Step 4: Regenerate and verify**
 
 Run: `npm run build:kb`
 If the model is not yet in `models/`, the script downloads it once in dev (`allowRemoteModels = true`) and commits it with the artifacts. Re-run `npm test -- tests/index.test.ts`. Expected: PASS — 16 chunks (6 projects + 10 support chunks), centroid keys for 8 intents.
 
-- [ ] **Step 5: Keep the suite green**
+- [x] **Step 5: Keep the suite green**
 
 Run `npx tsc --noEmit` and `npm test`. The regenerated `meta.json`/`vectors.json` now carry the new corpus and metadata; `RetrievalResult` consumers from earlier tasks already use `label`/`breakdown`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add scripts/build-kb.ts lib/copilot/index.ts tests/index.test.ts lib/index/
@@ -1794,7 +1794,7 @@ git commit -m "feat(copilot): regenerate index with centroids and v2 corpus meta
 - Produces: `runCopilot` now emits `meta → plan → sources → card → delta* → stats → done`; `stats` gains `intent`, `confidence`, `strategy`; a confidence-gated relaxed pass backs up weak primary retrieval; `RunDeps` gains `classifyIntent`.
 - Consumes: `classifyMessage`, `rewriteQuery`, `buildPlan`, `loadCentroids`, `retrieveTopK` (5-signal), `buildMessages` (plan-aware).
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Rewrite `tests/service.test.ts` in full:
 
@@ -1962,12 +1962,12 @@ test("degraded retrieval falls back to the relaxed pass and returns a fallback p
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm test -- tests/service.test.ts`
 Expected: FAIL — old event order, missing `plan`, stats fields.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Rewrite `lib/copilot/service.ts` in full:
 
@@ -2162,19 +2162,19 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test -- tests/service.test.ts`
 Expected: PASS — regression probe now yields a recruiter plan with ≥1 grounded source, a high stance (top-1 ≥ 0.30 with the fake query-vector against the committed embeddings), canonical event order incl. `plan`, and a deterministic fallback on the zero-vector path.
 
 Note: in the degraded test the zero vector makes every cosine and keyword score 0, so the primary pass is empty and the code always takes the relaxed branch — the `strategy === "relaxed"` assertion holds by construction.
 
-- [ ] **Step 5: Keep the suite green**
+- [x] **Step 5: Keep the suite green**
 
 Run `npx tsc --noEmit` and `npm test`.
 Expected: all suites green; `prompt`/`scoring` tests unchanged still pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/copilot/service.ts tests/service.test.ts
@@ -2192,7 +2192,7 @@ git commit -m "feat(copilot): plan-first pipeline with relaxed fallback and regr
 - Consumes: `Plan`, `SignalBreakdown` from protocol; `plan` CopilotEvent; `stats.intent/confidence/strategy`.
 - Produces: human-readable "Grounded in …" source label; Dev Mode toggle revealing intent, confidence, strategy, plan template/stance, per-signal breakdowns, cache, ms, tokens.
 
-- [ ] **Step 1: Extend the run reducer**
+- [x] **Step 1: Extend the run reducer**
 
 Add `plan: Plan | null` to the `Run` type and handle the event:
 
@@ -2209,7 +2209,7 @@ type Run = {
 }
 ```
 
-- [ ] **Step 2: Extend stats**
+- [x] **Step 2: Extend stats**
 
 ```ts
 type RunStats = {
@@ -2236,7 +2236,7 @@ update((r) => ({
 }));
 ```
 
-- [ ] **Step 3: Human source footer**
+- [x] **Step 3: Human source footer**
 
 Replace the raw footer line with:
 
@@ -2259,7 +2259,7 @@ Replace the raw footer line with:
 )}
 ```
 
-- [ ] **Step 4: Dev Mode panel**
+- [x] **Step 4: Dev Mode panel**
 
 Add `const [devMode, setDevMode] = useState(false);` to the component state (replacing the old `explain` toggle), and render the raw-diagnostics panel only when `devMode` is on:
 
@@ -2290,11 +2290,11 @@ Add `const [devMode, setDevMode] = useState(false);` to the component state (rep
 )}
 ```
 
-- [ ] **Step 5: Verify**
+- [x] **Step 5: Verify**
 
 Run `npx tsc --noEmit` and `npm run build`. The modal shows a human footer by default; `dev off/on` toggles the raw diagnostics panel.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add components/copilot.tsx
@@ -2311,7 +2311,7 @@ git commit -m "feat(copilot): plan-aware client with human source footer and Dev
 **Interfaces:**
 - No route changes required: `app/api/copilot/route.ts` already streams every `CopilotEvent` over NDJSON, so the `plan` event passes through untouched. This task locks that behavior in with a test and verifies the 400 path.
 
-- [ ] **Step 1: Write the test**
+- [x] **Step 1: Write the test**
 
 Create `tests/route.test.ts`:
 
@@ -2353,16 +2353,16 @@ test("missing GROQ_API_KEY streams a stranded error event", async () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it passes**
+- [x] **Step 2: Run test to verify it passes**
 
 Run: `npm test -- tests/route.test.ts`
 Expected: PASS. If the route import fails under `tsx` due to the `@/` alias, verify `tsconfig.json` paths are honored by `tsx` (they already are — every lib file uses `@/` and the existing suite passes).
 
-- [ ] **Step 3: Keep the suite green**
+- [x] **Step 3: Keep the suite green**
 
 Run `npx tsc --noEmit`.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add tests/route.test.ts
@@ -2380,7 +2380,7 @@ git commit -m "test(copilot): route passthrough smoke test"
 **Interfaces:**
 - Produces: `.prose-copilot` table styling; `CopilotCardPanel` now accepts `planCard?: PlanCard` and `sources?: RetrievalResult[]` to render derived Skills/Timeline/Stats/Links panels from the retrieved chunks.
 
-- [ ] **Step 1: Table CSS**
+- [x] **Step 1: Table CSS**
 
 Append to `app/globals.css`:
 
@@ -2411,7 +2411,7 @@ Append to `app/globals.css`:
 }
 ```
 
-- [ ] **Step 2: Extend the card panel**
+- [x] **Step 2: Extend the card panel**
 
 Update `components/copilot-card.tsx` to accept the plan-driven card type and sources; keep the existing project/resume payload panels untouched for `card.kind`, then branch on `planCard`:
 
@@ -2510,11 +2510,11 @@ In `components/copilot.tsx`, pass the new props:
 <CopilotCardPanel card={lastRun?.card ?? null} planCard={lastRun?.plan?.card} sources={lastRun?.sources} />
 ```
 
-- [ ] **Step 3: Run the build**
+- [x] **Step 3: Run the build**
 
 Run `npx tsc --noEmit` and `npm run build`. The markdown table styling is a pure CSS addition; the plan-driven card kinds render for skills/timeline/stats/links messages.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/globals.css components/copilot-card.tsx components/copilot.tsx
@@ -2527,7 +2527,7 @@ git commit -m "feat(copilot): markdown table styling and plan-driven contextual 
 
 **Files:** none (verification only)
 
-- [ ] **Step 1: Run all gates**
+- [x] **Step 1: Run all gates**
 
 ```bash
 npm test
@@ -2537,7 +2537,7 @@ npm run build
 
 Expected: every suite green, typecheck clean, production build succeeds.
 
-- [ ] **Step 2: Live regression probe**
+- [x] **Step 2: Live regression probe**
 
 Start `npm run dev` and ask:
 
@@ -2550,9 +2550,9 @@ Expected:
 
 Also probe `Show RestAI architecture`, `What are your skills?`, `Why those tradeoffs?`, and `Interview me` — each should land in the correct plan card kind.
 
-- [ ] **Step 3: Mark the plan checkboxes + close out**
+- [x] **Step 3: Mark the plan checkboxes + close out**
 
-Tick every `- [ ]` in this file to `- [x]`, then:
+Tick every `- [x]` in this file to `- [x]`, then:
 
 ```bash
 git add docs/superpowers/plans/2026-08-09-copilot-retrieval-v2.md

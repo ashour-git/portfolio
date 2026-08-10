@@ -2,19 +2,29 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { CopilotCard, CopilotEvent, CopilotMode, RetrievalResult } from "@/lib/copilot/types";
+import type { CopilotCard, CopilotEvent, CopilotMode, Plan, RetrievalResult } from "@/lib/copilot/types";
 import { COPILOT_MODES } from "@/lib/copilot/types";
 import { EASE, DURATION } from "@/lib/motion";
 import { CopilotMarkdown } from "@/components/copilot-markdown";
 import { CopilotCardPanel } from "@/components/copilot-card";
 
 type Message = { id: string; role: "user" | "assistant"; text: string };
+type RunStats = {
+  tokens: { in: number; out: number };
+  retrievalMs: number;
+  totalMs: number;
+  cache: string;
+  intent: string;
+  confidence: number;
+  strategy: string;
+};
 type Run = {
   id: string;
   mode: CopilotMode;
   sources: RetrievalResult[];
   card: CopilotCard | null;
-  stats: { tokens: { in: number; out: number }; retrievalMs: number; totalMs: number; cache: string } | null;
+  stats: RunStats | null;
+  plan: Plan | null;
   done: boolean;
 };
 
@@ -34,7 +44,7 @@ export function Copilot() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [runs, setRuns] = useState<Record<string, Run>>({});
   const [streaming, setStreaming] = useState(false);
-  const [explain, setExplain] = useState(false);
+  const [devMode, setDevMode] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<Message[]>([]);
@@ -80,7 +90,7 @@ export function Copilot() {
     const userMsg: Message = { id: `u-${Date.now()}`, role: "user", text };
     const runId = `a-${Date.now()}`;
     setMessages((m) => [...m, userMsg, { id: runId, role: "assistant", text: "" }]);
-    setRuns((r) => ({ ...r, [runId]: { id: runId, mode, sources: [], card: null, stats: null, done: false } }));
+    setRuns((r) => ({ ...r, [runId]: { id: runId, mode, sources: [], card: null, stats: null, plan: null, done: false } }));
     setStreaming(true);
     setInput("");
 
@@ -121,12 +131,25 @@ export function Copilot() {
             setMessages((prev) =>
               prev.map((m) => (m.id === runId ? { ...m, text: m.text + ev.text } : m)),
             );
+          } else if (ev.type === "plan") {
+            update((r) => ({ ...r, plan: ev.plan }));
           } else if (ev.type === "sources") {
             update((r) => ({ ...r, sources: ev.sources }));
           } else if (ev.type === "card") {
             update((r) => ({ ...r, card: ev.card }));
           } else if (ev.type === "stats") {
-            update((r) => ({ ...r, stats: { tokens: ev.tokens, retrievalMs: ev.retrievalMs, totalMs: ev.totalMs, cache: ev.cache } }));
+            update((r) => ({
+              ...r,
+              stats: {
+                tokens: ev.tokens,
+                retrievalMs: ev.retrievalMs,
+                totalMs: ev.totalMs,
+                cache: ev.cache,
+                intent: ev.intent,
+                confidence: ev.confidence,
+                strategy: ev.strategy,
+              },
+            }));
           } else if (ev.type === "error") {
             setMessages((prev) =>
               prev.map((m) => (m.id === runId ? { ...m, text: `⚠ ${ev.message}` } : m)),
@@ -271,39 +294,45 @@ export function Copilot() {
                 </div>
 
                 {/* footer stats */}
-                {lastRun?.stats && (
+                {lastRun?.sources && (
                   <div className="flex items-center gap-3 border-t border-line px-5 py-2 font-mono text-[10px] text-ink-faint">
-                    <span>⌁ {lastRun.sources.length} sources</span>
-                    <span>{lastRun.stats.tokens.out} tokens</span>
-                    <span>{lastRun.stats.retrievalMs} ms retrieval</span>
-                    <span>{lastRun.stats.totalMs} ms total</span>
-                    <span className="uppercase">cache:{lastRun.stats.cache}</span>
+                    <span>
+                      {lastRun.sources.length <= 3
+                        ? `Grounded in ${lastRun.sources.map((s) => s.label).join(", ")}`
+                        : `Verified from ${lastRun.sources.length} indexed sources`}
+                    </span>
                     <button
                       type="button"
-                      onClick={() => setExplain((e) => !e)}
+                      onClick={() => setDevMode((d) => !d)}
                       className="ml-auto text-accent transition-colors hover:underline"
                     >
-                      {explain ? "hide why" : "explain why"}
+                      {devMode ? "dev on" : "dev off"}
                     </button>
                   </div>
                 )}
 
-                {explain && lastRun && (
-                  <div className="border-t border-line bg-bg/40 px-5 py-3">
-                    <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-                      Retrieval — why these sources
+                {devMode && lastRun && (
+                  <div className="border-t border-line bg-bg/40 px-5 py-3 font-mono text-[10px] text-ink-faint">
+                    <p className="mb-1 uppercase tracking-[0.18em]">
+                      intent={lastRun.stats?.intent} · confidence={lastRun.stats?.confidence?.toFixed(2)} · strategy={lastRun.stats?.strategy}
                     </p>
-                    <ul className="flex flex-col gap-1.5">
+                    <p className="mb-2">
+                      plan={lastRun.plan?.template} / {lastRun.plan?.stance} · card={lastRun.plan?.card} · cache={lastRun.stats?.cache} · {lastRun.stats?.retrievalMs}ms · {lastRun.stats?.tokens.out} tokens
+                    </p>
+                    <ul className="flex flex-col gap-1">
                       {lastRun.sources.map((s) => (
-                        <li key={s.id} className="flex items-center gap-2 font-mono text-[11px] text-ink-soft">
+                        <li key={s.id} className="flex items-center gap-2 text-[11px] text-ink-soft">
                           <span className="rounded bg-surface-2 px-1.5 py-0.5">{s.score.toFixed(2)}</span>
                           <span className="truncate">{s.title}</span>
-                          <span className="ml-auto hidden truncate text-ink-faint sm:block">
-                            {s.reasons.join(" · ")}
-                          </span>
+                          <span className="ml-auto hidden truncate text-ink-faint sm:block">{s.reasons.join(" · ")}</span>
                         </li>
                       ))}
                     </ul>
+                  </div>
+                )}
+                {lastRun?.plan?.suggestions && (
+                  <div className="border-t border-line bg-bg/40 px-5 py-3 text-sm text-ink-soft">
+                    Related: {lastRun.plan.suggestions.join(", ")}
                   </div>
                 )}
 
@@ -333,7 +362,7 @@ export function Copilot() {
                 <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
                   Context · {mode}
                 </p>
-                <CopilotCardPanel card={lastRun?.card ?? null} />
+                <CopilotCardPanel card={lastRun?.card ?? null} planCard={lastRun?.plan?.card} sources={lastRun?.sources} />
               </div>
             </div>
           </motion.div>
