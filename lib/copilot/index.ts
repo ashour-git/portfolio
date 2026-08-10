@@ -2,9 +2,11 @@ import path from "node:path";
 import type { Chunk } from "@/lib/copilot/types";
 import meta from "@/lib/index/meta.json";
 import vectors from "@/lib/index/vectors.json";
+import centroids from "@/lib/index/centroids.json";
 
 type Meta = { chunks: Chunk[] };
 type Vectors = { ids: string[]; dim: number; data: number[][] };
+type Centroids = { ids: string[]; dim: number; data: number[][] };
 
 let loaded: { chunks: Chunk[]; embeddings: Record<string, Float32Array> } | null = null;
 
@@ -18,6 +20,19 @@ export function loadIndex() {
   }
   loaded = { chunks, embeddings };
   return loaded;
+}
+
+let loadedCentroids: Record<string, Float32Array> | null = null;
+
+export function loadCentroids(): Record<string, Float32Array> {
+  if (loadedCentroids) return loadedCentroids;
+  const { ids, data } = centroids as Centroids;
+  const map: Record<string, Float32Array> = {};
+  for (let i = 0; i < ids.length; i++) {
+    map[ids[i]] = Float32Array.from(data[i]);
+  }
+  loadedCentroids = map;
+  return loadedCentroids;
 }
 
 type Embedder = (text: string) => Promise<Float32Array>;
