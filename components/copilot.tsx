@@ -362,7 +362,7 @@ export function Copilot() {
                 <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
                   Context · {mode}
                 </p>
-                <CopilotCardPanel card={lastRun?.card ?? null} />
+                <CopilotCardPanel card={lastRun?.card ?? null} planCard={lastRun?.plan?.card} sources={lastRun?.sources} />
               </div>
             </div>
           </motion.div>
