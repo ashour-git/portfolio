@@ -20,6 +20,7 @@
 - Technical terms (RAG, pgvector, FastAPI, PyTorch, MLflow, LightGBM, PostgreSQL, Docker, LLM, MLOps, …) are never translated and render as isolated LTR tokens.
 - No raw URLs and no `[N]` citation markers in Arabic output.
 - The pipeline core (intent → rewrite → retrieval → planner → streaming) is not restructured.
+- Language detection rule (ratified): Arabic-first script wins → "ar"; otherwise the dominant script decides; script-neutral → "en".
 
 ---
 
@@ -82,7 +83,7 @@ test("detectLanguage returns en for English messages", () => {
   }
 });
 
-test("detectLanguage uses the dominant script for mixed messages", () => {
+test("detectLanguage uses the Arabic-first script signal for mixed messages", () => {
   assert.equal(detectLanguage("اشرح لي RAG architecture في RestAI"), "ar");
   assert.equal(detectLanguage("Explain RAG بالعربي"), "en");
 });
@@ -121,11 +122,18 @@ const LATIN_RE = /[A-Za-z\u00C0-\u024F]/;
 export function detectLanguage(message: string): Lang {
   let ar = 0;
   let en = 0;
+  let first: "ar" | "en" | null = null;
   for (const ch of message) {
-    if (ARABIC_RE.test(ch)) ar++;
-    else if (LATIN_RE.test(ch)) en++;
+    if (ARABIC_RE.test(ch)) {
+      if (first === null) first = "ar";
+      ar++;
+    } else if (LATIN_RE.test(ch)) {
+      if (first === null) first = "en";
+      en++;
+    }
   }
   if (ar === 0 && en === 0) return "en";
+  if (first === "ar") return "ar";
   return ar > en ? "ar" : "en";
 }
 ```

@@ -39,9 +39,9 @@ User Query
 - `detectLanguage(message: string): "ar" | "en"` — deterministic, no LLM hop.
 - Algorithm: count Arabic script letters (U+0600–U+06FF, U+0750–U+077F, U+08A0–U+08FF)
   vs Latin letters (A–Z, a–z, plus accented Latin). Exclude whitespace, punctuation,
-  digits, emoji, and symbols. If Arabic letter count > 0 and Arabic share of
-  letter-total > 0.5 → `"ar"`, else `"en"`. Mixed messages use the dominant script.
-  Script-neutral (numbers-only / symbols-only) → `"en"`.
+  digits, emoji, and symbols. Arabic-first rule (ratified): if the first script
+  character is Arabic → `"ar"`; otherwise the dominant script (higher letter count)
+  decides. Script-neutral (numbers-only / symbols-only) → `"en"`.
 - Server: `runCopilot` detects from `body.message`, adds `lang` to the `meta` event.
 - Client: `Copilot` detects synchronously on each message (same module) for instant
   RTL layout before any event arrives. Both use the same pure function → always agree.
