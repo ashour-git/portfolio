@@ -5,6 +5,8 @@ export type CopilotMode =
   | "architecture"
   | "explore";
 
+export type Lang = "ar" | "en";
+
 export const COPILOT_MODES: CopilotMode[] = [
   "general",
   "recruiter",
