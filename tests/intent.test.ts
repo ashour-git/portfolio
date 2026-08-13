@@ -71,3 +71,31 @@ test("centroid fallback returns general for an unrelated vector", () => {
   const r = classifyByCentroid(new Float32Array(2), syntheticCentroids);
   assert.equal(r.primary, "general");
 });
+
+test("Arabic queries classify to the right intents by rules", () => {
+  const cases: [string, string][] = [
+    ["لماذا يجب أن أوظف محمد؟", "recruiter"],
+    ["عرفني بنفسك", "resume"],
+    ["ما أهم مهاراتك؟", "skills"],
+    ["ما التقنيات التي تستخدمها؟", "skills"],
+    ["اشرح لي مشروع RestAI", "architecture"],
+    ["ما المعمارية المستخدمة في RestAI؟", "architecture"],
+    ["ما الفرق بين مشاريعك؟", "decision"],
+    ["ما خبرتك في RAG؟", "experience"],
+    ["ما خبرتك في تعلم الآلة؟", "experience"],
+    ["اعرض لي السيرة الذاتية", "resume"],
+    ["ما سرعة الاسترجاع؟", "experience"],
+  ];
+  for (const [q, want] of cases) {
+    const r = classifyByRules(q);
+    assert.equal(r.primary, want, `expected ${want} for ${q}, got ${r.primary}`);
+    assert.ok(r.confidence > 0.5, `rule confidence for ${q}`);
+  }
+});
+
+test("English messages still classify to their intended intents", () => {
+  for (const q of ["What did you build?", "Show RestAI architecture", "Why those tradeoffs?", "Interview me", "Resume summary"]) {
+    const r = classifyByRules(q);
+    assert.notEqual(r.primary, "general", `expected non-general for ${q}`);
+  }
+});
