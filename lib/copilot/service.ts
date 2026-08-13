@@ -10,6 +10,7 @@ import type {
 import { loadIndex, loadCentroids } from "@/lib/copilot/index";
 import { retrieveTopK } from "@/lib/copilot/scoring";
 import { classifyMessage } from "@/lib/copilot/intent";
+import { detectLanguage } from "@/lib/copilot/language";
 import { rewriteQuery } from "@/lib/copilot/rewrite";
 import { buildPlan } from "@/lib/copilot/planner";
 import { buildMessages } from "@/lib/copilot/prompt";
@@ -57,6 +58,7 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
   const apiKey = deps.apiKey ?? process.env.GROQ_API_KEY;
   const model = deps.model ?? MODEL;
   const mode: CopilotMode = body.mode ?? "general";
+  const lang = detectLanguage(body.message);
   const id = `req-${startedAt}-${Math.random().toString(36).slice(2, 8)}`;
   const limiter = deps.limiter ?? new RateLimiter({ limitPerMinute: 5, limitPerHour: 30 });
   const ip = deps.ip ?? "local";
@@ -132,7 +134,7 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
 
   const plan = buildPlan({ intent, results });
 
-  yield { type: "meta", id, mode, model, startedAt };
+  yield { type: "meta", id, mode, model, startedAt, lang };
   yield { type: "plan", plan };
 
   const sourcesEvent: CopilotEvent = { type: "sources", sources: results };

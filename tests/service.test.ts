@@ -159,3 +159,22 @@ test("degraded retrieval falls back to the relaxed pass and returns a fallback p
   const stats = events.find((e) => e.type === "stats");
   assert.equal(stats.strategy, "relaxed");
 });
+
+test("meta.lang follows the message language", async () => {
+  const events: any[] = [];
+  for await (const ev of runCopilot(
+    { message: "لماذا يجب أن أوظف محمد؟", mode: "recruiter", history: [] },
+    { apiKey: "k", model: "m", fetchImpl: fakeGroq(["data: [DONE]\n\n"]), getEmbedder: async () => fastEmbed },
+  )) {
+    events.push(ev);
+  }
+  assert.equal(events.find((e) => e.type === "meta").lang, "ar");
+  const en: any[] = [];
+  for await (const ev of runCopilot(
+    { message: "Why should I hire you?", mode: "general", history: [] },
+    { apiKey: "k", model: "m", fetchImpl: fakeGroq(["data: [DONE]\n\n"]), getEmbedder: async () => fastEmbed },
+  )) {
+    en.push(ev);
+  }
+  assert.equal(en.find((e) => e.type === "meta").lang, "en");
+});

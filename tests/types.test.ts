@@ -59,7 +59,7 @@ test("plan event and enriched stats satisfy the union", () => {
 
 test("every CopilotEvent literal satisfies the union discriminator", () => {
   const all: CopilotEvent[] = [
-    { type: "meta", id: "req-1", mode: "general", model: "llama-3.3-70b-versatile", startedAt: 1 },
+    { type: "meta", id: "req-1", mode: "general", model: "llama-3.3-70b-versatile", startedAt: 1, lang: "en" },
     { type: "plan", plan: { template: "general", stance: "medium", card: "none" } },
     { type: "delta", text: "hi" },
     { type: "sources", sources: [] },
@@ -88,4 +88,9 @@ test("RequestBody shape matches the wire contract", () => {
 test("Intent covers the nine approved values", () => {
   const i: Intent[] = ["general", "recruiter", "project", "architecture", "interview", "resume", "skills", "experience", "decision"];
   assert.equal(new Set(i).size, 9);
+});
+
+test("meta event carries the detected language", () => {
+  const e: CopilotEvent = { type: "meta", id: "req-1", mode: "recruiter", model: "m", startedAt: 1, lang: "ar" };
+  assert.equal(e.lang, "ar");
 });

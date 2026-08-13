@@ -89,7 +89,7 @@ export type CopilotCard =
   | { kind: "resume"; title: string };
 
 export type CopilotEvent =
-  | { type: "meta"; id: string; mode: CopilotMode; model: string; startedAt: number }
+  | { type: "meta"; id: string; mode: CopilotMode; model: string; startedAt: number; lang: Lang }
   | { type: "plan"; plan: Plan }
   | { type: "delta"; text: string }
   | { type: "sources"; sources: RetrievalResult[] }
