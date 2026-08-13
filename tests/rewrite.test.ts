@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { rewriteQuery, tokenize, MAX_EXPANSION_TOKENS } from "../lib/copilot/rewrite";
+import { rewriteQuery, tokenize, MAX_EXPANSION_TOKENS, ARABIC_BRIDGE } from "../lib/copilot/rewrite";
 
 test("tokenize keeps meaningful tokens and drops noise", () => {
   assert.deepEqual(tokenize("What did you build?"), ["what", "did", "you", "build"]);
@@ -30,4 +30,23 @@ test("architecture intent pulls flow and decisions vocabulary", () => {
   for (const w of ["architecture", "flow", "decisions"]) {
     assert.ok(tokens.includes(w), `missing ${w}`);
   }
+});
+
+test("Arabic bridge maps common Arabic stems to English tokens", () => {
+  const en = new Set(ARABIC_BRIDGE.flatMap(([, t]) => t));
+  for (const t of ["experience", "project", "skills", "architecture", "retrieval", "latency", "resume"]) {
+    assert.ok(en.has(t), `missing bridge token ${t}`);
+  }
+});
+
+test("rewriteQuery adds English bridge tokens for Arabic queries", () => {
+  const tokens = rewriteQuery("ما خبرتك في RAG؟", "experience");
+  assert.ok(tokens.includes("experience"), "expected experience token");
+  assert.ok(tokens.includes("rag"), "expected rag token from the query itself");
+});
+
+test("Arabic query tokens and English names both survive rewriting", () => {
+  const tokens = rewriteQuery("ما المعمارية المستخدمة في RestAI؟", "architecture");
+  assert.ok(tokens.includes("architecture"));
+  assert.ok(tokens.includes("restai"));
 });
