@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildSystemPrompt, serializeContext, buildMessages, TEMPLATE_HINTS } from "../lib/copilot/prompt";
+import { buildSystemPrompt, serializeContext, buildMessages, TEMPLATE_HINTS, AR_TEMPLATE_HINTS } from "../lib/copilot/prompt";
 import type { RetrievalResult } from "../lib/copilot/types";
 
 test("every mode prompt contains the scope gate and identity", () => {
@@ -55,4 +55,53 @@ test("fallback plan routes suggestions into the context message", () => {
 test("recruiter template hints mention skills or experience sections", () => {
   const hint = TEMPLATE_HINTS.recruiter.toLowerCase();
   assert.ok(hint.includes("skills") || hint.includes("experience"));
+});
+
+test("English prompts are unchanged when lang is en or omitted", () => {
+  assert.equal(buildSystemPrompt("recruiter"), buildSystemPrompt("recruiter", undefined, "en"));
+  assert.ok(
+    buildSystemPrompt("recruiter", { template: "recruiter", stance: "high", card: "none" }).includes(
+      TEMPLATE_HINTS.recruiter,
+    ),
+  );
+});
+
+test("Arabic prompts contain MSA rules, tech-term preservation, and no raw URLs/citations", () => {
+  const p = buildSystemPrompt("recruiter", undefined, "ar");
+  assert.ok(p.includes("Mohamed Ashour"));
+  assert.ok(/اللغة العربية الفصحى|Modern Standard Arabic/.test(p));
+  assert.ok(p.includes("RAG"), "tech terms must be mentioned");
+  assert.ok(p.includes("نقاط القوة"), "Arabic sections expected");
+  assert.ok(!/https?:\/\/\S+/.test(p), "no raw URLs in Arabic system prompt");
+  assert.ok(p.includes("مصدر"), "sources-by-name rule expected");
+});
+
+test("every Arabic template hint maps to an Arabic heading", () => {
+  for (const t of ["recruiter", "project", "interview", "resume", "skills", "experience", "decision", "general"] as const) {
+    const hint = AR_TEMPLATE_HINTS[t];
+    assert.ok(hint && hint.length > 5, `missing Arabic hint for ${t}`);
+    assert.ok(/[؀-ٿݐ-ݿࢠ-ࣿ]/.test(hint), `hint for ${t} must be Arabic`);
+  }
+});
+
+test("Arabic mode strategies differ per mode", () => {
+  const recruiter = buildSystemPrompt("recruiter", undefined, "ar");
+  const architecture = buildSystemPrompt("architecture", undefined, "ar");
+  const interview = buildSystemPrompt("interview", undefined, "ar");
+  assert.notEqual(recruiter, architecture);
+  assert.notEqual(recruiter, interview);
+  assert.notEqual(architecture, interview);
+});
+
+test("Arabic context message asks for names instead of [N] citations", () => {
+  const plan = { template: "general" as const, stance: "high" as const, card: "none" as const };
+  const results: RetrievalResult[] = [
+    { id: "hire", label: "Hire", title: "Why hire Mohamed", source: { kind: "hire" }, score: 0.9, parts: {}, reasons: [], breakdown: [] },
+  ];
+  const msgs = buildMessages({ message: "لماذا يجب أن أوظف محمد؟", lang: "ar", results, plan });
+  const sys = msgs[0].content;
+  assert.ok(/عربي|بالعربية/.test(sys), "system prompt must demand Arabic output");
+  const context = msgs.find((m) => m.content.startsWith("السياق"));
+  assert.ok(context, "Arabic context message expected");
+  assert.ok(!context.content.includes("[1]"), "no [N] citation instruction in Arabic context");
 });

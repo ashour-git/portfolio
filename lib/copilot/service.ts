@@ -155,7 +155,7 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
   const textById = new Map(chunks.map((c) => [c.id, c.text]));
   const contextResults = results.map((r) => ({ ...r, text: textById.get(r.id) ?? "" }));
   const history: ChatMessage[] = (body.history ?? []).map((h) => ({ role: h.role, content: h.content }));
-  const messages = buildMessages({ message: body.message, mode, history, results: contextResults, plan });
+  const messages = buildMessages({ message: body.message, mode, history, results: contextResults, plan, lang });
 
   let tokensIn = 0;
   let tokensOut = 0;
