@@ -45,6 +45,7 @@ export function Copilot() {
   const [runs, setRuns] = useState<Record<string, Run>>({});
   const [streaming, setStreaming] = useState(false);
   const [devMode, setDevMode] = useState(false);
+  const [lang, setLang] = useState<"en" | "ar">("en");
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<Message[]>([]);
@@ -93,6 +94,7 @@ export function Copilot() {
     setRuns((r) => ({ ...r, [runId]: { id: runId, mode, sources: [], card: null, stats: null, plan: null, done: false } }));
     setStreaming(true);
     setInput("");
+    if (lang !== "en") setLang("en");
 
     const update = (fn: (r: Run) => Run) =>
       setRuns((prev) => ({ ...prev, [runId]: fn(prev[runId]) }));
@@ -154,6 +156,8 @@ export function Copilot() {
             setMessages((prev) =>
               prev.map((m) => (m.id === runId ? { ...m, text: `⚠ ${ev.message}` } : m)),
             );
+          } else if (ev.type === "meta") {
+            if (ev.lang === "ar") setLang("ar");
           } else if (ev.type === "done") {
             update((r) => ({ ...r, done: true }));
           }
@@ -278,7 +282,7 @@ export function Copilot() {
                             }
                           >
                             {m.role === "assistant" ? (
-                              <CopilotMarkdown text={m.text} />
+                              <CopilotMarkdown text={m.text} lang={lang} />
                             ) : (
                               m.text
                             )}

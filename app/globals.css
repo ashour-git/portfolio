@@ -24,6 +24,7 @@
   --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
     monospace;
   --font-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-arabic: "Noto Sans Arabic", "IBM Plex Sans Arabic", "Segoe UI", "Tahoma", system-ui, sans-serif;
 }
 
 /* light theme overrides */
@@ -279,4 +280,24 @@ body {
 }
 .prose-copilot :where(td) {
   color: var(--color-ink-soft);
+}
+
+/* ---------- copilot bidi isolation (bilingual spec §2, §9) ---------- */
+.ltr-token {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.prose-copilot :where(code) {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.prose-copilot[dir="rtl"] {
+  font-family: var(--font-arabic), var(--font-sans);
+  text-align: start;
+}
+.prose-copilot[dir="rtl"] :where(ul, ol) {
+  padding-inline-start: 1.25rem;
+}
+.prose-copilot[dir="rtl"] :where(th, td) {
+  text-align: start;
 }
