@@ -66,3 +66,18 @@ test("v2: hire, about, linkedin chunks are derived from site data", () => {
   );
   assert.ok(hire.keywords.includes("hire"), "hire chunk must keyword 'hire'");
 });
+
+test("bilingual Arabic chunks exist with Arabic and English portions", () => {
+  const byId = new Map(buildChunks().map((c) => [c.id, c]));
+  for (const id of ["ar-hire", "ar-about", "ar-resume", "ar-skills", "ar-experience", "ar-linkedin", "ar-stats"]) {
+    const c = byId.get(id);
+    assert.ok(c, `missing chunk ${id}`);
+    assert.ok(c.text.length > 40, `${id} text too short`);
+    assert.ok(/[؀-ٿݐ-ݿࢠ-ࣿ]/.test(c.text), `${id} must contain Arabic`);
+    assert.ok(c.text.includes("English:"), `${id} must contain an English anchor line`);
+  }
+  const hire = byId.get("ar-hire")!;
+  assert.equal(hire.source.kind, "hire");
+  assert.equal(hire.authority, "metrics");
+  assert.ok(hire.keywords.includes("hire"), "ar-hire must keyword 'hire'");
+});

@@ -228,5 +228,88 @@ export function buildChunks(): Chunk[] {
     keywordsFrom("linkedin", "contact", "email", "github", "resume"),
   );
 
+  const arHire = [
+    `لماذا توظف ${profile.name}: ${profile.roles.join("، ")} ومقيم في ${profile.location}.`,
+    `السجل: ${stats.map((s) => `${s.value} ${s.label}`).join("؛ ")}.`,
+    `خبرة إنتاجية: ${experience.map((r) => `${r.title} في ${r.company} (${r.period})`).join("؛ ")}.`,
+    `المهارات: ${skills.map((g) => g.items.join("، ")).join("؛ ")}.`,
+    `المبادئ: ${principles.map((p) => `${p.index} ${p.title}`).join("؛ ")}.`,
+  ].join(" ");
+  push(
+    "ar-hire",
+    "hire",
+    "لماذا محمد؟",
+    "لماذا توظف محمد",
+    `${arHire}\nEnglish: Why hire ${profile.name}: ${profile.roles.join(", ")}. Track record: ${stats.map((s) => `${s.value} ${s.label}`).join("; ")}.`,
+    keywordsFrom("hire", ...profile.roles, stats.map((s) => s.label).join(" "), experience.map((r) => r.company).join(" ")),
+  );
+
+  const arAbout = [
+    `نبذة عن ${profile.name}: ${profile.roles.join("، ")} ومقيم في ${profile.location}.`,
+    `المسار المهني: ${trajectory.map((t) => `${t.period} ${t.title}: ${t.body}`).join(". ")}.`,
+    `المبادئ: ${principles.map((p) => `${p.title}: ${p.body}`).join(". ")}.`,
+    `الكتابات: ${insights.map((i) => `${i.title}: ${i.body}`).join(". ")}.`,
+  ].join(" ");
+  push(
+    "ar-about",
+    "about",
+    "نبذة عني",
+    "نبذة عن محمد",
+    `${arAbout}\nEnglish: About ${profile.name}: ${profile.roles.join(", ")} based in ${profile.location}.`,
+    keywordsFrom("about", ...profile.roles, trajectory.map((t) => t.title).join(" ")),
+  );
+
+  push(
+    "ar-resume",
+    "resume",
+    "السيرة الذاتية",
+    "ملخص السيرة الذاتية",
+    `الاسم: ${profile.name}. الأدوار: ${profile.roles.join("، ")}. الموقع: ${profile.location}. البريد: ${profile.email}. LinkedIn: ${profile.linkedin}. GitHub: ${profile.github}.\nEnglish: Name: ${profile.name}. Roles: ${profile.roles.join(", ")}. Location: ${profile.location}.`,
+    keywordsFrom(profile.name, ...profile.roles, "resume"),
+  );
+
+  const arSkills = skills
+    .map((g) => `${g.title}: ${g.items.join("، ")}`)
+    .join(". ");
+  push(
+    "ar-skills",
+    "skill",
+    "المهارات",
+    "المهارات حسب التخصص",
+    `${arSkills}\nEnglish: ${skills.map((g) => `${g.title}: ${g.items.join(", ")}`).join(". ")}`,
+    keywordsFrom(skills.map((g) => g.items.join(" ")).join(" "), "skills"),
+  );
+
+  const arExperience = experience
+    .map((r) => `${r.title} في ${r.company} (${r.period}): ${r.points.join(" ")}`)
+    .join(". ");
+  push(
+    "ar-experience",
+    "experience",
+    "الخبرة",
+    "الخبرة العملية",
+    `${arExperience}\nEnglish: ${experience.map((r) => `${r.title} at ${r.company} (${r.period})`).join("; ")}`,
+    keywordsFrom(experience.map((r) => `${r.title} ${r.company}`).join(" "), "experience"),
+  );
+
+  push(
+    "ar-linkedin",
+    "linkedin",
+    "LinkedIn",
+    "التواصل والروابط",
+    `تواصل مع ${profile.name}: البريد ${profile.email}، LinkedIn ${profile.linkedin}، GitHub ${profile.github}.\nEnglish: Contact ${profile.name}: email ${profile.email}, LinkedIn ${profile.linkedin}, GitHub ${profile.github}.`,
+    keywordsFrom("linkedin", "contact", "email", "github", "resume"),
+  );
+
+  const arStats = `${stats.map((s) => `${s.value} ${s.label}`).join(". ")}. GitHub: ${githubStats.map((g) => `${g.value} ${g.label}`).join(". ")}`;
+  push(
+    "ar-stats",
+    "stats",
+    "الأرقام",
+    "الأرقام الرئيسية",
+    `الأرقام: ${arStats}.\nEnglish: Stats: ${stats.map((s) => `${s.value} ${s.label}`).join(". ")}. GitHub: ${githubStats.map((g) => `${g.value} ${g.label}`).join(". ")}.`,
+    keywordsFrom("stats", "tests", "latency", "books", "repositories"),
+  );
+
   return chunks;
 }
