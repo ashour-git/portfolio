@@ -688,6 +688,197 @@
       ],
       "authority": "external",
       "priority": 0.2
+    },
+    {
+      "id": "ar-hire",
+      "label": "لماذا محمد؟",
+      "title": "لماذا توظف محمد",
+      "text": "لماذا توظف Mohamed Ashour: AI Engineer، ML Engineer، LLM Engineer ومقيم في Cairo, Egypt. السجل: 18/18 security tests passing؛ 162 automated tests written؛ 7,000+ books in the semantic index؛ ~67ms average retrieval latency. خبرة إنتاجية: AI Engineer في SustainGRC (2026 — Present)؛ Data Engineer في SustainGRC (2025 — 2026)؛ Machine Learning في CodeAlpha (2024). المهارات: RAG، Agentic AI، Prompt engineering، Fine-tuning، Evaluation؛ Vector search، Embeddings، pgvector، ChromaDB، Hybrid retrieval؛ LightGBM، Scikit-Learn، PyTorch، Optuna، MLflow، Forecasting؛ FastAPI، Next.js، Node.js، SQLAlchemy، REST · SSE؛ PostgreSQL، Pandas، Pipelines، ETL، FAIR data؛ OpenCV، YOLOv5، MediaPipe، ResNet-50، CNNs؛ Azure AI Foundry، Azure OpenAI، Docker، GitHub Actions، CI/CD؛ Azure، Docker Compose، Vercel، Linux، Multi-tenancy. المبادئ: 01 Ground every answer؛ 02 Ship with evidence؛ 03 Production is a system؛ 04 Evaluate before you trust.\nEnglish: Why hire Mohamed Ashour: AI Engineer, ML Engineer, LLM Engineer. Track record: 18/18 security tests passing; 162 automated tests written; 7,000+ books in the semantic index; ~67ms average retrieval latency.",
+      "source": {
+        "kind": "hire"
+      },
+      "keywords": [
+        "hire",
+        "engineer",
+        "llm",
+        "security",
+        "tests",
+        "passing",
+        "automated",
+        "written",
+        "books",
+        "the",
+        "semantic",
+        "index",
+        "average",
+        "retrieval",
+        "latency",
+        "sustaingrc",
+        "codealpha"
+      ],
+      "authority": "metrics",
+      "priority": 0.6
+    },
+    {
+      "id": "ar-about",
+      "label": "نبذة عني",
+      "title": "نبذة عن محمد",
+      "text": "نبذة عن Mohamed Ashour: AI Engineer، ML Engineer، LLM Engineer ومقيم في Cairo, Egypt. المسار المهني: 2024 ML experiments: First models: fine-tuned ResNet-50 for image classification, a collaborative-filtering music recommender, and OpenCV gesture recognition.. 2025 From notebooks to pipelines: Data engineering in production: Text-to-SQL over a real schema with deterministic guards, backup pipelines, and FAIR data discipline.. 2025 — 2026 Applied ML in products: Turned approaches into shippable AI: RAG assistants, semantic recommenders at 7k+ scale, forecasting, and multi-tenant AI e-commerce.. 2026+ Production AI systems: Enterprise AI as a system: RAG and LLM apps on Azure AI Foundry, XR & computer vision at the edge, observability and evaluation as first-class.. المبادئ: Ground every answer: RAG over live operational data. A model should cite a database before it speaks — not answer from memory it cannot verify.. Ship with evidence: Tests, latency numbers, and architecture diagrams live in the repo. Claims I make are claims I can reproduce.. Production is a system: A model is one layer. Serving, tenancy, observability, and CI are the rest — and they decide whether a feature survives contact with users.. Evaluate before you trust: Measure retrieval latency and pass rates before a prompt or model goes live. Confidence is earned, not asserted.. الكتابات: Grounding a RAG assistant in real ops data: pgvector, embeddings, and sub-second retrieval over live operational data — no stale answer sources.. Making Text-to-SQL production-safe: How a validator, injection guards, and 18/18 tests turn a raw LLM into a usable tool.. Recommenders without an API bill: Vector embeddings and semantic search over 7,000+ books at ~67 ms.. Multi-tenancy structural, not bolted on: Wildcard subdomains, tenant-scoped rows, and how Storefy isolates every store.. Latency as a product feature in CV: Designing gesture recognition as one continuous HCI loop, not a batch classifier.. Operating vision models like services: Why Kepler Vision treats inference as a deterministic, operable pipeline..\nEnglish: About Mohamed Ashour: AI Engineer, ML Engineer, LLM Engineer based in Cairo, Egypt.",
+      "source": {
+        "kind": "about"
+      },
+      "keywords": [
+        "about",
+        "engineer",
+        "llm",
+        "experiments",
+        "from",
+        "notebooks",
+        "pipelines",
+        "applied",
+        "products",
+        "production",
+        "systems"
+      ],
+      "authority": "first-party",
+      "priority": 0.3
+    },
+    {
+      "id": "ar-resume",
+      "label": "السيرة الذاتية",
+      "title": "ملخص السيرة الذاتية",
+      "text": "الاسم: Mohamed Ashour. الأدوار: AI Engineer، ML Engineer، LLM Engineer. الموقع: Cairo, Egypt. البريد: muhamed.3ashour@gmail.com. LinkedIn: https://www.linkedin.com/in/mohamedashour-ai. GitHub: https://github.com/ashour-git.\nEnglish: Name: Mohamed Ashour. Roles: AI Engineer, ML Engineer, LLM Engineer. Location: Cairo, Egypt.",
+      "source": {
+        "kind": "resume"
+      },
+      "keywords": [
+        "mohamed",
+        "ashour",
+        "engineer",
+        "llm",
+        "resume"
+      ],
+      "authority": "metrics",
+      "priority": 0.5
+    },
+    {
+      "id": "ar-skills",
+      "label": "المهارات",
+      "title": "المهارات حسب التخصص",
+      "text": "LLM Engineering: RAG، Agentic AI، Prompt engineering، Fine-tuning، Evaluation. Retrieval-Augmented Generation: Vector search، Embeddings، pgvector، ChromaDB، Hybrid retrieval. Machine Learning: LightGBM، Scikit-Learn، PyTorch، Optuna، MLflow، Forecasting. Backend APIs: FastAPI، Next.js، Node.js، SQLAlchemy، REST · SSE. Data Engineering: PostgreSQL، Pandas، Pipelines، ETL، FAIR data. Computer Vision: OpenCV، YOLOv5، MediaPipe، ResNet-50، CNNs. MLOps: Azure AI Foundry، Azure OpenAI، Docker، GitHub Actions، CI/CD. Cloud & Deployment: Azure، Docker Compose، Vercel، Linux، Multi-tenancy\nEnglish: LLM Engineering: RAG, Agentic AI, Prompt engineering, Fine-tuning, Evaluation. Retrieval-Augmented Generation: Vector search, Embeddings, pgvector, ChromaDB, Hybrid retrieval. Machine Learning: LightGBM, Scikit-Learn, PyTorch, Optuna, MLflow, Forecasting. Backend APIs: FastAPI, Next.js, Node.js, SQLAlchemy, REST · SSE. Data Engineering: PostgreSQL, Pandas, Pipelines, ETL, FAIR data. Computer Vision: OpenCV, YOLOv5, MediaPipe, ResNet-50, CNNs. MLOps: Azure AI Foundry, Azure OpenAI, Docker, GitHub Actions, CI/CD. Cloud & Deployment: Azure, Docker Compose, Vercel, Linux, Multi-tenancy",
+      "source": {
+        "kind": "skill"
+      },
+      "keywords": [
+        "rag",
+        "agentic",
+        "prompt",
+        "engineering",
+        "fine",
+        "tuning",
+        "evaluation",
+        "vector",
+        "search",
+        "embeddings",
+        "pgvector",
+        "chromadb",
+        "hybrid",
+        "retrieval",
+        "lightgbm",
+        "scikit",
+        "learn",
+        "pytorch",
+        "optuna",
+        "mlflow",
+        "forecasting",
+        "fastapi",
+        "next",
+        "node",
+        "sqlalchemy",
+        "rest",
+        "sse",
+        "postgresql",
+        "pandas",
+        "pipelines",
+        "etl",
+        "fair",
+        "data",
+        "opencv",
+        "yolov5",
+        "mediapipe",
+        "resnet",
+        "cnns",
+        "azure",
+        "foundry",
+        "openai",
+        "docker",
+        "github",
+        "actions",
+        "compose",
+        "vercel",
+        "linux",
+        "multi",
+        "tenancy",
+        "skills"
+      ],
+      "authority": "first-party",
+      "priority": 0.2
+    },
+    {
+      "id": "ar-experience",
+      "label": "الخبرة",
+      "title": "الخبرة العملية",
+      "text": "AI Engineer في SustainGRC (2026 — Present): Ship AI features end to end — data pipelines, model serving, API surface, and observability. Build RAG and LLM applications on Azure AI Foundry with Anthropic Claude and OpenAI models. Engineer data pipelines and backend services for real multi-tenant workloads. Drive experimentation and evaluation to ship reliable model behavior at scale.. Data Engineer في SustainGRC (2025 — 2026): Shipped a Text-to-SQL feature translating natural language into executable SQL via GPT-4o. Automated backup and disaster-recovery pipelines with integrity-validation checksums. Applied FAIR data principles and automation across data engineering.. Machine Learning في CodeAlpha (2024): Fine-tuned a ResNet-50 image classifier for a computer-vision task. Built a music recommendation prototype using collaborative filtering.\nEnglish: AI Engineer at SustainGRC (2026 — Present); Data Engineer at SustainGRC (2025 — 2026); Machine Learning at CodeAlpha (2024)",
+      "source": {
+        "kind": "experience"
+      },
+      "keywords": [
+        "engineer",
+        "sustaingrc",
+        "data",
+        "machine",
+        "learning",
+        "codealpha",
+        "experience"
+      ],
+      "authority": "external",
+      "priority": 0.3
+    },
+    {
+      "id": "ar-linkedin",
+      "label": "LinkedIn",
+      "title": "التواصل والروابط",
+      "text": "تواصل مع Mohamed Ashour: البريد muhamed.3ashour@gmail.com، LinkedIn https://www.linkedin.com/in/mohamedashour-ai، GitHub https://github.com/ashour-git.\nEnglish: Contact Mohamed Ashour: email muhamed.3ashour@gmail.com, LinkedIn https://www.linkedin.com/in/mohamedashour-ai, GitHub https://github.com/ashour-git.",
+      "source": {
+        "kind": "linkedin"
+      },
+      "keywords": [
+        "linkedin",
+        "contact",
+        "email",
+        "github",
+        "resume"
+      ],
+      "authority": "external",
+      "priority": 0.2
+    },
+    {
+      "id": "ar-stats",
+      "label": "الأرقام",
+      "title": "الأرقام الرئيسية",
+      "text": "الأرقام: 18/18 security tests passing. 162 automated tests written. 7,000+ books in the semantic index. ~67ms average retrieval latency. GitHub: 15+ public repositories. 7 AI/ML codebases. CI tests via GitHub Actions. Docs architecture in every repo.\nEnglish: Stats: 18/18 security tests passing. 162 automated tests written. 7,000+ books in the semantic index. ~67ms average retrieval latency. GitHub: 15+ public repositories. 7 AI/ML codebases. CI tests via GitHub Actions. Docs architecture in every repo.",
+      "source": {
+        "kind": "stats"
+      },
+      "keywords": [
+        "stats",
+        "tests",
+        "latency",
+        "books",
+        "repositories"
+      ],
+      "authority": "metrics",
+      "priority": 0.25
     }
   ]
 }

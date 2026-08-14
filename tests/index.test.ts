@@ -4,11 +4,15 @@ import { loadIndex, loadCentroids } from "../lib/copilot/index";
 
 test("committed index loads with matching meta and vectors", () => {
   const { chunks, embeddings } = loadIndex();
-  assert.ok(chunks.length >= 16, `expected >= 16 chunks, got ${chunks.length}`);
+  assert.equal(chunks.length, 23, `expected 23 chunks, got ${chunks.length}`);
   for (const c of chunks) {
     const vec = embeddings[c.id];
     assert.ok(vec, `missing vector for ${c.id}`);
     assert.equal(vec.length, 384);
+  }
+  const ids = new Set(chunks.map((c) => c.id));
+  for (const id of ["ar-hire", "ar-about", "ar-resume", "ar-skills", "ar-experience", "ar-linkedin", "ar-stats"]) {
+    assert.ok(ids.has(id), `missing Arabic chunk ${id}`);
   }
 });
 
