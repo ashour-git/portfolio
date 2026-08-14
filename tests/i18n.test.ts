@@ -9,6 +9,7 @@ import {
   verifiedFrom,
   contextLabel,
   PANEL_TITLES,
+  showMetricsStrip,
 } from "../lib/copilot/i18n";
 
 test("English labels fall through to the canonical English values", () => {
@@ -41,4 +42,11 @@ test("Arabic chrome strings are present and non-empty", () => {
   assert.equal(groundedIn(["السيرة الذاتية", "LinkedIn"], "ar"), "مُسنَد إلى السيرة الذاتية، LinkedIn");
   assert.equal(verifiedFrom(3, "ar"), "تم التحقق من 3 مصدرًا");
   assert.equal(verifiedFrom(3, "en"), "Verified from 3 indexed sources");
+});
+
+test("showMetricsStrip gates the metrics strip to recruiter/stats plans", () => {
+  assert.equal(showMetricsStrip({ template: "recruiter", stance: "high", card: "resume" }), true);
+  assert.equal(showMetricsStrip({ template: "general", stance: "high", card: "stats" }), true);
+  assert.equal(showMetricsStrip({ template: "general", stance: "high", card: "none" }), false);
+  assert.equal(showMetricsStrip(null), false);
 });

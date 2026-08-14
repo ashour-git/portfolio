@@ -2,9 +2,24 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { CopilotCard, CopilotEvent, CopilotMode, Plan, RetrievalResult } from "@/lib/copilot/types";
+import type { CopilotCard, CopilotEvent, CopilotMode, Lang, Plan, RetrievalResult } from "@/lib/copilot/types";
 import { COPILOT_MODES } from "@/lib/copilot/types";
 import { EASE, DURATION } from "@/lib/motion";
+import { detectLanguage } from "@/lib/copilot/language";
+import {
+  modeLabel,
+  sourceLabel,
+  QUICK_ACTIONS,
+  PLACEHOLDER,
+  DIALOG_LABEL,
+  groundedIn,
+  verifiedFrom,
+  contextLabel,
+  RELATED,
+  STAT_LABEL_AR,
+  showMetricsStrip,
+} from "@/lib/copilot/i18n";
+import { stats, githubStats } from "@/lib/data";
 import { CopilotMarkdown } from "@/components/copilot-markdown";
 import { CopilotCardPanel } from "@/components/copilot-card";
 
@@ -21,21 +36,13 @@ type RunStats = {
 type Run = {
   id: string;
   mode: CopilotMode;
+  lang: Lang;
   sources: RetrievalResult[];
   card: CopilotCard | null;
   stats: RunStats | null;
   plan: Plan | null;
   done: boolean;
 };
-
-const QUICK_ACTIONS = [
-  "What did you build?",
-  "Show RestAI architecture",
-  "Explain your RAG",
-  "Why those tradeoffs?",
-  "Interview me",
-  "Resume summary",
-];
 
 export function Copilot() {
   const [open, setOpen] = useState(false);
@@ -45,7 +52,6 @@ export function Copilot() {
   const [runs, setRuns] = useState<Record<string, Run>>({});
   const [streaming, setStreaming] = useState(false);
   const [devMode, setDevMode] = useState(false);
-  const [lang, setLang] = useState<"en" | "ar">("en");
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<Message[]>([]);
@@ -90,11 +96,11 @@ export function Copilot() {
     if (streaming) return;
     const userMsg: Message = { id: `u-${Date.now()}`, role: "user", text };
     const runId = `a-${Date.now()}`;
+    const lang = detectLanguage(text);
     setMessages((m) => [...m, userMsg, { id: runId, role: "assistant", text: "" }]);
-    setRuns((r) => ({ ...r, [runId]: { id: runId, mode, sources: [], card: null, stats: null, plan: null, done: false } }));
+    setRuns((r) => ({ ...r, [runId]: { id: runId, mode, lang, sources: [], card: null, stats: null, plan: null, done: false } }));
     setStreaming(true);
     setInput("");
-    if (lang !== "en") setLang("en");
 
     const update = (fn: (r: Run) => Run) =>
       setRuns((prev) => ({ ...prev, [runId]: fn(prev[runId]) }));
@@ -156,8 +162,6 @@ export function Copilot() {
             setMessages((prev) =>
               prev.map((m) => (m.id === runId ? { ...m, text: `⚠ ${ev.message}` } : m)),
             );
-          } else if (ev.type === "meta") {
-            if (ev.lang === "ar") setLang("ar");
           } else if (ev.type === "done") {
             update((r) => ({ ...r, done: true }));
           }
@@ -184,6 +188,7 @@ export function Copilot() {
 
   const lastRunId = messages.filter((m) => m.role === "assistant").at(-1)?.id;
   const lastRun = lastRunId ? runs[lastRunId] : undefined;
+  const chromeLang: Lang = lastRun?.lang ?? detectLanguage(input) ?? "en";
 
   return (
     <AnimatePresence>
@@ -199,7 +204,7 @@ export function Copilot() {
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-label="Engineering Copilot"
+            aria-label={DIALOG_LABEL[chromeLang]}
             initial={{ opacity: 0, scale: 0.98, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: 12 }}
@@ -213,7 +218,7 @@ export function Copilot() {
                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
                   COPILOT → GROUNDED RAG → STREAM
                 </p>
-                <h2 className="font-serif text-lg italic text-ink">Engineering Copilot</h2>
+                <h2 className="font-serif text-lg italic text-ink">{DIALOG_LABEL[chromeLang]}</h2>
               </div>
               <button
                 type="button"
@@ -238,7 +243,7 @@ export function Copilot() {
                       : "border-line text-ink-soft hover:text-ink"
                   }`}
                 >
-                  {m}
+                  {modeLabel(m, chromeLang)}
                 </button>
               ))}
             </div>
@@ -257,8 +262,8 @@ export function Copilot() {
                           Grounded in the real projects, decisions, and numbers on this site.
                         </p>
                       </div>
-                      <div className="flex max-w-md flex-wrap justify-center gap-2">
-                        {QUICK_ACTIONS.map((q) => (
+                       <div className="flex max-w-md flex-wrap justify-center gap-2">
+                         {QUICK_ACTIONS[chromeLang].map((q) => (
                           <button
                             key={q}
                             type="button"
@@ -282,9 +287,11 @@ export function Copilot() {
                             }
                           >
                             {m.role === "assistant" ? (
-                              <CopilotMarkdown text={m.text} lang={lang} />
+                              <CopilotMarkdown text={m.text} lang={runs[m.id]?.lang ?? "en"} />
                             ) : (
-                              m.text
+                              <span dir={detectLanguage(m.text) === "ar" ? "rtl" : "ltr"} lang={detectLanguage(m.text)}>
+                                {m.text}
+                              </span>
                             )}
                           </div>
                         </div>
@@ -302,8 +309,11 @@ export function Copilot() {
                   <div className="flex items-center gap-3 border-t border-line px-5 py-2 font-mono text-[10px] text-ink-faint">
                     <span>
                       {lastRun.sources.length <= 3
-                        ? `Grounded in ${lastRun.sources.map((s) => s.label).join(", ")}`
-                        : `Verified from ${lastRun.sources.length} indexed sources`}
+                        ? groundedIn(
+                            lastRun.sources.map((s) => sourceLabel(s.source.kind, s.label, lastRun.lang)),
+                            lastRun.lang,
+                          )
+                        : verifiedFrom(lastRun.sources.length, lastRun.lang)}
                     </span>
                     <button
                       type="button"
@@ -334,9 +344,22 @@ export function Copilot() {
                     </ul>
                   </div>
                 )}
+                {lastRun && showMetricsStrip(lastRun.plan) && (
+                  <div className="flex flex-wrap items-center gap-2 border-t border-line bg-bg/40 px-5 py-2.5">
+                    {[...stats, ...githubStats].map((s) => (
+                      <span
+                        key={s.label}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1 font-mono text-[10px] text-ink-soft"
+                      >
+                        <bdi dir="ltr" lang="en" className="ltr-token text-ink">{s.value}</bdi>
+                        <span>{lastRun.lang === "ar" ? (STAT_LABEL_AR[s.label] ?? s.label) : s.label}</span>
+                      </span>
+                    ))}
+                  </div>
+                )}
                 {lastRun?.plan?.suggestions && (
-                  <div className="border-t border-line bg-bg/40 px-5 py-3 text-sm text-ink-soft">
-                    Related: {lastRun.plan.suggestions.join(", ")}
+                  <div className="border-t border-line bg-bg/40 px-5 py-3 text-sm text-ink-soft" dir={chromeLang === "ar" ? "rtl" : "ltr"}>
+                    {RELATED[lastRun.lang]} {lastRun.plan.suggestions.join(", ")}
                   </div>
                 )}
 
@@ -347,7 +370,9 @@ export function Copilot() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && send()}
-                    placeholder="Ask about projects, architecture, decisions…"
+                    placeholder={PLACEHOLDER[chromeLang]}
+                    dir={chromeLang === "ar" ? "rtl" : "ltr"}
+                    lang={chromeLang}
                     className="flex-1 rounded-xl border border-line bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none"
                   />
                   <button
@@ -363,10 +388,10 @@ export function Copilot() {
 
               {/* card rail */}
               <div className="hidden overflow-y-auto border-l border-line bg-bg/20 p-4 md:block">
-                <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint">
-                  Context · {mode}
+                <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint" dir={chromeLang === "ar" ? "rtl" : "ltr"}>
+                  {contextLabel(mode, chromeLang)}
                 </p>
-                <CopilotCardPanel card={lastRun?.card ?? null} planCard={lastRun?.plan?.card} sources={lastRun?.sources} />
+                <CopilotCardPanel card={lastRun?.card ?? null} planCard={lastRun?.plan?.card} sources={lastRun?.sources} lang={lastRun?.lang ?? "en"} />
               </div>
             </div>
           </motion.div>
