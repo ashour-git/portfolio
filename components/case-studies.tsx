@@ -51,7 +51,7 @@ export function CaseStudies() {
               <div>
                 <h3 className="text-xl font-semibold tracking-tight text-ink">
                   Verified on{" "}
-                  <span className="text-gradient">GitHub.</span>
+                  <span className="serif-accent text-ink">GitHub.</span>
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink-soft">
                   Every project runs tests in CI and documents its architecture

@@ -61,7 +61,7 @@ export function Projects() {
                   onClick={() => setFilter(f)}
                   className={`rounded-full border px-3.5 py-1.5 font-mono text-xs transition-colors ${
                     filter === f
-                      ? "border-transparent bg-gradient-to-r from-accent to-accent-2 text-bg"
+                      ? "border-transparent bg-accent text-bg"
                       : "border-line bg-surface text-ink-soft hover:text-ink"
                   }`}
                 >
@@ -249,7 +249,7 @@ function FlagshipCard({ p }: { p: Project }) {
       <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
         <a
           href={studyHref(p)}
-          className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-5 py-2.5 text-sm font-semibold text-bg transition-opacity hover:opacity-90"
+          className="btn btn-primary"
         >
           Case study
           <ArrowIcon className="h-4 w-4" />
@@ -258,7 +258,7 @@ function FlagshipCard({ p }: { p: Project }) {
           href={p.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-full border border-line px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:border-border-strong"
+          className="btn btn-ghost"
         >
           GitHub
         </a>

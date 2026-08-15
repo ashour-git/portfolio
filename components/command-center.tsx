@@ -107,7 +107,7 @@ function Widget({
 
 function TrackRecord() {
   return (
-    <div className="glass absolute -left-2 bottom-2 hidden rounded-2xl px-5 py-4 md:block">
+    <div className="surface absolute -left-2 bottom-2 hidden rounded-xl px-5 py-4 md:block">
       <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-faint">Track record</p>
       <div className="mt-3 flex gap-6">
         {stats.slice(0, 2).map((s) => (

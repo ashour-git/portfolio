@@ -35,24 +35,14 @@ export async function generateMetadata({
 
 function Section({
   label,
-  tone = "accent",
   children,
 }: {
   label: string;
-  tone?: "accent" | "rose" | "emerald" | "amber";
   children: React.ReactNode;
 }) {
-  const tones: Record<string, string> = {
-    accent: "text-accent",
-    rose: "text-rose-300",
-    emerald: "text-emerald-300",
-    amber: "text-amber-300",
-  };
   return (
     <section className="border-t border-line py-10 first:border-t-0 md:py-12">
-      <p className={`font-mono text-[11px] uppercase tracking-[0.2em] ${tones[tone]}`}>
-        {label}
-      </p>
+      <p className="eyebrow">{label}</p>
       <div className="mt-5">{children}</div>
     </section>
   );
@@ -85,31 +75,22 @@ export default async function CaseStudyPage({
 
           {/* header */}
           <header>
-            <p className="mb-3 font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
-              Case study · {p.domain}
-            </p>
+            <p className="eyebrow mb-3">Case study · {p.domain}</p>
             <h1 className="text-4xl font-semibold leading-[1.05] tracking-tight text-ink md:text-6xl">
               {p.title}
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink-soft">
               {p.tagline}
             </p>
-            <div className="mt-6 flex flex-wrap gap-2">
-              {p.stack.map((t) => (
-                <span
-                  key={t}
-                  className="rounded-full border border-line bg-surface px-3 py-1 font-mono text-xs text-ink-soft"
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
+            <p className="mt-6 font-mono text-xs text-ink-faint">
+              {p.stack.join("  ·  ")}
+            </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a
                 href={p.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-6 py-3 text-sm font-semibold text-bg transition-opacity hover:opacity-90"
+                className="btn btn-primary"
               >
                 View source on GitHub
                 <ArrowIcon className="h-4 w-4" />
@@ -119,7 +100,7 @@ export default async function CaseStudyPage({
                   href={p.demo}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="glass inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium text-ink transition-colors hover:text-white"
+                  className="btn btn-ghost"
                 >
                   Live demo
                 </a>
@@ -135,7 +116,7 @@ export default async function CaseStudyPage({
           </header>
 
           {/* screenshot */}
-          <div className="glass mt-12 overflow-hidden rounded-[2rem]">
+          <div className="mt-12 overflow-hidden rounded-[2rem] border border-line">
             <div className="relative aspect-[16/9] overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -148,12 +129,12 @@ export default async function CaseStudyPage({
 
           <div className="mt-12">
             {/* problem */}
-            <Section label="Problem" tone="rose">
+            <Section label="Problem">
               <p className="text-lg leading-relaxed text-ink-soft">{p.problem}</p>
             </Section>
 
             {/* solution */}
-            <Section label="Solution" tone="emerald">
+            <Section label="Solution">
               <p className="text-lg leading-relaxed text-ink-soft">{p.solution}</p>
             </Section>
 
@@ -162,10 +143,7 @@ export default async function CaseStudyPage({
               <ul className="space-y-3">
                 {s.requirements.map((r) => (
                   <li key={r} className="flex gap-3 text-[15px] leading-relaxed text-ink-soft">
-                    <span
-                      aria-hidden="true"
-                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent"
-                    />
+                    <span aria-hidden="true" className="select-none text-ink-faint">—</span>
                     {r}
                   </li>
                 ))}
@@ -178,7 +156,7 @@ export default async function CaseStudyPage({
             </Section>
 
             {/* model choice */}
-            <Section label="Why this model" tone="amber">
+            <Section label="Why this model">
               <p className="text-[15px] leading-relaxed text-ink-soft">
                 {s.modelChoice}
               </p>
@@ -202,7 +180,7 @@ export default async function CaseStudyPage({
             <Section label="Tradeoffs">
               <div className="grid gap-4 sm:grid-cols-2">
                 {s.tradeoffs.map((t) => (
-                  <div key={t.choice} className="glass rounded-2xl p-5">
+                  <div key={t.choice} className="surface rounded-2xl p-5">
                     <p className="text-sm font-semibold text-ink">{t.choice}</p>
                     <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
                       {t.cost}
@@ -217,10 +195,7 @@ export default async function CaseStudyPage({
               <ul className="space-y-3">
                 {s.challenges.map((c) => (
                   <li key={c} className="flex gap-3 text-[15px] leading-relaxed text-ink-soft">
-                    <span
-                      aria-hidden="true"
-                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent-2"
-                    />
+                    <span aria-hidden="true" className="select-none text-ink-faint">—</span>
                     {c}
                   </li>
                 ))}
@@ -231,7 +206,7 @@ export default async function CaseStudyPage({
             <Section label="Results">
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                 {p.performance.map((m) => (
-                  <div key={m.label} className="glass rounded-2xl p-5 text-center">
+                  <div key={m.label} className="surface rounded-2xl p-5 text-center">
                     <p className="text-xl font-semibold tracking-tight text-ink">
                       {m.value}
                     </p>
@@ -251,13 +226,13 @@ export default async function CaseStudyPage({
             </Section>
 
             {/* monitoring */}
-            <Section label="Monitoring & observability" tone="emerald">
+            <Section label="Monitoring & observability">
               <Monitoring observability={s.observability} />
             </Section>
 
             {/* write-up */}
-            <Section label="Engineering write-up" tone="amber">
-              <div className="glass flex flex-col gap-4 rounded-2xl p-6 sm:flex-row sm:items-center sm:justify-between">
+            <Section label="Engineering write-up">
+                <div className="surface flex flex-col gap-4 rounded-2xl p-6 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm font-semibold text-ink">
                     How this was built, start to finish
@@ -285,10 +260,7 @@ export default async function CaseStudyPage({
               <ul className="space-y-3">
                 {s.lessons.map((l) => (
                   <li key={l} className="flex gap-3 text-[15px] leading-relaxed text-ink-soft">
-                    <span
-                      aria-hidden="true"
-                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent"
-                    />
+                    <span aria-hidden="true" className="select-none text-ink-faint">—</span>
                     {l}
                   </li>
                 ))}

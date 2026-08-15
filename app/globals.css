@@ -99,10 +99,10 @@ body {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(1000px 560px at 12% -10%, rgba(46, 230, 163, 0.16), transparent 62%),
-    radial-gradient(900px 540px at 94% 4%, rgba(14, 165, 201, 0.14), transparent 60%),
-    radial-gradient(1100px 720px at 55% 118%, rgba(46, 230, 163, 0.1), transparent 62%),
-    radial-gradient(700px 520px at 8% 70%, rgba(14, 165, 201, 0.08), transparent 60%),
+    radial-gradient(1000px 560px at 12% -10%, rgba(46, 230, 163, 0.09), transparent 62%),
+    radial-gradient(900px 540px at 94% 4%, rgba(14, 165, 201, 0.07), transparent 60%),
+    radial-gradient(1100px 720px at 55% 118%, rgba(46, 230, 163, 0.05), transparent 62%),
+    radial-gradient(700px 520px at 8% 70%, rgba(14, 165, 201, 0.04), transparent 60%),
     linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-2) 100%);
 }
 
@@ -225,6 +225,57 @@ body {
   font-weight: 400;
 }
 
+/* ---------- art-direction tokens: deliberate, not generated (spec §20, §27) ---------- */
+:root {
+  --radius-image: 1.75rem;
+  --radius-card: 1.25rem;
+  --radius-tight: 0.7rem;
+  --radius-flat: 0.4rem;
+}
+
+/* Buttons: monochrome at rest, accent only on interaction.
+   Accent therefore marks an important action (spec §20), not decoration. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 999px;
+  padding: 0.8rem 1.35rem;
+  transition: background-color 0.22s ease, color 0.22s ease,
+    border-color 0.22s ease, opacity 0.22s ease, transform 0.22s ease;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--color-ink);
+  color: var(--color-bg);
+  border: 1px solid var(--color-ink);
+}
+.btn-primary:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #04140f;
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--color-ink);
+  border: 1px solid var(--color-border);
+}
+.btn-ghost:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-ink);
+}
+
+/* editorial number — used as a quiet index, not a repeating badge */
+.index-mark {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: var(--color-ink-faint);
+}
+
 /* thin custom scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
@@ -287,8 +338,8 @@ body {
   background: conic-gradient(
     from 0deg at 50% 50%,
     transparent 0deg,
-    rgba(46, 230, 163, 0.14) 70deg,
-    rgba(14, 165, 201, 0.12) 130deg,
+    rgba(46, 230, 163, 0.08) 70deg,
+    rgba(14, 165, 201, 0.07) 130deg,
     transparent 200deg
   );
   animation: frame-sweep 9s ease-in-out infinite;

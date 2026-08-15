@@ -23,37 +23,33 @@ export function Hero() {
              animate={{ opacity: 1, y: 0 }}
              transition={{ duration: 0.7, ease }}
            >
-             <p className="eyebrow mb-6">Production AI Engineer · Cairo</p>
-             <h1 className="text-[2.7rem] font-semibold leading-[1.02] tracking-tight text-ink sm:text-6xl md:text-7xl">
-               I build
-               <br />
-               production
-               <br />
-               <span className="text-gradient">AI systems,</span>
-               <br />
-               not just
-               <br />
-               demos.
-             </h1>
-             <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-soft">
-               LLMs, RAG, ML pipelines, and computer vision — engineered as
-               products, shipped end to end, and measured in production. I ship
-               real engineering work you can verify on GitHub.
-             </p>
-             <p className="mt-6 font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">
-               {stackRow.join("  ·  ")}
-             </p>
-             <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3">
-               <Magnetic>
-                 <a
-                   href={profile.resume}
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   className="inline-block rounded-full bg-gradient-to-r from-accent to-accent-2 px-6 py-3 text-sm font-semibold text-bg shadow-lg shadow-accent/20 transition-transform active:scale-[0.97]"
-                 >
-                   Resume
-                 </a>
-               </Magnetic>
+              <p className="eyebrow mb-6">Mohamed Ashour · Cairo</p>
+              <h1 className="display-xl">
+                I build
+                <br />
+                production AI systems,
+                <br />
+                <span className="serif-accent text-ink-soft">not just demos.</span>
+              </h1>
+              <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-soft">
+                LLMs, RAG, ML pipelines, and computer vision — engineered as
+                products, shipped end to end, and measured in production. The work
+                is real, and it is verifiable on GitHub.
+              </p>
+              <p className="mt-6 font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">
+                {stackRow.join("  ·  ")}
+              </p>
+              <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3">
+                <Magnetic>
+                  <a
+                    href={profile.resume}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary"
+                  >
+                    Resume
+                  </a>
+                </Magnetic>
                <a
                  href={profile.github}
                  target="_blank"

@@ -26,7 +26,7 @@ export function ArchitectureDiagram({ flow }: { flow: ArchFlow }) {
   return (
     <div className="rounded-2xl border border-line bg-bg/40 p-5 sm:p-7">
       <div className="mb-5 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">
-        <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+        <span className="h-1.5 w-1.5 rounded-full bg-ink-faint" />
         Architecture
       </div>
       <div className="flex flex-col items-stretch gap-0">
