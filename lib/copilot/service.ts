@@ -11,6 +11,7 @@ import { loadIndex, loadCentroids } from "@/lib/copilot/index";
 import { retrieveTopK } from "@/lib/copilot/scoring";
 import { classifyMessage } from "@/lib/copilot/intent";
 import { detectLanguage } from "@/lib/copilot/language";
+import { classifyConversation, casualReply } from "@/lib/copilot/conversation";
 import { rewriteQuery } from "@/lib/copilot/rewrite";
 import { buildPlan } from "@/lib/copilot/planner";
 import { buildMessages } from "@/lib/copilot/prompt";
@@ -59,19 +60,41 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
   const model = deps.model ?? MODEL;
   const mode: CopilotMode = body.mode ?? "general";
   const lang = detectLanguage(body.message);
+  const conv = classifyConversation(body.message);
   const id = `req-${startedAt}-${Math.random().toString(36).slice(2, 8)}`;
   const limiter = deps.limiter ?? new RateLimiter({ limitPerMinute: 5, limitPerHour: 30 });
   const ip = deps.ip ?? "local";
   const cache = deps.cacheHits ?? new Map<string, CacheEntry>();
 
-  if (!apiKey) {
-    yield { type: "error", code: 500, message: "Copilot is not configured (missing GROQ_API_KEY)." };
-    return;
-  }
-
   const allowed = limiter.check(ip);
   if (!allowed.ok) {
     yield { type: "error", code: 429, message: `Rate limited. Retry in ${allowed.retryAfterSec}s.` };
+    return;
+  }
+
+  // Casual conversation is answered deterministically and NEVER enters the RAG
+  // pipeline — no retrieval, no grounding, no knowledge-base language.
+  if (conv.casual) {
+    yield { type: "meta", id, mode, model, startedAt, lang };
+    yield { type: "plan", plan: { template: "casual", stance: "high", card: "none" } };
+    yield { type: "card", card: null };
+    yield { type: "delta", text: casualReply(conv.subtype, lang) };
+    yield {
+      type: "stats",
+      tokens: { in: 0, out: 0 },
+      retrievalMs: 0,
+      totalMs: Date.now() - startedAt,
+      cache: "miss",
+      intent: "casual",
+      confidence: 1,
+      strategy: "primary",
+    };
+    yield { type: "done", finish: "stop" };
+    return;
+  }
+
+  if (!apiKey) {
+    yield { type: "error", code: 500, message: "Copilot is not configured (missing GROQ_API_KEY)." };
     return;
   }
 

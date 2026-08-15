@@ -16,7 +16,7 @@ test("English labels fall through to the canonical English values", () => {
   assert.equal(modeLabel("recruiter", "en"), "recruiter");
   assert.equal(sourceLabel("resume", "Resume", "en"), "Resume");
   assert.equal(groundedIn(["Resume", "LinkedIn"], "en"), "Grounded in Resume, LinkedIn");
-  assert.equal(contextLabel("interview", "en"), "Context · interview");
+  assert.equal(contextLabel("architecture", "en"), "CONTEXT · ARCHITECTURE");
 });
 
 test("Arabic mode labels are professional and distinct", () => {
@@ -38,7 +38,7 @@ test("Arabic chrome strings are present and non-empty", () => {
   assert.equal(QUICK_ACTIONS.ar.length, 6);
   assert.ok(PLACEHOLDER.ar.length > 0);
   assert.ok(PANEL_TITLES.ar.skills.length > 0);
-  assert.equal(contextLabel("interview", "ar"), "السياق · مقابلة");
+  assert.equal(contextLabel("architecture", "ar"), "السياق · معمارية");
   assert.equal(groundedIn(["السيرة الذاتية", "LinkedIn"], "ar"), "مُسنَد إلى السيرة الذاتية، LinkedIn");
   assert.equal(verifiedFrom(3, "ar"), "تم التحقق من 3 مصدرًا");
   assert.equal(verifiedFrom(3, "en"), "Verified from 3 indexed sources");

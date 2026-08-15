@@ -16,6 +16,7 @@ const MODE_INSTRUCTIONS: Record<CopilotMode, string> = {
 };
 
 export const TEMPLATE_HINTS: Record<Plan["template"], string> = {
+  casual: "Respond conversationally and briefly. Do not reference sources or retrieval.",
   recruiter:
     "Structure the answer with H3 sections: 'Why hire Mohamed', 'Track record', 'Where he fits'. Use markdown tables for key metrics and skills.",
   project:
@@ -49,6 +50,7 @@ const AR_MODE_INSTRUCTIONS: Record<CopilotMode, string> = {
 };
 
 export const AR_TEMPLATE_HINTS: Record<Plan["template"], string> = {
+  casual: "أجب بشكل محادثي قصير. لا تشِر إلى مصادر أو استرجاع.",
   recruiter:
     "نظّم الإجابة بأقسام بعناوين عربية واضحة: «لماذا محمد؟» ثم «أبرز نقاط القوة» ثم «الخبرة» ثم «أبرز المشاريع» ثم «التقنيات» ثم «لماذا هذه الخبرة مهمة؟». استخدم نقاطًا قصيرة وفقرات من 2-3 أسطر.",
   project:

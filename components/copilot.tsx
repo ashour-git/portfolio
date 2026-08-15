@@ -15,6 +15,7 @@ import {
   groundedIn,
   verifiedFrom,
   contextLabel,
+  contextTopic,
   RELATED,
   STAT_LABEL_AR,
   showMetricsStrip,
@@ -306,7 +307,7 @@ export function Copilot() {
                 </div>
 
                 {/* footer stats */}
-                {lastRun?.sources && (
+                {lastRun?.sources && lastRun.sources.length > 0 && (
                   <div className="flex items-center gap-3 border-t border-line px-5 py-2 font-mono text-[10px] text-ink-faint">
                     <span>
                       {lastRun.sources.length <= 3
@@ -329,10 +330,17 @@ export function Copilot() {
                 {devMode && lastRun && (
                   <div className="border-t border-line bg-bg/40 px-5 py-3 font-mono text-[10px] text-ink-faint">
                     <p className="mb-1 uppercase tracking-[0.18em]">
-                      intent={lastRun.stats?.intent} · confidence={lastRun.stats?.confidence?.toFixed(2)} · strategy={lastRun.stats?.strategy}
+                      classification={lastRun.plan?.template === "casual" ? "casual" : "portfolio"} · intent=
+                      {lastRun.stats?.intent} · confidence={lastRun.stats?.confidence?.toFixed(2)} · strategy=
+                      {lastRun.stats?.strategy}
                     </p>
-                    <p className="mb-2">
-                      plan={lastRun.plan?.template} / {lastRun.plan?.stance} · card={lastRun.plan?.card} · cache={lastRun.stats?.cache} · {lastRun.stats?.retrievalMs}ms · {lastRun.stats?.tokens.out} tokens
+                    <p className="mb-1">
+                      retrieval={lastRun.plan?.template === "casual" ? "disabled" : "enabled"} · plan=
+                      {lastRun.plan?.template} / {lastRun.plan?.stance} · card={lastRun.plan?.card} · cache=
+                      {lastRun.stats?.cache} · {lastRun.stats?.retrievalMs}ms · {lastRun.stats?.tokens.out} tokens
+                    </p>
+                    <p className="mb-2 text-ink-faint">
+                      latency={lastRun.stats?.totalMs ?? 0}ms · sources={lastRun.sources.length}
                     </p>
                     <ul className="flex flex-col gap-1">
                       {lastRun.sources.map((s) => (
@@ -390,7 +398,7 @@ export function Copilot() {
               {/* card rail */}
               <div className="hidden overflow-y-auto border-l border-line bg-bg/20 p-4 md:block">
                 <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint" dir={chromeLang === "ar" ? "rtl" : "ltr"}>
-                  {contextLabel(mode, chromeLang)}
+                  {contextLabel(contextTopic(lastRun?.plan ?? null, lastRun?.sources), chromeLang)}
                 </p>
                 <CopilotCardPanel card={lastRun?.card ?? null} planCard={lastRun?.plan?.card} sources={lastRun?.sources} lang={lastRun?.lang ?? "en"} />
               </div>

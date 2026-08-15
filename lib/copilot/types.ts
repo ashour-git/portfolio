@@ -54,7 +54,8 @@ export type PlanTemplate =
   | "skills"
   | "experience"
   | "decision"
-  | "general";
+  | "general"
+  | "casual";
 
 export type PlanStance = "high" | "medium" | "fallback";
 
@@ -100,7 +101,7 @@ export type CopilotEvent =
       retrievalMs: number;
       totalMs: number;
       cache: "hit" | "build" | "miss";
-      intent: Intent;
+      intent: Intent | "casual";
       confidence: number;
       strategy: "primary" | "relaxed";
     }

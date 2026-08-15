@@ -178,3 +178,35 @@ test("meta.lang follows the message language", async () => {
   }
   assert.equal(en.find((e) => e.type === "meta").lang, "en");
 });
+
+test("casual greeting is answered deterministically without retrieval", async () => {
+  const events: any[] = [];
+  for await (const ev of runCopilot(
+    { message: "أزيك؟", mode: "general", history: [] },
+    { apiKey: "k", model: "m", fetchImpl: fakeGroq(["data: [DONE]\n\n"]) },
+  )) {
+    events.push(ev);
+  }
+  const types = events.map((e) => e.type);
+  assert.ok(!types.includes("sources"), "casual must not trigger retrieval (no sources event)");
+  assert.ok(types.includes("delta"), "casual must still stream a reply");
+  const stats = events.find((e) => e.type === "stats");
+  assert.equal(stats.intent, "casual");
+  assert.equal(stats.retrievalMs, 0);
+  const delta = events.find((e) => e.type === "delta");
+  assert.match(delta.text, /المساعد الهندسي لمحمد/);
+  assert.equal(events.find((e) => e.type === "plan").plan.template, "casual");
+});
+
+test("'مين محمد؟' still routes to the portfolio pipeline", async () => {
+  const events: any[] = [];
+  for await (const ev of runCopilot(
+    { message: "مين محمد؟", mode: "general", history: [] },
+    { apiKey: "k", model: "m", fetchImpl: fakeGroq(["data: [DONE]\n\n"]), getEmbedder: async () => fastEmbed },
+  )) {
+    events.push(ev);
+  }
+  const stats = events.find((e) => e.type === "stats");
+  assert.notEqual(stats.intent, "casual");
+  assert.ok(events.some((e) => e.type === "sources"), "portfolio query must retrieve");
+});

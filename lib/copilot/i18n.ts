@@ -1,4 +1,4 @@
-import type { CopilotMode, Lang, Plan, SourceKind } from "@/lib/copilot/types";
+import type { CopilotMode, Lang, Plan, RetrievalResult, SourceKind } from "@/lib/copilot/types";
 
 const AR_MODE: Record<CopilotMode, string> = {
   general: "عام",
@@ -68,10 +68,59 @@ export function verifiedFrom(count: number, lang: Lang): string {
     : `Verified from ${count} indexed sources`;
 }
 
-export function contextLabel(mode: CopilotMode, lang: Lang): string {
-  return lang === "ar"
-    ? `السياق · ${modeLabel(mode, "ar")}`
-    : `Context · ${mode}`;
+export type ContextTopic =
+  | "general"
+  | "recruiter"
+  | "restai"
+  | "storefy"
+  | "kepler"
+  | "text2sql"
+  | "semantic-book"
+  | "architecture"
+  | "skills"
+  | "experience";
+
+const AR_TOPIC: Record<ContextTopic, string> = {
+  general: "عام",
+  recruiter: "توظيف",
+  restai: "RestAI",
+  storefy: "Storefy",
+  kepler: "Kepler",
+  "text2sql": "Text2SQL",
+  "semantic-book": "Semantic Book",
+  architecture: "معمارية",
+  skills: "المهارات",
+  experience: "الخبرة",
+};
+
+const PROJECT_TOPICS: ContextTopic[] = [
+  "restai",
+  "storefy",
+  "kepler",
+  "text2sql",
+  "semantic-book",
+];
+
+/**
+ * Derives the right-panel context topic from the run's plan + retrieved
+ * sources. Casual chit-chat collapses to GENERAL; a portfolio query about a
+ * known project surfaces that project (CONTEXT · RESTAI), and a recruiter
+ * query surfaces RECRUITER. See spec §13.
+ */
+export function contextTopic(plan: Plan | null, sources: RetrievalResult[] | undefined): ContextTopic {
+  if (plan?.template === "casual") return "general";
+  const project = sources?.find((s) => s.source.kind === "project");
+  const slug = project?.source.slug as ContextTopic | undefined;
+  if (slug && PROJECT_TOPICS.includes(slug)) return slug;
+  if (plan?.template === "recruiter") return "recruiter";
+  if (plan?.card === "skills") return "skills";
+  if (plan?.card === "timeline") return "experience";
+  return "general";
+}
+
+export function contextLabel(topic: ContextTopic, lang: Lang): string {
+  const t = lang === "ar" ? AR_TOPIC[topic] : topic.toUpperCase();
+  return lang === "ar" ? `السياق · ${t}` : `CONTEXT · ${t}`;
 }
 
 export const RELATED: Record<Lang, string> = {
