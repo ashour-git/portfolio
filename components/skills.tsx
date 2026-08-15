@@ -7,34 +7,26 @@ export function Skills() {
     <section id="stack" className="relative scroll-mt-24 py-24 md:py-32">
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
         <SectionHeader
+          variant="quiet"
           eyebrow="CAPABILITIES"
-          title="Capabilities,"
-          accent="not tool lists."
+          title="Capabilities, not tool lists."
           pull="Every capability below is exercised in a shipped project on GitHub — each one has a case study, tests, and an architecture diagram."
         />
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-2">
+        <div className="mt-12 grid gap-x-12 gap-y-px sm:grid-cols-2">
           {skills.map((group, i) => (
-            <Reveal key={group.title} delay={(i % 2) * 60} as="div">
-              <div className="glass flex h-full flex-col rounded-3xl p-7 transition-all hover:-translate-y-1 hover:border-border-strong hover:shadow-xl hover:shadow-black/30">
-                <div className="flex items-baseline justify-between gap-3">
+            <Reveal key={group.title} delay={(i % 2) * 50} as="div">
+              <div className="border-t border-line py-7">
+                <div className="flex items-baseline gap-3">
+                  <span className="eyebrow w-7 shrink-0">{String(i + 1).padStart(2, "0")}</span>
                   <h3 className="text-lg font-semibold tracking-tight text-ink">
                     {group.title}
                   </h3>
-                  <span className="font-mono text-xs text-ink-faint">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
                 </div>
-                <div className="mt-5 flex flex-wrap gap-1.5">
-                  {group.items.map((item) => (
-                    <span
-                      key={item}
-                      className="rounded-full border border-line bg-surface px-2.5 py-1 font-mono text-xs text-ink-soft"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
+                <p className="lead mt-2.5 text-[15px]">{group.statement}</p>
+                <p className="mt-3 font-mono text-xs text-ink-faint">
+                  {group.items.join("  ·  ")}
+                </p>
               </div>
             </Reveal>
           ))}

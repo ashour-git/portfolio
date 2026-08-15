@@ -783,39 +783,55 @@ export const trajectory: Progression[] = [
   },
 ];
 
-export type SkillGroup = { title: string; items: string[] };
+export type SkillGroup = { title: string; statement: string; items: string[] };
 
 export const skills: SkillGroup[] = [
   {
     title: "LLM Engineering",
+    statement:
+      "Grounded RAG, agentic systems, and evaluation wired into products that ship — not prompts bolted onto a demo.",
     items: ["RAG", "Agentic AI", "Prompt engineering", "Fine-tuning", "Evaluation"],
   },
   {
     title: "Retrieval-Augmented Generation",
+    statement:
+      "Vector search and embeddings over live operational data, so answers stay current instead of drifting from a stale snapshot.",
     items: ["Vector search", "Embeddings", "pgvector", "ChromaDB", "Hybrid retrieval"],
   },
   {
     title: "Machine Learning",
+    statement:
+      "Tabular modeling and demand forecasting with reproducible, tunable experiments — quality you can defend, not just claim.",
     items: ["LightGBM", "Scikit-Learn", "PyTorch", "Optuna", "MLflow", "Forecasting"],
   },
   {
     title: "Backend APIs",
+    statement:
+      "Typed services and streaming endpoints — FastAPI, Next.js, and SQL — built to hold up under real multi-tenant load.",
     items: ["FastAPI", "Next.js", "Node.js", "SQLAlchemy", "REST · SSE"],
   },
   {
     title: "Data Engineering",
+    statement:
+      "Pipelines and ETL with integrity checks and FAIR discipline, so the data a model learns from is trustworthy end to end.",
     items: ["PostgreSQL", "Pandas", "Pipelines", "ETL", "FAIR data"],
   },
   {
     title: "Computer Vision",
+    statement:
+      "Detection and inference pipelines operated like services — preprocess, model, deterministic postprocess — not re-run notebooks.",
     items: ["OpenCV", "YOLOv5", "MediaPipe", "ResNet-50", "CNNs"],
   },
   {
     title: "MLOps",
+    statement:
+      "Azure AI Foundry, CI, and evaluation treated as first-class production concerns — the model is one layer of a system.",
     items: ["Azure AI Foundry", "Azure OpenAI", "Docker", "GitHub Actions", "CI/CD"],
   },
   {
     title: "Cloud & Deployment",
+    statement:
+      "Docker, multi-tenancy, and Linux — taking an approach from prototype to a deployed, isolated, observable product.",
     items: ["Azure", "Docker Compose", "Vercel", "Linux", "Multi-tenancy"],
   },
 ];

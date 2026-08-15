@@ -48,7 +48,6 @@ function Widget({
 }) {
   const dim = activeId !== null && !active;
   const dir = HOVER_DIR[w.anchor];
-  const hoverY = w.drift % 2 === 0 ? [0, 3, 2, 0] : [0, -2, -3, 0];
 
   return (
     <div className={`absolute ${ANCHOR_CLASS[w.anchor]} hidden md:block`}>
@@ -68,19 +67,13 @@ function Widget({
         animate={{
           opacity: dim ? 0.94 : 1,
           x: dir !== 0 && active ? dir * 8 : 0,
-          y: active ? 0 : hoverY,
+          y: 0,
         }}
-        transition={{
-          y: active
-            ? { duration: 0.2, ease }
-            : { duration: w.drift, ease, repeat: Infinity },
-          x: { duration: 0.2, ease },
-          opacity: { duration: 0.25, ease },
-        }}
+        transition={{ duration: 0.25, ease }}
         className="glass cursor-pointer rounded-xl px-4 py-3 text-left outline-none transition-colors hover:border-accent/30 focus-visible:border-accent/30 focus-visible:ring-1 focus-visible:ring-accent/30"
       >
         <span className="flex items-center gap-2">
-          <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${statusColor(w.status)}`} />
+          <span aria-hidden="true" className={`h-1 w-1 rounded-full ${statusColor(w.status)}`} />
           <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-faint">{w.label}</span>
         </span>
         <span className="mt-1 block text-sm font-semibold tracking-tight text-ink">{w.value}</span>
@@ -199,12 +192,9 @@ export function CommandCenter() {
         style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
         className="relative"
       >
-        {/* frame + portrait */}
+        {/* frame + portrait (frame lives in Portrait) */}
         <div className="relative">
-          <div aria-hidden="true" className="frame-sweep rounded-[2.5rem]" />
-          <div className="glass-strong overflow-hidden rounded-[2.5rem] p-2">
-            <Portrait />
-          </div>
+          <Portrait />
         </div>
 
         {/* wires */}

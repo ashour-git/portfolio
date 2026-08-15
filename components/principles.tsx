@@ -6,23 +6,21 @@ export function Principles() {
   return (
     <section id="principles" className="relative scroll-mt-24 py-24 md:py-32">
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
-        <SectionHeader eyebrow="DECISION RULES" title="How I" accent="decide." />
+        <SectionHeader variant="statement" title="How I decide." />
 
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="mt-14 border-t border-line">
           {principles.map((p, i) => (
-            <Reveal key={p.index} delay={(i % 2) * 60} as="div">
-              <div className="glass group flex h-full flex-col gap-4 rounded-3xl p-7 transition-all hover:-translate-y-1 hover:border-border-strong hover:shadow-xl hover:shadow-black/30">
-                <div className="flex items-center gap-3">
-                  <span className="font-mono text-sm text-accent-2">
-                    {p.index}
-                  </span>
-                  <h3 className="text-lg font-semibold tracking-tight text-ink">
+            <Reveal key={p.index} delay={i * 50} as="div">
+              <div className="grid gap-4 border-b border-line py-9 md:grid-cols-[8rem_1fr] md:gap-12">
+                <span className="font-mono text-sm text-ink-faint">{p.index}</span>
+                <div>
+                  <h3 className="text-xl font-semibold tracking-tight text-ink md:text-2xl">
                     {p.title}
                   </h3>
+                  <p className="lead mt-3 max-w-2xl text-[15px] md:text-base">
+                    {p.body}
+                  </p>
                 </div>
-                <p className="text-[15px] leading-relaxed text-ink-soft">
-                  {p.body}
-                </p>
               </div>
             </Reveal>
           ))}

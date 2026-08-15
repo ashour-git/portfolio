@@ -68,9 +68,7 @@ export function Nav() {
     <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 md:px-6">
       <nav
         aria-label="Primary"
-        className={`glass mx-auto flex h-14 w-full max-w-6xl items-center justify-between rounded-2xl px-5 transition-shadow duration-300 ${
-          scrolled ? "shadow-lg shadow-black/30" : ""
-        }`}
+        className="surface mx-auto flex h-14 w-full max-w-6xl items-center justify-between rounded-2xl px-5"
       >
         <a
           href="#top"
@@ -168,7 +166,7 @@ export function Nav() {
       {open && (
         <div
           id="mobile-menu"
-          className="glass-strong mx-auto mt-2 w-full max-w-6xl rounded-2xl p-3 lg:hidden"
+          className="surface-strong mx-auto mt-2 w-full max-w-6xl rounded-2xl p-3 lg:hidden"
         >
           <ul className="flex flex-col gap-1">
             {links.map((l) => (

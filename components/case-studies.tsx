@@ -8,53 +8,41 @@ export function CaseStudies() {
     <section id="case-studies" className="relative scroll-mt-24 py-24 md:py-32">
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
         <SectionHeader
-          eyebrow="BUILD → EVIDENCE"
+          variant="statement"
           title="Decisions,"
           accent="not just tools."
           pull="Recruiters hire engineers for the choices they make under constraints. Each project below is a record of the architecture, the tradeoffs, and the proof that it works."
         />
 
-        <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-14 border-t border-line">
           {projects.map((p, i) => (
-            <Reveal key={p.index} delay={(i % 3) * 60} as="div">
-              <a
-                href={p.study ? `/case-studies/${p.study.slug}` : p.href}
-                target={p.study ? undefined : "_blank"}
-                rel={p.study ? undefined : "noopener noreferrer"}
-                className="glass group flex h-full flex-col rounded-3xl p-7 transition-all hover:-translate-y-1 hover:border-border-strong hover:shadow-xl hover:shadow-black/30"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs text-ink-faint">
-                    {p.index}
+            <Reveal key={p.index} delay={(i % 3) * 50} as="li">
+              <li className="border-b border-line">
+                <a
+                  href={p.study ? `/case-studies/${p.study.slug}` : p.href}
+                  target={p.study ? undefined : "_blank"}
+                  rel={p.study ? undefined : "noopener noreferrer"}
+                  className="group grid gap-3 py-7 transition-colors hover:bg-surface/40 md:grid-cols-[4rem_10rem_1fr_auto] md:items-baseline md:gap-8"
+                >
+                  <span className="eyebrow">{p.index}</span>
+                  <span className="eyebrow text-ink-soft">{p.domain}</span>
+                  <div>
+                    <h3 className="text-lg font-semibold tracking-tight text-ink md:text-xl">
+                      {p.title}
+                    </h3>
+                    <p className="lead mt-2 max-w-2xl text-[15px]">
+                      {p.decisions[0].title}: {p.decisions[0].body}
+                    </p>
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-ink-soft transition-colors group-hover:text-accent">
+                    Case study
+                    <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                   </span>
-                  <span className="rounded-full border border-line px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-wide text-ink-soft">
-                    {p.domain}
-                  </span>
-                </div>
-                <h3 className="mt-5 text-xl font-semibold tracking-tight text-ink">
-                  {p.title}
-                </h3>
-                <p className="mt-3 flex-1 text-sm leading-relaxed text-ink-soft">
-                  {p.decisions[0].title}: {p.decisions[0].body}
-                </p>
-                <div className="mt-6 flex flex-wrap gap-1.5">
-                  {p.performance.slice(0, 3).map((m) => (
-                    <span
-                      key={m.label}
-                      className="rounded-full border border-line bg-surface px-2.5 py-0.5 font-mono text-[11px] text-ink-soft"
-                    >
-                      {m.value} {m.label}
-                    </span>
-                  ))}
-                </div>
-                <span className="mt-6 inline-flex items-center gap-1.5 border-t border-line pt-4 text-sm font-medium text-ink transition-colors group-hover:text-accent">
-                  Read the case study
-                  <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                </span>
-              </a>
+                </a>
+              </li>
             </Reveal>
           ))}
-        </div>
+        </ul>
 
         {/* GitHub proof strip */}
         <Reveal as="div" delay={120}>

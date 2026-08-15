@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { projects, projectFilters, type Project } from "@/lib/data";
 import { ArchitectureDiagram } from "./architecture-diagram";
@@ -71,7 +71,7 @@ export function Projects() {
             </div>
           </div>
           <div className="mt-5">
-            <SectionHeader eyebrow="FEATURED AI PRODUCTS" title="Built as systems," accent="shipped as products." />
+            <SectionHeader variant="statement" title="Built as systems," accent="shipped as products." />
           </div>
         </div>
 
@@ -123,6 +123,21 @@ function ProjectCard({
   return <ShowcaseCard p={p} index={index} />;
 }
 
+function NarrativeRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="grid gap-4 border-b border-line py-9 md:grid-cols-[12rem_1fr] md:gap-10">
+      <span className="eyebrow pt-1">{label}</span>
+      <div className="max-w-2xl">{children}</div>
+    </div>
+  );
+}
+
 function FlagshipCard({ p }: { p: Project }) {
   return (
     <motion.div
@@ -133,8 +148,8 @@ function FlagshipCard({ p }: { p: Project }) {
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.6, ease }}
     >
-      {/* hero image */}
-      <div className="glass group relative overflow-hidden rounded-[2rem]">
+      {/* PRODUCT — large interface */}
+      <div className="group relative overflow-hidden rounded-[2rem] border border-line">
         <div className="relative aspect-[16/9] w-full overflow-hidden sm:aspect-[16/8]">
           <Cover
             p={p}
@@ -147,104 +162,110 @@ function FlagshipCard({ p }: { p: Project }) {
         </div>
       </div>
 
-      {/* tagline + links */}
-      <div className="mt-10 grid items-center gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+      {/* THESIS */}
+      <div className="mt-10 grid gap-6 lg:grid-cols-[1.5fr_1fr] lg:items-end">
         <div>
-          <p className="mb-2 font-mono text-xs uppercase tracking-[0.22em] text-ink-faint">
-            Flagship product
-          </p>
-          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-            <h3 className="text-3xl font-semibold tracking-tight text-ink md:text-4xl">
-              {p.title}
-            </h3>
-            <span className="font-mono text-sm text-ink-faint">{p.index}</span>
-          </div>
-          <p className="mt-4 max-w-xl text-lg leading-relaxed text-ink-soft">
-            {p.tagline}
-          </p>
+          <p className="eyebrow mb-3">Flagship product</p>
+          <h3 className="display max-w-xl">{p.title}</h3>
         </div>
-        <div className="flex flex-wrap items-center gap-3 lg:justify-end">
-          <a
-            href={studyHref(p)}
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-5 py-2.5 text-sm font-semibold text-bg transition-opacity hover:opacity-90"
-          >
-            Case study
-            <ArrowIcon className="h-4 w-4" />
-          </a>
-          <a
-            href={p.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="glass inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:text-white"
-          >
-            GitHub
-          </a>
-        </div>
+        <p className="lead">{p.tagline}</p>
       </div>
 
-      {/* problem / solution */}
-      <div className="mt-10 grid gap-5 md:grid-cols-2">
-        <div className="glass rounded-3xl p-7">
-          <SectionLabel tone="rose">Problem</SectionLabel>
-          <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
+      {/* NARRATIVE */}
+      <div className="mt-12 border-t border-line">
+        <NarrativeRow label="Problem">
+          <p className="text-[15px] leading-relaxed text-ink-soft md:text-base">
             {p.problem}
           </p>
-        </div>
-        <div className="glass rounded-3xl p-7">
-          <SectionLabel tone="emerald">Solution</SectionLabel>
-          <p className="mt-3 text-[15px] leading-relaxed text-ink-soft">
+        </NarrativeRow>
+        <NarrativeRow label="Approach">
+          <p className="text-[15px] leading-relaxed text-ink-soft md:text-base">
             {p.solution}
           </p>
-        </div>
-      </div>
+        </NarrativeRow>
 
-      {/* architecture + decisions */}
-      <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1.1fr]">
-        <ArchitectureDiagram flow={p.architecture} />
-        <div className="flex flex-col gap-5">
-          <div className="rounded-2xl border border-line bg-bg/40 p-5 sm:p-7">
-            <SectionLabel>Why this architecture</SectionLabel>
-            <div className="mt-4 space-y-5">
-              {p.decisions.map((d) => (
-                <div key={d.title} className="border-l border-border-strong pl-4">
-                  <p className="text-sm font-semibold text-ink">{d.title}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-ink-soft">
+        {/* DECISIONS */}
+        <div className="grid gap-6 border-b border-line py-10 md:grid-cols-[12rem_1fr] md:gap-10">
+          <span className="eyebrow pt-1">Decisions</span>
+          <div className="space-y-7">
+            {p.decisions.map((d, i) => (
+              <div
+                key={d.title}
+                className="grid gap-3 md:grid-cols-[2.5rem_1fr] md:gap-5"
+              >
+                <span className="font-mono text-sm text-ink-faint">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <p className="text-base font-semibold tracking-tight text-ink">
+                    {d.title}
+                  </p>
+                  <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">
                     {d.body}
                   </p>
                 </div>
-              ))}
-            </div>
-          </div>
-          <div className="glass grid grid-cols-3 divide-x divide-border rounded-2xl">
-            {p.performance.map((m) => (
-              <div key={m.label} className="px-4 py-5 text-center sm:px-6">
-                <p className="text-lg font-semibold tracking-tight text-ink sm:text-xl">
-                  {m.value}
-                </p>
-                <p className="mt-1 font-mono text-[10px] uppercase tracking-wide text-ink-faint">
-                  {m.label}
-                </p>
               </div>
             ))}
           </div>
         </div>
+
+        {/* ARCHITECTURE */}
+        <div className="grid gap-6 border-b border-line py-10 md:grid-cols-[12rem_1fr] md:gap-10">
+          <span className="eyebrow pt-1">Architecture</span>
+          <div>
+            <ArchitectureDiagram flow={p.architecture} />
+            {p.architecture.caption && (
+              <p className="mt-4 font-mono text-xs leading-relaxed text-ink-faint">
+                {p.architecture.caption}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* EVIDENCE */}
+        <div className="grid gap-6 border-b border-line py-10 md:grid-cols-[12rem_1fr] md:gap-10">
+          <span className="eyebrow pt-1">Evidence</span>
+          <div>
+            <div className="surface grid grid-cols-3 divide-x divide-border rounded-2xl">
+              {p.performance.map((m) => (
+                <div key={m.label} className="px-4 py-5 text-center sm:px-6">
+                  <p className="text-lg font-semibold tracking-tight text-ink sm:text-xl">
+                    {m.value}
+                  </p>
+                  <p className="mt-1 font-mono text-[10px] uppercase tracking-wide text-ink-faint">
+                    {m.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-5">
+              <PipelineStrip flow={p.architecture} />
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="mt-6">
-        <PipelineStrip flow={p.architecture} />
+      {/* LINKS + STACK */}
+      <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+        <a
+          href={studyHref(p)}
+          className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-accent-2 px-5 py-2.5 text-sm font-semibold text-bg transition-opacity hover:opacity-90"
+        >
+          Case study
+          <ArrowIcon className="h-4 w-4" />
+        </a>
+        <a
+          href={p.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 rounded-full border border-line px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:border-border-strong"
+        >
+          GitHub
+        </a>
       </div>
-
-      {/* stack */}
-      <div className="mt-6 flex flex-wrap gap-2">
-        {p.stack.map((t) => (
-          <span
-            key={t}
-            className="rounded-full border border-line bg-surface px-3 py-1 font-mono text-xs text-ink-soft"
-          >
-            {t}
-          </span>
-        ))}
-      </div>
+      <p className="mt-5 font-mono text-xs text-ink-faint">
+        {p.stack.join("  ·  ")}
+      </p>
     </motion.div>
   );
 }
@@ -265,7 +286,7 @@ function ShowcaseCard({ p, index = 0 }: { p: Project; index?: number }) {
         ease,
       }}
       whileHover={{ y: -4 }}
-      className="glass flex flex-col overflow-hidden rounded-3xl transition-shadow duration-300 hover:shadow-2xl hover:shadow-black/30"
+      className="flex flex-col overflow-hidden rounded-3xl border border-line bg-surface transition-colors hover:border-border-strong"
     >
       <div className="group relative aspect-[16/9] overflow-hidden">
         <Cover
