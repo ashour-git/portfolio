@@ -287,11 +287,12 @@ export function Copilot() {
                             }
                           >
                             {m.role === "assistant" ? (
-                              <CopilotMarkdown text={m.text} lang={runs[m.id]?.lang ?? "en"} />
+                              <CopilotMarkdown
+                                text={m.text}
+                                lang={runs[m.id]?.lang ?? detectLanguage(m.text)}
+                              />
                             ) : (
-                              <span dir={detectLanguage(m.text) === "ar" ? "rtl" : "ltr"} lang={detectLanguage(m.text)}>
-                                {m.text}
-                              </span>
+                              m.text
                             )}
                           </div>
                         </div>

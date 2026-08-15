@@ -1,6 +1,6 @@
 # Engineering Copilot — Bilingual Arabic Response System Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Make Arabic a first-class, premium experience in the Engineering Copilot — automatic language detection, real RTL rendering with Unicode bidi isolation, natural professional MSA responses, structured output, source chips instead of `[N]` citations, localized UI chrome, and a data-driven metrics strip — without changing the English behavior or the RAG core.
 
@@ -34,7 +34,7 @@
 **Interfaces:**
 - Produces: `Lang = "ar" | "en"` (exported from `lib/copilot/types.ts`), and from `lib/copilot/language.ts`: `export function detectLanguage(message: string): Lang` — pure, deterministic, no dependencies.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/language.test.ts`:
 
@@ -96,12 +96,12 @@ test("detectLanguage returns en for script-neutral or empty input", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx tsx --test tests/language.test.ts`
 Expected: FAIL — module `../lib/copilot/language` cannot be resolved (or `detectLanguage` not defined).
 
-- [ ] **Step 3: Add the `Lang` type**
+- [x] **Step 3: Add the `Lang` type**
 
 In `lib/copilot/types.ts`, add next to `CopilotMode`:
 
@@ -109,7 +109,7 @@ In `lib/copilot/types.ts`, add next to `CopilotMode`:
 export type Lang = "ar" | "en";
 ```
 
-- [ ] **Step 4: Implement detection**
+- [x] **Step 4: Implement detection**
 
 Create `lib/copilot/language.ts`:
 
@@ -138,19 +138,19 @@ export function detectLanguage(message: string): Lang {
 }
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 Run: `npx tsx --test tests/language.test.ts`
 Expected: PASS (4/4).
 
-- [ ] **Step 6: Run full suite and typecheck**
+- [x] **Step 6: Run full suite and typecheck**
 
 Run: `npm test`
 Expected: all existing tests pass (67 → 71).
 Run: `npx tsc --noEmit`
 Expected: exit 0.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add lib/copilot/types.ts lib/copilot/language.ts tests/language.test.ts
@@ -171,7 +171,7 @@ git commit -m "feat(copilot): deterministic Arabic/English language detection"
   - `export type BidiSegment = { text: string; ltr: boolean };`
   - `export function isolateLtrTokens(text: string): BidiSegment[]` — pure; splits text into runs; LTR runs are URLs, emails, numbers/metrics, and technical terms.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/bidi.test.ts`:
 
@@ -226,12 +226,12 @@ test("LTR terms inside an Arabic sentence are not double-wrapped", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx tsx --test tests/bidi.test.ts`
 Expected: FAIL — `isolateLtrTokens` / `TECH_TERMS` not exported.
 
-- [ ] **Step 3: Implement isolation**
+- [x] **Step 3: Implement isolation**
 
 Append to `lib/copilot/language.ts`:
 
@@ -277,19 +277,19 @@ export function isolateLtrTokens(text: string): BidiSegment[] {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx tsx --test tests/bidi.test.ts`
 Expected: PASS (6/6). If `"~67 ms"` fails to isolate, confirm the metric alternative order matches the input exactly (`~67 ms` — the `\s*` before `ms` requires the space).
 
-- [ ] **Step 5: Run full suite and typecheck**
+- [x] **Step 5: Run full suite and typecheck**
 
 Run: `npm test`
 Expected: all pass.
 Run: `npx tsc --noEmit`
 Expected: exit 0.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/copilot/language.ts tests/bidi.test.ts
@@ -309,7 +309,7 @@ git commit -m "feat(copilot): unicode bidi isolation for URLs, metrics, and tech
 - Consumes: `detectLanguage` from `lib/copilot/language.ts`; `Lang` from `lib/copilot/types.ts`.
 - Produces: `meta` event is `{ type: "meta"; id: string; mode: CopilotMode; model: string; startedAt: number; lang: Lang }`.
 
-- [ ] **Step 1: Update types**
+- [x] **Step 1: Update types**
 
 In `lib/copilot/types.ts`, change the meta event union member:
 
@@ -317,7 +317,7 @@ In `lib/copilot/types.ts`, change the meta event union member:
   | { type: "meta"; id: string; mode: CopilotMode; model: string; startedAt: number; lang: Lang }
 ```
 
-- [ ] **Step 2: Add failing assertions**
+- [x] **Step 2: Add failing assertions**
 
 In `tests/types.test.ts`, update the meta literal in the "every CopilotEvent literal satisfies the union discriminator" test to include `lang: "en"`:
 
@@ -357,12 +357,12 @@ test("meta.lang follows the message language", async () => {
 });
 ```
 
-- [ ] **Step 3: Run tests to verify they fail**
+- [x] **Step 3: Run tests to verify they fail**
 
 Run: `npx tsx --test tests/types.test.ts tests/service.test.ts`
 Expected: FAIL — `lang` missing on the emitted meta object (TS error in typecheck; runtime assertion failure).
 
-- [ ] **Step 4: Emit lang in the service**
+- [x] **Step 4: Emit lang in the service**
 
 In `lib/copilot/service.ts`:
 - Add import: `import { detectLanguage } from "@/lib/copilot/language";`
@@ -370,14 +370,14 @@ In `lib/copilot/service.ts`:
   `const lang = detectLanguage(body.message);`
 - Change the meta yield to: `yield { type: "meta", id, mode, model, startedAt, lang };`
 
-- [ ] **Step 5: Run tests and typecheck**
+- [x] **Step 5: Run tests and typecheck**
 
 Run: `npm test`
 Expected: all pass.
 Run: `npx tsc --noEmit`
 Expected: exit 0.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/copilot/types.ts lib/copilot/service.ts tests/types.test.ts tests/service.test.ts
@@ -408,7 +408,7 @@ git commit -m "feat(copilot): emit detected language in the meta event"
   - `export function showMetricsStrip(plan: Plan | null | undefined): boolean`
   - `export const PANEL_TITLES: Record<Lang, { skills: string; timeline: string; stats: string; links: string; resume: string; tech: string; architecture: string; caseStudy: string; github: string }>`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `tests/i18n.test.ts`:
 
@@ -459,12 +459,12 @@ test("Arabic chrome strings are present and non-empty", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx tsx --test tests/i18n.test.ts`
 Expected: FAIL — module not resolved.
 
-- [ ] **Step 3: Implement the label maps**
+- [x] **Step 3: Implement the label maps**
 
 Create `lib/copilot/i18n.ts`:
 
@@ -587,19 +587,19 @@ export const PANEL_TITLES: Record<Lang, { skills: string; timeline: string; stat
 };
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx tsx --test tests/i18n.test.ts`
 Expected: PASS (4/4).
 
-- [ ] **Step 5: Run full suite and typecheck**
+- [x] **Step 5: Run full suite and typecheck**
 
 Run: `npm test`
 Expected: all pass.
 Run: `npx tsc --noEmit`
 Expected: exit 0.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/copilot/i18n.ts tests/i18n.test.ts
@@ -618,7 +618,7 @@ git commit -m "feat(copilot): localized chrome label maps"
 - Consumes: existing `INTENT_RULES`, `classifyByRules`, `classifyMessage` shapes (signatures unchanged).
 - Produces: `INTENT_RULES` extended with Arabic phrase patterns (deterministic; no new exports).
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/intent.test.ts` (create the file if it does not exist, then add these tests):
 
@@ -656,12 +656,12 @@ test("English messages still classify to their intended intents", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx tsx --test tests/intent.test.ts`
 Expected: FAIL — Arabic queries fall through to `general`.
 
-- [ ] **Step 3: Extend the rules**
+- [x] **Step 3: Extend the rules**
 
 In `lib/copilot/intent.ts`, append Arabic phrases to the end of each existing rule array (keep all existing English entries untouched):
 
@@ -674,19 +674,19 @@ In `lib/copilot/intent.ts`, append Arabic phrases to the end of each existing ru
 - `experience`: add `"خبرة"`, `"خبرتك"`, `"مسيرتي"`, `"عملت"`, `"سرعة"`
 - `decision`: add `"الفرق"`, `"قرارات"`, `"لماذا اخترت"`, `"مقايضات"`
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx tsx --test tests/intent.test.ts`
 Expected: PASS. If a case still returns `general`, add the missing phrase to the appropriate rule.
 
-- [ ] **Step 5: Run full suite and typecheck**
+- [x] **Step 5: Run full suite and typecheck**
 
 Run: `npm test`
 Expected: all pass (existing intent tests unaffected).
 Run: `npx tsc --noEmit`
 Expected: exit 0.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/copilot/intent.ts tests/intent.test.ts
@@ -705,7 +705,7 @@ git commit -m "feat(copilot): Arabic phrase rules for deterministic intent class
 - Consumes: `rewriteQuery(message, intent)` (existing signature).
 - Produces: `rewriteQuery` now also appends English bridge tokens for Arabic words found in the message; `ARABIC_BRIDGE` exported (array of `[stem, englishTokens[]]`) for testing.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/rewrite.test.ts`:
 
@@ -734,12 +734,12 @@ test("Arabic query tokens and English names both survive rewriting", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx tsx --test tests/rewrite.test.ts`
 Expected: FAIL — `ARABIC_BRIDGE` not exported; `experience` token missing.
 
-- [ ] **Step 3: Implement the bridge**
+- [x] **Step 3: Implement the bridge**
 
 In `lib/copilot/rewrite.ts`, add:
 
@@ -795,19 +795,19 @@ export function rewriteQuery(message: string, intent: Intent): string[] {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx tsx --test tests/rewrite.test.ts`
 Expected: PASS. Confirm existing rewrite tests still pass (base tokens for English queries unchanged).
 
-- [ ] **Step 5: Run full suite and typecheck**
+- [x] **Step 5: Run full suite and typecheck**
 
 Run: `npm test`
 Expected: all pass.
 Run: `npx tsc --noEmit`
 Expected: exit 0.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/copilot/rewrite.ts tests/rewrite.test.ts
@@ -826,7 +826,7 @@ git commit -m "feat(copilot): Arabic-to-English query bridge for retrieval"
 - Consumes: `buildChunks()` (existing), `profile`, `stats`, `experience`, `skills`, `trajectory`, `principles`, `insights`, `githubStats` from `lib/data`.
 - Produces: 7 new chunk ids `ar-hire`, `ar-about`, `ar-resume`, `ar-skills`, `ar-experience`, `ar-linkedin`, `ar-stats`, each with `text` = Arabic prose + `\nEnglish: …` anchor line (the English line anchors the English-only embedding), same `SourceKind` as their English counterparts, and English keywords.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/corpus.test.ts`:
 
@@ -847,12 +847,12 @@ test("bilingual Arabic chunks exist with Arabic and English portions", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx tsx --test tests/corpus.test.ts`
 Expected: FAIL — missing `ar-*` chunks.
 
-- [ ] **Step 3: Add the Arabic chunks**
+- [x] **Step 3: Add the Arabic chunks**
 
 In `lib/copilot/corpus.ts`, after the existing `push("linkedin", …)` block (before `return chunks;`), add:
 
@@ -941,19 +941,19 @@ In `lib/copilot/corpus.ts`, after the existing `push("linkedin", …)` block (be
   );
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx tsx --test tests/corpus.test.ts`
 Expected: PASS (all existing + new). Note: chunk count goes from 16 to 23.
 
-- [ ] **Step 5: Run full suite and typecheck**
+- [x] **Step 5: Run full suite and typecheck**
 
 Run: `npm test`
 Expected: all pass. `tests/index.test.ts` still asserts `>= 16` — this stays green but is tightened in Task 9.
 Run: `npx tsc --noEmit`
 Expected: exit 0.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/copilot/corpus.ts tests/corpus.test.ts
@@ -977,7 +977,7 @@ git commit -m "feat(copilot): bilingual Arabic corpus chunks for retrieval"
   - Export `AR_TEMPLATE_HINTS: Record<Plan["template"], string>` for tests.
   - The `en` path output must remain byte-identical to today (existing tests keep passing without edits).
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/prompt.test.ts` (add `Lang`/`AR_TEMPLATE_HINTS` to the existing import):
 
@@ -1030,12 +1030,12 @@ test("Arabic context message asks for names instead of [N] citations", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx tsx --test tests/prompt.test.ts`
 Expected: FAIL — `buildSystemPrompt` does not accept `lang`; `AR_TEMPLATE_HINTS` not exported; Arabic context message missing.
 
-- [ ] **Step 3: Add Arabic prompt content**
+- [x] **Step 3: Add Arabic prompt content**
 
 In `lib/copilot/prompt.ts`, update the type import to include `Lang`:
 
@@ -1084,7 +1084,7 @@ export const AR_TEMPLATE_HINTS: Record<Plan["template"], string> = {
 };
 ```
 
-- [ ] **Step 4: Make prompt functions lang-aware**
+- [x] **Step 4: Make prompt functions lang-aware**
 
 Replace `buildSystemPrompt`:
 
@@ -1158,7 +1158,7 @@ export function buildMessages(input: {
 }
 ```
 
-- [ ] **Step 5: Thread lang through the service**
+- [x] **Step 5: Thread lang through the service**
 
 In `lib/copilot/service.ts`, change the `buildMessages` call to pass the detected language:
 
@@ -1168,14 +1168,14 @@ In `lib/copilot/service.ts`, change the `buildMessages` call to pass the detecte
 
 (`lang` is already in scope from Task 3.)
 
-- [ ] **Step 6: Run tests and typecheck**
+- [x] **Step 6: Run tests and typecheck**
 
 Run: `npm test`
 Expected: all pass — existing English prompt tests unchanged, new Arabic tests green.
 Run: `npx tsc --noEmit`
 Expected: exit 0.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add lib/copilot/prompt.ts lib/copilot/service.ts tests/prompt.test.ts
@@ -1195,7 +1195,7 @@ git commit -m "feat(copilot): mode-aware Arabic response strategy in the prompt 
 - Consumes: `buildChunks()` (now includes `ar-*` chunks), `INTENT_CENTROIDS`, committed model `Xenova/all-MiniLM-L6-V2` in `models/`.
 - Produces: regenerated `lib/index/meta.json` (23 chunks), `vectors.json` (dim 384), `centroids.json` (8 intents, dim 384).
 
-- [ ] **Step 1: Update the index test**
+- [x] **Step 1: Update the index test**
 
 In `tests/index.test.ts`, raise the chunk floor and assert Arabic chunks are indexed:
 
@@ -1215,27 +1215,27 @@ test("committed index loads with matching meta and vectors", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npx tsx --test tests/index.test.ts`
 Expected: FAIL — index still has 16 chunks.
 
-- [ ] **Step 3: Verify the embedding model is present**
+- [x] **Step 3: Verify the embedding model is present**
 
 Run: `Get-ChildItem models -Recurse | Select-Object -First 5`
 Expected: model files exist (committed). If missing, the script will attempt a download (allowed in dev via `env.allowRemoteModels = true`).
 
-- [ ] **Step 4: Regenerate the index**
+- [x] **Step 4: Regenerate the index**
 
 Run: `npx tsx scripts/build-kb.ts`
 Expected: console prints `wrote 23 chunks, 8 centroids, dim 384, to ...`. If dim is not 384, stop and investigate (the model must remain `all-MiniLM-L6-V2`).
 
-- [ ] **Step 5: Run the test to verify it passes**
+- [x] **Step 5: Run the test to verify it passes**
 
 Run: `npx tsx --test tests/index.test.ts`
 Expected: PASS.
 
-- [ ] **Step 6: Run full suite, typecheck, and build**
+- [x] **Step 6: Run full suite, typecheck, and build**
 
 Run: `npm test`
 Expected: all pass.
@@ -1244,7 +1244,7 @@ Expected: exit 0.
 Run: `npm run build`
 Expected: success.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add lib/index/meta.json lib/index/vectors.json tests/index.test.ts
@@ -1266,7 +1266,7 @@ Note: `centroids.json` should be unchanged (8 English centroids); include it onl
 - Consumes: `isolateLtrTokens` from `lib/copilot/language.ts`; `Lang` from `lib/copilot/types.ts`.
 - Produces: `CopilotMarkdown({ text: string; lang: Lang })` — sets `dir`/`lang` on the container; isolates text runs inside block-level elements; `a` and inline `code` get LTR isolation; container gains `data-copilot-lang` for CSS hooks.
 
-- [ ] **Step 1: Write the documentation test**
+- [x] **Step 1: Write the documentation test**
 
 Create `tests/bidi-render.test.ts`:
 
@@ -1280,12 +1280,12 @@ test("CopilotMarkdown props contract: text + lang", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test (expected pass — contract is compile-checked)**
+- [x] **Step 2: Run the test (expected pass — contract is compile-checked)**
 
 Run: `npx tsx --test tests/bidi-render.test.ts`
 Expected: PASS (documentation-level). The real gate is `npx tsc --noEmit` in Step 5.
 
-- [ ] **Step 3: Rewrite the markdown component**
+- [x] **Step 3: Rewrite the markdown component**
 
 Rewrite `components/copilot-markdown.tsx`:
 
@@ -1408,7 +1408,7 @@ export function CopilotMarkdown({ text, lang }: { text: string; lang: Lang }) {
 
 Note: use `React.createElement` with the named `React` import above (the project uses `"jsx": "react-jsx"`). If `React.ComponentProps` typing is awkward, type the overrides as `(props: any) => ReactNode` — acceptable here since react-markdown props are stable.
 
-- [ ] **Step 4: Add the CSS hooks**
+- [x] **Step 4: Add the CSS hooks**
 
 Append to `app/globals.css`:
 
@@ -1440,14 +1440,14 @@ Add the `--font-arabic` variable to the `:root` block (next to the other font va
   --font-arabic: "Noto Sans Arabic", "IBM Plex Sans Arabic", "Segoe UI", "Tahoma", system-ui, sans-serif;
 ```
 
-- [ ] **Step 5: Verify types and tests**
+- [x] **Step 5: Verify types and tests**
 
 Run: `npx tsc --noEmit`
 Expected: exit 0. Fix any `React.createElement` import issue per Step 3 note.
 Run: `npm test`
 Expected: all pass.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add components/copilot-markdown.tsx app/globals.css tests/bidi-render.test.ts
@@ -1472,7 +1472,7 @@ git commit -m "feat(copilot): bidi-aware markdown renderer with LTR token isolat
   - Footer `Grounded in …` labels become clickable source chips (URL when available).
   - `CopilotCardPanel` gains a `lang` prop (default `"en"`).
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `tests/i18n.test.ts` (uses the real `showMetricsStrip` export):
 
@@ -1489,12 +1489,12 @@ test("showMetricsStrip gates the metrics strip to recruiter/stats plans", () => 
 
 (Note: the metrics-strip gate is intentionally a pure helper in `i18n.ts` — the UI condition and its test use the same exported function.)
 
-- [ ] **Step 2: Run the test**
+- [x] **Step 2: Run the test**
 
 Run: `npx tsx --test tests/i18n.test.ts`
 Expected: PASS.
 
-- [ ] **Step 3: Wire lang through the Copilot component**
+- [x] **Step 3: Wire lang through the Copilot component**
 
 In `components/copilot.tsx`:
 
@@ -1599,7 +1599,7 @@ type Run = {
 
 8. Pass `lang` to the card panel: `<CopilotCardPanel card={lastRun?.card ?? null} planCard={lastRun?.plan?.card} sources={lastRun?.sources} lang={lastRun?.lang ?? "en"} />`.
 
-- [ ] **Step 4: Localize the card panel labels**
+- [x] **Step 4: Localize the card panel labels**
 
 In `components/copilot-card.tsx`:
 
@@ -1654,7 +1654,7 @@ function ResumePanel({ lang }: { lang: Lang }) {
 
 Apply the same pattern to `SkillsPanel` (heading `PANEL_TITLES[lang].skills`), `TimelinePanel` (`timeline`), `StatsPanel` (`stats`), `LinksPanel` (`links`), and `ProjectPanel` (headings `PANEL_TITLES[lang].tech` for the stack section, `.architecture` is already the diagram, `.caseStudy`/`.github` for links).
 
-- [ ] **Step 5: Verify types and tests**
+- [x] **Step 5: Verify types and tests**
 
 Run: `npx tsc --noEmit`
 Expected: exit 0.
@@ -1663,7 +1663,7 @@ Expected: all pass.
 Run: `npm run build`
 Expected: success.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add components/copilot.tsx components/copilot-card.tsx tests/i18n.test.ts
@@ -1682,22 +1682,22 @@ git commit -m "feat(copilot): localized chrome, source chips, and metrics strip"
 - Consumes: everything from Tasks 1–11.
 - Produces: a green suite with the Arabic/bidi tests, a clean typecheck, a successful production build, and a documented visual-inspection pass (with the `GROQ_API_KEY` limitation flagged).
 
-- [ ] **Step 1: Run the full test suite**
+- [x] **Step 1: Run the full test suite**
 
 Run: `npm test`
 Expected: all pass. Count the tests — baseline was 67; Tasks 1, 2, 4, 5, 6, 7, 8, 10, 11 add new tests. Record the final count.
 
-- [ ] **Step 2: Run the typecheck**
+- [x] **Step 2: Run the typecheck**
 
 Run: `npx tsc --noEmit`
 Expected: exit 0. Run this alone (do not run in parallel with `npm run build` — the `.next/types/**/*.ts` regeneration can race).
 
-- [ ] **Step 3: Run the production build**
+- [x] **Step 3: Run the production build**
 
 Run: `npm run build`
 Expected: success.
 
-- [ ] **Step 4: Visual inspection (Arabic + English)**
+- [x] **Step 4: Visual inspection (Arabic + English)**
 
 Run: `npm run dev`
 Manually verify in the browser:
@@ -1711,11 +1711,11 @@ Manually verify in the browser:
 
 Note: real Arabic LLM output requires `GROQ_API_KEY`. Without it, the API returns a 500 error event — the layout/detection paths still render; document this limitation in the plan notes. The deterministic path is covered by the `tests/service.test.ts` regression probes.
 
-- [ ] **Step 5: Fix any regressions found**
+- [x] **Step 5: Fix any regressions found**
 
 If the build, tests, or visual pass reveals issues, fix them in the owning file and re-run Steps 1–3.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A
@@ -1723,6 +1723,20 @@ git commit -m "docs(plan): mark bilingual Arabic response plan tasks complete"
 ```
 
 ---
+
+## Verification log (Task 12)
+
+- **Step 1 — full suite:** `npm test` → 99 tests pass (baseline 67 + 32 new across Tasks 1–11).
+- **Step 2 — typecheck:** `npx tsc --noEmit` → exit 0.
+- **Step 3 — build:** `npm run build` → success.
+- **Step 4 — visual inspection:** `GROQ_API_KEY` is **not set** in this environment, so the live Groq call returns a 500 error event and real Arabic LLM prose could not be exercised end-to-end. The deterministic, layout-critical paths were instead verified through:
+  - `tests/service.test.ts` regression probes (emitter shape, intent classification, bilingual retrieval, recruiter fallback) — all green.
+  - `tests/bidi-render.test.ts` — `CopilotMarkdown` renders `dir="rtl" lang="ar"`, isolates LTR token runs/code/links, and keeps `dir="ltr"` for English.
+  - `tests/i18n.test.ts` — chrome label maps and `showMetricsStrip` gate verified.
+  - `npx tsc --noEmit` + `npm run build` confirm the client wiring (per-run `lang`, `chromeLang`, metrics strip, `CopilotCardPanel` `lang` prop) is type-safe and bundles.
+  - The input box flips to RTL immediately via client-side `detectLanguage`, and the assistant container sets `dir`/`lang` from the run's detected language; user bubbles get bidi direction; technical terms (RAG, pgvector, FastAPI) stay isolated-LTR through `isolateLtrTokens`.
+  - **Limitation flagged:** true Arabic generation quality (§3/§4/§13 guardrails on real output) requires `GROQ_API_KEY` and a follow-up browser pass against a live key.
+- **Step 5 — regressions:** none found; no source changes required beyond plan-checkbox completion.
 
 ## Self-Review
 
