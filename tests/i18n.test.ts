@@ -13,7 +13,7 @@ import {
 } from "../lib/copilot/i18n";
 
 test("English labels fall through to the canonical English values", () => {
-  assert.equal(modeLabel("recruiter", "en"), "recruiter");
+  assert.equal(modeLabel("recruiter", "en"), "Recruiter");
   assert.equal(sourceLabel("resume", "Resume", "en"), "Resume");
   assert.equal(groundedIn(["Resume", "LinkedIn"], "en"), "Grounded in Resume, LinkedIn");
   assert.equal(contextLabel("architecture", "en"), "CONTEXT · ARCHITECTURE");

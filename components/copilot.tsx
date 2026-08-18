@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { CopilotCard, CopilotEvent, CopilotMode, Lang, Plan, RetrievalResult } from "@/lib/copilot/types";
+import type { CopilotCard, CopilotEvent, CopilotMode, ErrorKind, Lang, Plan, RetrievalResult } from "@/lib/copilot/types";
 import { COPILOT_MODES } from "@/lib/copilot/types";
 import { EASE, DURATION } from "@/lib/motion";
 import { detectLanguage } from "@/lib/copilot/language";
@@ -19,6 +19,15 @@ import {
   RELATED,
   STAT_LABEL_AR,
   showMetricsStrip,
+  errorMessage,
+  RETRY_LABEL,
+  CLOSE_LABEL,
+  STREAM_PHASE,
+  explainWhyLabel,
+  explainWhyBody,
+  FOLLOWUPS,
+  EMPTY_STATE,
+  sourceHref,
 } from "@/lib/copilot/i18n";
 import { stats, githubStats } from "@/lib/data";
 import { CopilotMarkdown } from "@/components/copilot-markdown";
@@ -34,6 +43,7 @@ type RunStats = {
   confidence: number;
   strategy: string;
 };
+type RunError = { kind: ErrorKind; message?: string; requestId?: string };
 type Run = {
   id: string;
   mode: CopilotMode;
@@ -43,7 +53,59 @@ type Run = {
   stats: RunStats | null;
   plan: Plan | null;
   done: boolean;
+  error?: RunError;
+  prompt: string;
 };
+
+/** VisualViewport-driven height — keeps the input visible above the mobile keyboard. */
+function useViewportHeight() {
+  const [vh, setVh] = useState<number | null>(null);
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const onResize = () => setVh(vv.height);
+    onResize();
+    vv.addEventListener("resize", onResize);
+    return () => vv.removeEventListener("resize", onResize);
+  }, []);
+  return vh;
+}
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const on = () => setIsMobile(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  return isMobile;
+}
+
+function SendIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 19V5" />
+      <path d="m5 12 7-7 7 7" />
+    </svg>
+  );
+}
+
+function ErrorState({ error, lang, onRetry }: { error: RunError; lang: Lang; onRetry: () => void }) {
+  return (
+    <div role="alert" className="panel max-w-[92%] rounded-xl p-4" dir={lang === "ar" ? "rtl" : "ltr"} lang={lang}>
+      <p className="text-sm font-medium text-ink">{errorMessage(error.kind, lang)}</p>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="copilot-chip mt-3"
+      >
+        {RETRY_LABEL[lang]}
+      </button>
+    </div>
+  );
+}
 
 export function Copilot() {
   const [open, setOpen] = useState(false);
@@ -54,10 +116,13 @@ export function Copilot() {
   const [streaming, setStreaming] = useState(false);
   const [devMode, setDevMode] = useState(false);
   const [contextOpen, setContextOpen] = useState(false);
+  const [explainId, setExplainId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<Message[]>([]);
   const abortRef = useRef<AbortController | null>(null);
+  const vh = useViewportHeight();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     messagesRef.current = messages;
@@ -91,97 +156,110 @@ export function Copilot() {
     };
   }, [openModal]);
 
+  // keep the latest message in view; re-run when the keyboard resizes the viewport
   useEffect(() => {
     if (!streaming) bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages, runs, streaming]);
+  useEffect(() => {
+    if (open && vh && isMobile) bottomRef.current?.scrollIntoView({ block: "end" });
+  }, [vh, open, isMobile]);
 
-  const run = useCallback(async (text: string) => {
-    if (streaming) return;
-    const userMsg: Message = { id: `u-${Date.now()}`, role: "user", text };
-    const runId = `a-${Date.now()}`;
-    const lang = detectLanguage(text);
-    setMessages((m) => [...m, userMsg, { id: runId, role: "assistant", text: "" }]);
-    setRuns((r) => ({ ...r, [runId]: { id: runId, mode, lang, sources: [], card: null, stats: null, plan: null, done: false } }));
-    setStreaming(true);
-    setInput("");
+  const run = useCallback(
+    async (text: string, opts?: { mode?: CopilotMode }) => {
+      if (streaming) return;
+      const runMode = opts?.mode ?? mode;
+      const userMsg: Message = { id: `u-${Date.now()}`, role: "user", text };
+      const runId = `a-${Date.now()}`;
+      const lang = detectLanguage(text);
+      setMessages((m) => [...m, userMsg, { id: runId, role: "assistant", text: "" }]);
+      setRuns((r) => ({
+        ...r,
+        [runId]: { id: runId, mode: runMode, lang, sources: [], card: null, stats: null, plan: null, done: false, prompt: text },
+      }));
+      setStreaming(true);
+      setInput("");
 
-    const update = (fn: (r: Run) => Run) =>
-      setRuns((prev) => ({ ...prev, [runId]: fn(prev[runId]) }));
+      const update = (fn: (r: Run) => Run) =>
+        setRuns((prev) => ({ ...prev, [runId]: fn(prev[runId]) }));
 
-    try {
-      const history = messagesRef.current
-        .map((m) => ({ role: m.role, content: m.text }))
-        .filter((m) => m.content.trim().length > 0)
-        .slice(-6);
-      abortRef.current?.abort();
-      const controller = new AbortController();
-      abortRef.current = controller;
-      const res = await fetch("/api/copilot", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ message: text, mode, history }),
-        signal: controller.signal,
-      });
-      if (!res.body) throw new Error("no body");
+      try {
+        const history = messagesRef.current
+          .map((m) => ({ role: m.role, content: m.text }))
+          .filter((m) => m.content.trim().length > 0)
+          .slice(-6);
+        abortRef.current?.abort();
+        const controller = new AbortController();
+        abortRef.current = controller;
+        const res = await fetch("/api/copilot", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ message: text, mode: runMode, history }),
+          signal: controller.signal,
+        });
+        if (!res.body) throw new Error("no body");
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        let nl = buffer.indexOf("\n");
-        while (nl !== -1) {
-          const line = buffer.slice(0, nl);
-          buffer = buffer.slice(nl + 1);
-          if (!line.trim()) { nl = buffer.indexOf("\n"); continue; }
-          const ev = JSON.parse(line) as CopilotEvent;
-          if (ev.type === "delta") {
-            setMessages((prev) =>
-              prev.map((m) => (m.id === runId ? { ...m, text: m.text + ev.text } : m)),
-            );
-          } else if (ev.type === "plan") {
-            update((r) => ({ ...r, plan: ev.plan }));
-          } else if (ev.type === "sources") {
-            update((r) => ({ ...r, sources: ev.sources }));
-          } else if (ev.type === "card") {
-            update((r) => ({ ...r, card: ev.card }));
-          } else if (ev.type === "stats") {
-            update((r) => ({
-              ...r,
-              stats: {
-                tokens: ev.tokens,
-                retrievalMs: ev.retrievalMs,
-                totalMs: ev.totalMs,
-                cache: ev.cache,
-                intent: ev.intent,
-                confidence: ev.confidence,
-                strategy: ev.strategy,
-              },
-            }));
-          } else if (ev.type === "error") {
-            setMessages((prev) =>
-              prev.map((m) => (m.id === runId ? { ...m, text: `⚠ ${ev.message}` } : m)),
-            );
-          } else if (ev.type === "done") {
-            update((r) => ({ ...r, done: true }));
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          let nl = buffer.indexOf("\n");
+          while (nl !== -1) {
+            const line = buffer.slice(0, nl);
+            buffer = buffer.slice(nl + 1);
+            if (!line.trim()) {
+              nl = buffer.indexOf("\n");
+              continue;
+            }
+            const ev = JSON.parse(line) as CopilotEvent;
+            if (ev.type === "delta") {
+              setMessages((prev) =>
+                prev.map((m) => (m.id === runId ? { ...m, text: m.text + ev.text } : m)),
+              );
+            } else if (ev.type === "plan") {
+              update((r) => ({ ...r, plan: ev.plan }));
+            } else if (ev.type === "sources") {
+              update((r) => ({ ...r, sources: ev.sources }));
+            } else if (ev.type === "card") {
+              update((r) => ({ ...r, card: ev.card }));
+            } else if (ev.type === "stats") {
+              update((r) => ({
+                ...r,
+                stats: {
+                  tokens: ev.tokens,
+                  retrievalMs: ev.retrievalMs,
+                  totalMs: ev.totalMs,
+                  cache: ev.cache,
+                  intent: ev.intent,
+                  confidence: ev.confidence,
+                  strategy: ev.strategy,
+                },
+              }));
+            } else if (ev.type === "error") {
+              update((r) => ({
+                ...r,
+                error: { kind: ev.kind, message: ev.message, requestId: ev.requestId },
+              }));
+            } else if (ev.type === "done") {
+              update((r) => ({ ...r, done: true }));
+            }
+            nl = buffer.indexOf("\n");
           }
-          nl = buffer.indexOf("\n");
         }
+      } catch (err) {
+        if (!(err instanceof DOMException && err.name === "AbortError")) {
+          update((r) => ({ ...r, error: { kind: "network", message: "Network error reaching the copilot." } }));
+        }
+      } finally {
+        update((r) => ({ ...r, done: true }));
+        setStreaming(false);
       }
-    } catch (err) {
-      if (!(err instanceof DOMException && err.name === "AbortError")) {
-        setMessages((prev) =>
-          prev.map((m) => (m.id === runId ? { ...m, text: "⚠ Failed to reach the copilot." } : m)),
-        );
-      }
-    } finally {
-      update((r) => ({ ...r, done: true }));
-      setStreaming(false);
-    }
-  }, [mode, streaming]);
+    },
+    [mode, streaming],
+  );
 
   const send = () => {
     const text = input.trim();
@@ -189,9 +267,27 @@ export function Copilot() {
     void run(text);
   };
 
+  const retry = (runId: string) => {
+    const r = runs[runId];
+    if (!r) return;
+    setMessages((prev) => prev.filter((m) => m.id !== runId));
+    setRuns((prev) => {
+      const { [runId]: _dropped, ...rest } = prev;
+      return rest;
+    });
+    void run(r.prompt, { mode: r.mode });
+  };
+
   const lastRunId = messages.filter((m) => m.role === "assistant").at(-1)?.id;
   const lastRun = lastRunId ? runs[lastRunId] : undefined;
-  const chromeLang: Lang = lastRun?.lang ?? detectLanguage(input) ?? "en";
+  const chromeLang: Lang = lastRun?.lang ?? (detectLanguage(input) || "en");
+  const dir = chromeLang === "ar" ? "rtl" : "ltr";
+  const phase: "retrieving" | "writing" | null = streaming ? (lastRun?.plan ? "writing" : "retrieving") : null;
+  const explainOpen = explainId === lastRunId;
+
+  const toggleExplain = () => setExplainId(explainOpen ? null : (lastRunId ?? null));
+
+  const followups = lastRun?.plan ? (FOLLOWUPS[lastRun.plan.template] ?? []) : [];
 
   return (
     <AnimatePresence>
@@ -213,77 +309,64 @@ export function Copilot() {
             exit={{ opacity: 0, scale: 0.98, y: 12 }}
             transition={{ duration: DURATION.fast, ease: EASE }}
             onClick={(e) => e.stopPropagation()}
-            className="glass-strong relative flex h-dvh w-full max-w-5xl flex-col overflow-hidden rounded-none md:h-full md:max-h-[92vh] md:rounded-3xl"
+            style={isMobile && vh ? { height: vh } : undefined}
+            className="glass-strong relative flex h-[100dvh] w-full max-w-5xl flex-col overflow-hidden rounded-none md:h-[92vh] md:rounded-3xl"
           >
-            {/* header */}
-            <div className="flex items-center justify-between gap-3 border-b border-line px-5 pb-3 pt-[max(1rem,env(safe-area-inset-top))] md:pt-3">
-              <div className="flex items-center gap-3">
-                <div>
-                  <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-accent">
-                    COPILOT → GROUNDED RAG → STREAM
-                  </p>
-                  <h2 className="font-serif text-lg italic text-ink">{DIALOG_LABEL[chromeLang]}</h2>
-                </div>
-                {lastRun && (
-                  <button
-                    type="button"
-                    onClick={() => setContextOpen((o) => !o)}
-                    aria-expanded={contextOpen}
-                    className="rounded-lg border border-line px-3 py-1.5 font-mono text-xs text-ink-soft transition-colors hover:border-border-strong hover:text-ink md:hidden"
-                  >
-                    {chromeLang === "ar" ? "السياق" : "Context"}
-                  </button>
-                )}
+            {/* header — compact single intent: identity + close (spec §4) */}
+            <div className="flex items-center justify-between gap-3 border-b border-line px-4 pb-2.5 pt-[max(0.75rem,env(safe-area-inset-top))] md:px-6 md:pt-4">
+              <div className="min-w-0">
+                <p className="label truncate text-accent">{chromeLang === "ar" ? "مساعد · راج مُسنَد" : "COPILOT · GROUNDED RAG"}</p>
+                <h2 className="mt-0.5 truncate font-serif text-lg italic text-ink md:text-xl">{DIALOG_LABEL[chromeLang]}</h2>
               </div>
               <button
                 type="button"
                 onClick={close}
-                aria-label="Close copilot"
-                className="rounded-lg border border-line px-3 py-1.5 font-mono text-xs text-ink-soft transition-colors hover:text-ink"
+                aria-label={CLOSE_LABEL[chromeLang]}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line text-xl leading-none text-ink-soft transition-colors hover:border-border-strong hover:text-ink"
               >
-                Esc
+                <span aria-hidden="true">×</span>
               </button>
             </div>
 
-            {/* mode pills */}
-            <div className="flex flex-wrap gap-2 border-b border-line px-5 py-2.5">
-              {COPILOT_MODES.map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => setMode(m)}
-                  className={`rounded-full border px-3 py-1 font-mono text-xs capitalize transition-colors ${
-                    mode === m
-                      ? "border-accent bg-accent/10 text-accent"
-                      : "border-line text-ink-soft hover:text-ink"
-                  }`}
-                >
-                  {modeLabel(m, chromeLang)}
-                </button>
-              ))}
+            {/* mode rail — scrollable on mobile, wraps on desktop (spec §5) */}
+            <div className="border-b border-line" dir={dir}>
+              <div className="mode-rail px-4 py-2.5 md:px-6">
+                {COPILOT_MODES.map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setMode(m)}
+                    aria-pressed={mode === m}
+                    className={`rounded-full border px-3.5 py-1.5 font-mono text-xs transition-colors ${
+                      mode === m
+                        ? "border-accent bg-accent/10 text-accent"
+                        : "border-line text-ink-soft hover:border-border-strong hover:text-ink"
+                    }`}
+                  >
+                    {modeLabel(m, chromeLang)}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* body */}
-            <div className="grid flex-1 gap-0 overflow-hidden md:grid-cols-[1fr_320px]">
-              <div className="flex flex-col overflow-hidden">
-                <div className="flex-1 overflow-y-auto px-5 py-4">
+            <div className="grid min-h-0 flex-1 overflow-hidden md:grid-cols-[1fr_320px]">
+              <div className="flex min-h-0 flex-col overflow-hidden">
+                {/* conversation — near-solid ambient surface */}
+                <div className="copilot-ambient min-h-0 flex-1 overflow-y-auto" dir={dir} aria-live="polite">
                   {messages.length === 0 ? (
-                    <div className="flex h-full flex-col items-center justify-center gap-6 text-center">
+                    <div className="flex h-full flex-col items-center justify-center gap-6 px-6 py-10 text-center">
                       <div>
-                        <h3 className="font-serif text-2xl italic text-ink">
-                          Ask me anything about my work
-                        </h3>
-                        <p className="mt-2 text-sm text-ink-soft">
-                          Grounded in the real projects, decisions, and numbers on this site.
-                        </p>
+                        <h3 className="font-serif text-2xl italic text-ink">{EMPTY_STATE[chromeLang].title}</h3>
+                        <p className="mt-2 max-w-sm text-sm text-ink-soft">{EMPTY_STATE[chromeLang].subtitle}</p>
                       </div>
-                       <div className="flex max-w-md flex-wrap justify-center gap-2">
-                         {QUICK_ACTIONS[chromeLang].map((q) => (
+                      <div className="flex max-w-md flex-wrap justify-center gap-2">
+                        {QUICK_ACTIONS[chromeLang].map((q) => (
                           <button
                             key={q}
                             type="button"
                             onClick={() => void run(q)}
-                            className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink-soft transition-colors hover:border-accent hover:text-ink"
+                            className="copilot-chip"
                           >
                             {q}
                           </button>
@@ -291,84 +374,139 @@ export function Copilot() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-5">
-                      {messages.map((m) => (
-                        <div key={m.id} className={m.role === "user" ? "text-right" : "text-left"}>
-                          <div
-                            className={
-                              m.role === "user"
-                                ? "ml-auto inline-block max-w-[85%] rounded-2xl rounded-br-sm bg-ink px-4 py-2.5 text-left text-sm text-bg"
-                                : "max-w-[92%]"
-                            }
-                          >
-                            {m.role === "assistant" ? (
-                              <CopilotMarkdown
-                                text={m.text}
-                                lang={runs[m.id]?.lang ?? detectLanguage(m.text)}
+                    <div className="flex flex-col gap-6 px-4 py-5 md:px-6">
+                      {messages.map((m) => {
+                        if (m.role === "user") {
+                          return (
+                            <div key={m.id} className="w-fit max-w-full">
+                              <div className="copilot-bubble-user me-auto whitespace-pre-wrap">
+                                {m.text}
+                              </div>
+                            </div>
+                          );
+                        }
+                        const runState = runs[m.id];
+                        const failedEmpty = runState?.error && !m.text;
+                        return (
+                          <div key={m.id} className="max-w-full" dir={dir}>
+                            {failedEmpty ? (
+                              <ErrorState
+                                error={runState.error!}
+                                lang={runState?.lang ?? "en"}
+                                onRetry={() => retry(m.id)}
                               />
                             ) : (
-                              m.text
+                              <>
+                                <CopilotMarkdown text={m.text} lang={runState?.lang ?? detectLanguage(m.text)} />
+                                {runState?.error && m.text && (
+                                  <p className="mt-2 text-xs text-ink-faint">
+                                    {chromeLang === "ar" ? "اكتملت الإجابة جزئيًا." : "Answer completed partially."}
+                                  </p>
+                                )}
+                                {/* sources — clickable, human labels (spec §17) */}
+                                {runState && runState.sources.length > 0 && !runState.error && (
+                                  <div className="mt-3 flex flex-wrap items-center gap-2" dir={dir}>
+                                    <span className="label">{runState.lang === "ar" ? "مُسنَد إلى" : "Grounded in"}</span>
+                                    {runState.sources
+                                      .filter((s, i, arr) => arr.findIndex((x) => x.source.kind === s.source.kind && x.label === s.label) === i)
+                                      .slice(0, 4)
+                                      .map((s) => {
+                                      const href = sourceHref(s.source.kind, s.source);
+                                      const label = sourceLabel(s.source.kind, s.label, runState.lang);
+                                      return href ? (
+                                        <a
+                                          key={s.id}
+                                          href={href}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="copilot-chip !min-h-8 !px-2.5 !py-1 text-xs"
+                                        >
+                                          {label}
+                                        </a>
+                                      ) : (
+                                        <span key={s.id} className="label">{label}</span>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                                {/* Explain Why — plain-language, no scores (spec §18) */}
+                                {runState && runState.done && !runState.error && (
+                                  <button
+                                    type="button"
+                                    onClick={toggleExplain}
+                                    aria-expanded={explainOpen && explainId === m.id}
+                                    className="label mt-2.5 text-accent transition-colors hover:underline"
+                                  >
+                                    {explainWhyLabel(runState.lang)}
+                                  </button>
+                                )}
+                                {explainOpen && explainId === m.id && runState && (
+                                  <div className="panel mt-2 rounded-xl p-3" dir={dir} lang={runState.lang}>
+                                    {explainWhyBody(runState.plan, runState.sources.map((s) => sourceLabel(s.source.kind, s.label, runState.lang)), runState.lang).map((line, i) => (
+                                      <p key={i} className="text-sm leading-relaxed text-ink-soft">{line}</p>
+                                    ))}
+                                  </div>
+                                )}
+                                {/* contextual follow-ups (spec §24) */}
+                                {runState && runState.done && !runState.error && followups.length > 0 && explainId !== m.id && (
+                                  <div className="mt-3 flex flex-wrap gap-2" dir={dir}>
+                                    {followups.map((f) => {
+                                      const action = f.action;
+                                      const text = f[runState.lang];
+                                      if (action.kind === "run") {
+                                        return (
+                                          <button
+                                            key={f.en}
+                                            type="button"
+                                            onClick={() => void run(action.prompt[runState.lang])}
+                                            className="copilot-chip"
+                                          >
+                                            {text}
+                                          </button>
+                                        );
+                                      }
+                                      return (
+                                        <a
+                                          key={f.en}
+                                          href={action.href}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="copilot-chip"
+                                        >
+                                          {text}
+                                        </a>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                                {runState?.plan?.suggestions && runState.done && !runState.error && (
+                                  <div className="mt-3 flex flex-wrap items-center gap-2" dir={dir}>
+                                    <span className="label">{RELATED[runState.lang]}</span>
+                                    {runState.plan.suggestions.map((s) => (
+                                      <button key={s} type="button" onClick={() => void run(s)} className="copilot-chip">
+                                        {s}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                              </>
                             )}
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                       {streaming && (
-                        <span className="font-mono text-sm text-ink-faint">▍</span>
+                        <span className="copilot-phase">
+                          {STREAM_PHASE[chromeLang][phase === "writing" ? "writing" : "retrieving"]}
+                        </span>
                       )}
                       <div ref={bottomRef} />
                     </div>
                   )}
                 </div>
 
-                {/* footer stats */}
-                {lastRun?.sources && lastRun.sources.length > 0 && (
-                  <div className="flex items-center gap-3 border-t border-line px-5 py-2.5 font-mono text-[11px] text-ink-faint">
-                    <span>
-                      {lastRun.sources.length <= 3
-                        ? groundedIn(
-                            lastRun.sources.map((s) => sourceLabel(s.source.kind, s.label, lastRun.lang)),
-                            lastRun.lang,
-                          )
-                        : verifiedFrom(lastRun.sources.length, lastRun.lang)}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setDevMode((d) => !d)}
-                      className="ml-auto text-accent transition-colors hover:underline"
-                    >
-                      {devMode ? "dev on" : "dev off"}
-                    </button>
-                  </div>
-                )}
-
-                {devMode && lastRun && (
-                  <div className="panel border-t border-line px-5 py-3 font-mono text-[11px] text-ink-faint">
-                    <p className="mb-1 uppercase tracking-[0.18em]">
-                      classification={lastRun.plan?.template === "casual" ? "casual" : "portfolio"} · intent=
-                      {lastRun.stats?.intent} · confidence={lastRun.stats?.confidence?.toFixed(2)} · strategy=
-                      {lastRun.stats?.strategy}
-                    </p>
-                    <p className="mb-1">
-                      retrieval={lastRun.plan?.template === "casual" ? "disabled" : "enabled"} · plan=
-                      {lastRun.plan?.template} / {lastRun.plan?.stance} · card={lastRun.plan?.card} · cache=
-                      {lastRun.stats?.cache} · {lastRun.stats?.retrievalMs}ms · {lastRun.stats?.tokens.out} tokens
-                    </p>
-                    <p className="mb-2 text-ink-faint">
-                      latency={lastRun.stats?.totalMs ?? 0}ms · sources={lastRun.sources.length}
-                    </p>
-                    <ul className="flex flex-col gap-1">
-                      {lastRun.sources.map((s) => (
-                        <li key={s.id} className="flex items-center gap-2 text-xs text-ink-soft">
-                          <span className="rounded bg-surface-2 px-1.5 py-0.5">{s.score.toFixed(2)}</span>
-                          <span className="truncate">{s.title}</span>
-                          <span className="ml-auto hidden truncate text-ink-faint sm:block">{s.reasons.join(" · ")}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                {/* metrics strip (recruiter / stats plans) */}
                 {lastRun && showMetricsStrip(lastRun.plan) && (
-                  <div className="flex flex-wrap items-center gap-2 border-t border-line bg-panel px-5 py-2.5">
+                  <div className="flex flex-wrap items-center gap-2 border-t border-line bg-panel px-4 py-2.5">
                     {[...stats, ...githubStats].map((s) => (
                       <span
                         key={s.label}
@@ -380,45 +518,91 @@ export function Copilot() {
                     ))}
                   </div>
                 )}
-                {lastRun?.plan?.suggestions && (
-                  <div className="panel border-t border-line px-5 py-3 text-sm text-ink-soft" dir={chromeLang === "ar" ? "rtl" : "ltr"}>
-                    {RELATED[lastRun.lang]} {lastRun.plan.suggestions.join(", ")}
+
+                {/* mobile context bar — compact, tap to expand (spec §10 OPTION A) */}
+                {lastRun && (lastRun.sources.length > 0 || lastRun.card) && (
+                  <div className="border-t border-line bg-panel md:hidden">
+                    <button
+                      type="button"
+                      onClick={() => setContextOpen((o) => !o)}
+                      aria-expanded={contextOpen}
+                      className="flex w-full items-center justify-between gap-2 px-4 py-2.5"
+                    >
+                      <span className="label truncate">
+                        {contextLabel(contextTopic(lastRun.plan ?? null, lastRun.sources), lastRun.lang)}
+                      </span>
+                      <span className="label max-w-[50%] truncate text-ink-soft">
+                        {lastRun.sources.slice(0, 3).map((s) => sourceLabel(s.source.kind, s.label, lastRun.lang)).join(" · ")}
+                      </span>
+                      <span aria-hidden="true" className="text-xs text-ink-faint">{contextOpen ? "⌃" : "⌄"}</span>
+                    </button>
                   </div>
                 )}
 
-                {/* input — solid elevated surface, safe-area aware */}
-                <div className="flex items-center gap-2 border-t border-line px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-                  <input
-                    ref={inputRef}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && send()}
-                    placeholder={PLACEHOLDER[chromeLang]}
-                    dir={chromeLang === "ar" ? "rtl" : "ltr"}
-                    lang={chromeLang}
-                    className="flex-1 rounded-xl border border-line bg-panel px-4 py-3 text-sm text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={send}
-                    disabled={streaming || !input.trim()}
-                    className="rounded-lg bg-ink px-4 py-3 text-sm font-medium text-bg transition-opacity hover:opacity-85 disabled:opacity-40"
-                  >
-                    Send
-                  </button>
+                {/* input — solid elevated surface, safe-area aware (spec §8) */}
+                <div
+                  className="border-t border-line bg-panel-2 px-4 pt-3"
+                  style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
+                >
+                  <div className="flex items-end gap-2">
+                    <input
+                      ref={inputRef}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && send()}
+                      placeholder={PLACEHOLDER[chromeLang]}
+                      dir={dir}
+                      lang={chromeLang}
+                      aria-label={PLACEHOLDER[chromeLang]}
+                      disabled={streaming}
+                      className="h-12 flex-1 rounded-xl border border-line bg-panel px-4 text-[0.9375rem] text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none disabled:opacity-60"
+                    />
+                    <button
+                      type="button"
+                      onClick={send}
+                      disabled={streaming || !input.trim()}
+                      aria-label={chromeLang === "ar" ? "إرسال" : "Send"}
+                      className="flex h-12 min-w-12 items-center justify-center rounded-xl bg-ink text-bg transition-opacity hover:opacity-85 disabled:opacity-35"
+                    >
+                      <SendIcon />
+                    </button>
+                  </div>
+                  {/* dev mode — diagnostics only, never for normal users */}
+                  <div className="mt-2 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setDevMode((d) => !d)}
+                      className="label transition-colors hover:text-ink-faint"
+                    >
+                      {devMode ? (chromeLang === "ar" ? "مطوّر: مفعّل" : "developer: on") : (chromeLang === "ar" ? "مطوّر: متوقف" : "developer: off")}
+                    </button>
+                    {devMode && lastRun && (
+                      <span className="label truncate">
+                        {lastRun.stats ? `${lastRun.stats.intent} · ${lastRun.stats.confidence.toFixed(2)} · ${lastRun.stats.totalMs}ms` : lastRun.plan?.template}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* card rail (desktop) */}
+              {/* card rail (desktop) — calmer surfaces (spec §11) */}
               <div className="hidden overflow-y-auto border-l border-line bg-panel-2/60 p-4 md:block">
-                <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint" dir={chromeLang === "ar" ? "rtl" : "ltr"}>
+                <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint" dir={dir}>
                   {contextLabel(contextTopic(lastRun?.plan ?? null, lastRun?.sources), chromeLang)}
                 </p>
                 <CopilotCardPanel card={lastRun?.card ?? null} planCard={lastRun?.plan?.card} sources={lastRun?.sources} lang={lastRun?.lang ?? "en"} />
+                {lastRun?.error && devMode && (
+                  <div className="panel mt-4 rounded-xl p-3 font-mono text-[11px] text-ink-faint">
+                    <p className="uppercase tracking-[0.16em]">diagnostic</p>
+                    <p className="mt-1 break-words">kind={lastRun.error.kind}</p>
+                    <p className="break-words">detail={lastRun.error.message}</p>
+                    {lastRun.error.requestId && <p className="break-words">requestId={lastRun.error.requestId}</p>}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* context bottom drawer (mobile) */}
+            {/* mobile context bottom sheet */}
             <AnimatePresence>
               {contextOpen && (
                 <>
@@ -436,7 +620,7 @@ export function Copilot() {
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: 48, opacity: 0 }}
                     transition={{ duration: 0.3, ease: EASE }}
-                    dir={chromeLang === "ar" ? "rtl" : "ltr"}
+                    dir={dir}
                     className="absolute inset-x-0 bottom-0 z-30 max-h-[70%] overflow-y-auto rounded-t-2xl border-t border-line bg-panel-2 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] md:hidden"
                   >
                     <div className="mb-4 flex items-center justify-between gap-3">
