@@ -15,10 +15,17 @@ import { classifyConversation, casualReply } from "@/lib/copilot/conversation";
 import { rewriteQuery } from "@/lib/copilot/rewrite";
 import { buildPlan } from "@/lib/copilot/planner";
 import { buildMessages } from "@/lib/copilot/prompt";
-import { streamGroq } from "@/lib/copilot/groq";
+import { streamGroq, listGroqModels, GroqError } from "@/lib/copilot/groq";
 import { RateLimiter } from "@/lib/copilot/rate-limit";
+import type { ErrorKind } from "@/lib/copilot/types";
 
-export const MODEL = "llama-3.3-70b-versatile";
+export const DEFAULT_MODEL = "llama-3.3-70b-versatile";
+/** Configurable via GROQ_MODEL — never hardcode the model across the app. */
+export const MODEL = process.env.GROQ_MODEL || DEFAULT_MODEL;
+
+const MODEL_CHECK_TTL = 5 * 60_000;
+let modelCheckCache: { at: number; ok: boolean; detail?: string; available: string[] } = { at: 0, ok: true, available: [] };
+
 export const MAX_MESSAGE = 600;
 export const MAX_HISTORY = 6;
 export const RETRIEVE_K = 5;
@@ -54,6 +61,56 @@ export type RunDeps = {
   cacheHits?: Map<string, CacheEntry>;
 };
 
+/**
+ * Confirms the configured model is actually served by Groq for this API key
+ * before streaming. Cached for MODEL_CHECK_TTL. If the check itself fails
+ * (transient network, auth), we proceed optimistically and let the streaming
+ * call surface the authoritative error — we only ever *deny* a model that
+ * Groq's models list has explicitly confirmed is absent.
+ */
+async function verifyModelAvailability(input: {
+  apiKey: string;
+  model: string;
+  fetchImpl?: typeof fetch;
+}): Promise<{ ok: boolean; detail?: string }> {
+  // Tests inject a fake transport (fetchImpl) that only speaks the chat
+  // contract — skip the pre-flight there; the injected stream is authoritative.
+  if (input.fetchImpl) return { ok: true };
+  const now = Date.now();
+  if (now - modelCheckCache.at < MODEL_CHECK_TTL) {
+    return modelCheckCache.ok ? { ok: true } : { ok: false, detail: modelCheckCache.detail };
+  }
+  try {
+    const { ids } = await listGroqModels({ apiKey: input.apiKey });
+    const ok = ids.includes(input.model);
+    modelCheckCache = {
+      at: now,
+      ok,
+      detail: ok
+        ? undefined
+        : `Model '${input.model}' is not available to this Groq project (${ids.length} models listed). Set GROQ_MODEL to a listed model.`,
+      available: ids,
+    };
+    return { ok, detail: modelCheckCache.detail };
+  } catch {
+    // Could not verify — do not block. The streaming call will classify real errors.
+    modelCheckCache = { at: now, ok: true, available: [] };
+    return { ok: true };
+  }
+}
+
+function toErrorKind(kind: GroqError["kind"]): ErrorKind {
+  if (kind === "auth") return "config";
+  if (kind === "model_unavailable") return "model_unavailable";
+  if (kind === "rate_limited") return "rate_limited";
+  if (kind === "network") return "network";
+  return "unknown";
+}
+
+function isAbort(signal?: AbortSignal): boolean {
+  return !!signal?.aborted;
+}
+
 export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncGenerator<CopilotEvent> {
   const startedAt = Date.now();
   const apiKey = deps.apiKey ?? process.env.GROQ_API_KEY;
@@ -68,7 +125,7 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
 
   const allowed = limiter.check(ip);
   if (!allowed.ok) {
-    yield { type: "error", code: 429, message: `Rate limited. Retry in ${allowed.retryAfterSec}s.` };
+    yield { type: "error", code: 429, kind: "rate_limited", message: `Rate limited. Retry in ${allowed.retryAfterSec}s.` };
     return;
   }
 
@@ -94,7 +151,12 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
   }
 
   if (!apiKey) {
-    yield { type: "error", code: 500, message: "Copilot is not configured (missing GROQ_API_KEY)." };
+    yield {
+      type: "error",
+      code: 500,
+      kind: "config",
+      message: "Copilot is not configured (missing GROQ_API_KEY).",
+    };
     return;
   }
 
@@ -184,6 +246,20 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
   let tokensOut = 0;
   let finish: "stop" | "length" = "stop";
 
+  const modelCheck = await verifyModelAvailability({ apiKey, model, fetchImpl: deps.fetchImpl });
+  if (!modelCheck.ok) {
+    yield {
+      type: "error",
+      code: 503,
+      kind: "model_unavailable",
+      message: modelCheck.detail ?? "Model unavailable.",
+      provider: "groq",
+      model,
+      requestId: id,
+    };
+    return;
+  }
+
   try {
     for await (const ev of streamGroq({ apiKey, model, messages, signal: deps.signal, fetchImpl: deps.fetchImpl })) {
       if (ev.delta) yield { type: "delta", text: ev.delta };
@@ -194,7 +270,29 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
       }
     }
   } catch (err) {
-    yield { type: "error", code: 502, message: err instanceof Error ? err.message : "upstream error" };
+    if (isAbort(deps.signal)) return;
+    if (err instanceof GroqError) {
+      yield {
+        type: "error",
+        code: err.kind === "rate_limited" ? 429 : 502,
+        kind: toErrorKind(err.kind),
+        message: err.message,
+        requestId: err.requestId,
+        provider: "groq",
+        model,
+      };
+    } else if (err instanceof DOMException && err.name === "AbortError") {
+      return;
+    } else {
+      yield {
+        type: "error",
+        code: 502,
+        kind: "network",
+        message: "Network error reaching the model provider.",
+        provider: "groq",
+        model,
+      };
+    }
     return;
   }
 

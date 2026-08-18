@@ -1,6 +1,70 @@
 import type { ChatMessage } from "@/lib/copilot/types";
 
-const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+const DEFAULT_BASE_URL = "https://api.groq.com/openai/v1";
+
+export type GroqErrorKind = "auth" | "model_unavailable" | "rate_limited" | "network" | "unknown";
+
+export class GroqError extends Error {
+  kind: GroqErrorKind;
+  status?: number;
+  requestId?: string;
+
+  constructor(message: string, kind: GroqErrorKind, opts: { status?: number; requestId?: string } = {}) {
+    super(message);
+    this.name = "GroqError";
+    this.kind = kind;
+    this.status = opts.status;
+    this.requestId = opts.requestId;
+  }
+}
+
+function classifyStatus(status: number): GroqErrorKind {
+  if (status === 401 || status === 403) return "auth";
+  if (status === 404) return "model_unavailable";
+  if (status === 429) return "rate_limited";
+  if (status >= 500) return "unknown";
+  return "unknown";
+}
+
+/** Best-effort extraction of the provider's human-readable reason, without raw JSON dumps. */
+function reasonFromDetail(detail: string): string {
+  if (!detail) return "";
+  try {
+    const json = JSON.parse(detail) as { error?: { message?: string; code?: string } };
+    return json?.error?.message || json?.error?.code || detail.slice(0, 200);
+  } catch {
+    return detail.replace(/\s+/g, " ").trim().slice(0, 200);
+  }
+}
+
+/**
+ * Queries the Groq Models API for the models available to the configured key.
+ * Used to distinguish "model retired / no access" from a transient upstream
+ * failure before we ever mark a model unavailable.
+ */
+export async function listGroqModels(input: {
+  apiKey: string;
+  baseUrl?: string;
+  fetchImpl?: typeof fetch;
+}): Promise<{ ids: string[]; requestId?: string }> {
+  const fetchImpl = input.fetchImpl ?? fetch;
+  const res = await fetchImpl(`${input.baseUrl ?? DEFAULT_BASE_URL}/models`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${input.apiKey}` },
+    signal: AbortSignal.timeout(10_000),
+  });
+  const requestId = (res.headers as Headers)?.get?.("x-request-id") ?? undefined;
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    const reason = reasonFromDetail(detail) || res.statusText;
+    throw new GroqError(`Groq models request failed (${res.status}): ${reason}`, classifyStatus(res.status), {
+      status: res.status,
+      requestId,
+    });
+  }
+  const json = (await res.json()) as { data?: { id: string }[] };
+  return { ids: (json.data ?? []).map((m) => m.id), requestId };
+}
 
 export type GroqStreamEvent = {
   delta?: string;
@@ -12,11 +76,12 @@ export async function* streamGroq(input: {
   apiKey: string;
   model: string;
   messages: ChatMessage[];
+  baseUrl?: string;
   signal?: AbortSignal;
   fetchImpl?: typeof fetch;
 }): AsyncGenerator<GroqStreamEvent> {
   const fetchImpl = input.fetchImpl ?? fetch;
-  const res = await fetchImpl(GROQ_URL, {
+  const res = await fetchImpl(`${input.baseUrl ?? DEFAULT_BASE_URL}/chat/completions`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -33,7 +98,12 @@ export async function* streamGroq(input: {
 
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
-    throw new Error(`Groq error ${res.status}: ${detail || res.statusText}`);
+    const reason = reasonFromDetail(detail) || res.statusText;
+    const requestId = (res.headers as Headers)?.get?.("x-request-id") ?? undefined;
+    throw new GroqError(`Groq error ${res.status}: ${reason}`, classifyStatus(res.status), {
+      status: res.status,
+      requestId,
+    });
   }
   if (!res.body) throw new Error("Groq stream had no body");
 

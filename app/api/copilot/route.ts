@@ -52,10 +52,14 @@ export async function POST(req: Request) {
         }
       } catch (err) {
         if (req.signal.aborted) return;
+        // Safety net: never leak the raw error to the client — runCopilot
+        // already emits typed, sanitized error events for provider failures.
+        void err;
         const fallback: CopilotEvent = {
           type: "error",
           code: 500,
-          message: err instanceof Error ? err.message : "internal error",
+          kind: "unknown",
+          message: "internal error",
         };
         enqueue(fallback);
       } finally {

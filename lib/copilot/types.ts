@@ -106,7 +106,29 @@ export type CopilotEvent =
       strategy: "primary" | "relaxed";
     }
   | { type: "done"; finish: "stop" | "length" }
-  | { type: "error"; code: number; message: string };
+  | {
+      type: "error";
+      code: number;
+      kind: ErrorKind;
+      /** Sanitized technical detail — safe for developer mode, never raw provider JSON. */
+      message: string;
+      requestId?: string;
+      provider?: string;
+      model?: string;
+    };
+
+/**
+ * Typed failure modes. The UI maps each to a localized, polished user message —
+ * raw provider errors are never forwarded to the client surface.
+ */
+export type ErrorKind =
+  | "model_unavailable"
+  | "rate_limited"
+  | "network"
+  | "retrieval"
+  | "config"
+  | "aborted"
+  | "unknown";
 
 export type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
 

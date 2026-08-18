@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { streamGroq } from "../lib/copilot/groq";
+import { streamGroq, listGroqModels, GroqError } from "../lib/copilot/groq";
 
 function fakeFetch(chunks: string[]): typeof fetch {
   const encoder = new TextEncoder();
@@ -55,4 +55,68 @@ test("surfaces non-ok responses as errors", async () => {
     },
     /rate limited/,
   );
+});
+
+test("classifies 404 as model_unavailable with the provider request id", async () => {
+  const bad = (async () => ({
+    ok: false,
+    status: 404,
+    text: async () => JSON.stringify({ error: { message: "model does not exist or you do not have access to it", code: "model_not_found" } }),
+    headers: new Headers({ "x-request-id": "req-abc" }),
+  })) as unknown as typeof fetch;
+  try {
+    for await (const _ of streamGroq({ apiKey: "k", model: "gone", messages: [], fetchImpl: bad })) {
+      // consume
+    }
+    assert.fail("expected rejection");
+  } catch (err) {
+    assert.ok(err instanceof GroqError);
+    assert.equal(err.kind, "model_unavailable");
+    assert.equal(err.status, 404);
+    assert.equal(err.requestId, "req-abc");
+    assert.match(err.message, /model does not exist/);
+    assert.ok(!err.message.includes("{"), "no raw JSON in the surfaced message");
+  }
+});
+
+test("classifies 401 as an auth/config error", async () => {
+  const bad = (async () => ({
+    ok: false,
+    status: 401,
+    text: async () => "invalid api key",
+  })) as unknown as typeof fetch;
+  try {
+    for await (const _ of streamGroq({ apiKey: "bad", model: "m", messages: [], fetchImpl: bad })) {
+      // consume
+    }
+    assert.fail("expected rejection");
+  } catch (err) {
+    assert.ok(err instanceof GroqError);
+    assert.equal(err.kind, "auth");
+  }
+});
+
+test("listGroqModels parses the model ids and request id", async () => {
+  const f = (async () => ({
+    ok: true,
+    status: 200,
+    json: async () => ({ data: [{ id: "llama-3.3-70b-versatile" }, { id: "llama-3.1-8b-instant" }] }),
+    headers: new Headers({ "x-request-id": "req-xyz" }),
+  })) as unknown as typeof fetch;
+  const { ids, requestId } = await listGroqModels({ apiKey: "k", fetchImpl: f });
+  assert.deepEqual(ids, ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]);
+  assert.equal(requestId, "req-xyz");
+});
+
+test("listGroqModels throws a typed GroqError on failure", async () => {
+  const f = (async () => ({
+    ok: false,
+    status: 401,
+    text: async () => "bad key",
+  })) as unknown as typeof fetch;
+  await assert.rejects(() => listGroqModels({ apiKey: "bad", fetchImpl: f }), (err: unknown) => {
+    assert.ok(err instanceof GroqError);
+    assert.equal(err.kind, "auth");
+    return true;
+  });
 });
