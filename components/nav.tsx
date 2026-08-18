@@ -127,6 +127,13 @@ export function Nav() {
               <span className="text-ink-soft">⌘J</span>
               copilot
             </button>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event("ma:open-copilot"))}
+              className="flex h-10 items-center rounded-xl border border-line bg-surface px-3.5 font-mono text-xs text-ink-faint transition-colors hover:text-ink md:hidden"
+            >
+              copilot
+            </button>
             <ThemeToggle />
             <a
               href="/resume.pdf"
