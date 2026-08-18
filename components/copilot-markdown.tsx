@@ -11,7 +11,7 @@ import { isolateLtrTokens } from "@/lib/copilot/language";
 
 function CodeBlock({ language, value }: { language: string; value: string }) {
   return (
-    <div className="group relative my-3 overflow-hidden rounded-xl border border-line bg-bg/60" dir="ltr">
+    <div className="panel group relative my-3 overflow-hidden rounded-xl" dir="ltr">
       <div className="flex items-center justify-between border-b border-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-ink-faint">
         <span>{language || "code"}</span>
         <button

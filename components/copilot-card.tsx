@@ -28,7 +28,7 @@ export function CopilotCardPanel({
 
 function ResumePanel({ lang }: { lang: Lang }) {
   return (
-    <div className="rounded-2xl border border-line bg-bg/40 p-5" dir={lang === "ar" ? "rtl" : "ltr"} lang={lang}>
+    <div className="panel rounded-2xl p-5" dir={lang === "ar" ? "rtl" : "ltr"} lang={lang}>
       <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">{PANEL_TITLES[lang].resume}</p>
       <p className="mt-2 text-sm text-ink-soft">
         {lang === "ar"
@@ -44,7 +44,7 @@ function ProjectPanel({ card, lang }: { card: Extract<CopilotCard, { kind: "proj
   if (!project) return null;
   return (
     <div className="flex flex-col gap-4" dir={lang === "ar" ? "rtl" : "ltr"} lang={lang}>
-      <div className="rounded-2xl border border-line bg-bg/40 p-5">
+      <div className="panel rounded-2xl p-5">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">
           {project.index} · {project.domain}
         </p>
@@ -53,14 +53,14 @@ function ProjectPanel({ card, lang }: { card: Extract<CopilotCard, { kind: "proj
         <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">{PANEL_TITLES[lang].tech}</p>
         <div className="mt-1 flex flex-wrap gap-2">
           {project.stack.map((s) => (
-            <span key={s} className="rounded-full border border-line px-2 py-0.5 font-mono text-[10px] text-ink-soft">
+            <span key={s} className="rounded-full border border-line px-2 py-0.5 font-mono text-[11px] text-ink-soft">
               {s}
             </span>
           ))}
         </div>
       </div>
       <ArchitectureDiagram flow={project.architecture} />
-      <div className="rounded-2xl border border-line bg-bg/40 p-5">
+      <div className="panel rounded-2xl p-5">
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">{PANEL_TITLES[lang].links}</p>
         <div className="mt-2 flex gap-3 text-sm">
           {project.href && (
@@ -86,7 +86,7 @@ function ProjectPanel({ card, lang }: { card: Extract<CopilotCard, { kind: "proj
 
 function SkillsPanel({ lang }: { lang: Lang }) {
   return (
-    <div className="rounded-2xl border border-line bg-bg/40 p-5" dir={lang === "ar" ? "rtl" : "ltr"} lang={lang}>
+    <div className="panel rounded-2xl p-5" dir={lang === "ar" ? "rtl" : "ltr"} lang={lang}>
       <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">{PANEL_TITLES[lang].skills}</p>
       <div className="mt-2 flex flex-col gap-2">
         {skills.map((g) => (
@@ -102,7 +102,7 @@ function SkillsPanel({ lang }: { lang: Lang }) {
 
 function TimelinePanel({ lang }: { lang: Lang }) {
   return (
-    <div className="rounded-2xl border border-line bg-bg/40 p-5" dir={lang === "ar" ? "rtl" : "ltr"} lang={lang}>
+    <div className="panel rounded-2xl p-5" dir={lang === "ar" ? "rtl" : "ltr"} lang={lang}>
       <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">{PANEL_TITLES[lang].timeline}</p>
       <ol className="mt-2 flex flex-col gap-2">
         {experience.map((r) => (
@@ -118,7 +118,7 @@ function TimelinePanel({ lang }: { lang: Lang }) {
 
 function StatsPanel({ lang }: { lang: Lang }) {
   return (
-    <div className="rounded-2xl border border-line bg-bg/40 p-5" dir={lang === "ar" ? "rtl" : "ltr"} lang={lang}>
+    <div className="panel rounded-2xl p-5" dir={lang === "ar" ? "rtl" : "ltr"} lang={lang}>
       <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">{PANEL_TITLES[lang].stats}</p>
       <dl className="mt-2 flex flex-col gap-1.5">
         {[...stats, ...githubStats].map((s) => (
@@ -136,7 +136,7 @@ function StatsPanel({ lang }: { lang: Lang }) {
 
 function LinksPanel({ lang }: { lang: Lang }) {
   return (
-    <div className="rounded-2xl border border-line bg-bg/40 p-5" dir={lang === "ar" ? "rtl" : "ltr"} lang={lang}>
+    <div className="panel rounded-2xl p-5" dir={lang === "ar" ? "rtl" : "ltr"} lang={lang}>
       <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">{PANEL_TITLES[lang].links}</p>
       <div className="mt-2 flex flex-col gap-1.5 text-sm">
         <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">LinkedIn</a>

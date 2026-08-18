@@ -24,7 +24,7 @@ const kindDot: Record<string, string> = {
 export function ArchitectureDiagram({ flow }: { flow: ArchFlow }) {
   const { nodes } = flow;
   return (
-    <div className="rounded-2xl border border-line bg-bg/40 p-5 sm:p-7">
+    <div className="panel rounded-2xl p-5 sm:p-7">
       <div className="mb-5 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">
         <span className="h-1.5 w-1.5 rounded-full bg-ink-faint" />
         Architecture
@@ -54,7 +54,7 @@ export function ArchitectureDiagram({ flow }: { flow: ArchFlow }) {
                     </p>
                   )}
                 </div>
-                <span className="ml-auto font-mono text-[10px] uppercase tracking-wide text-ink-faint">
+                <span className="ml-auto font-mono text-xs uppercase tracking-wide text-ink-faint">
                   {i + 1}
                 </span>
               </motion.div>

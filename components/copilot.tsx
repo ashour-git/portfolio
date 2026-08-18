@@ -53,6 +53,7 @@ export function Copilot() {
   const [runs, setRuns] = useState<Record<string, Run>>({});
   const [streaming, setStreaming] = useState(false);
   const [devMode, setDevMode] = useState(false);
+  const [contextOpen, setContextOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<Message[]>([]);
@@ -64,6 +65,7 @@ export function Copilot() {
 
   const close = useCallback(() => {
     abortRef.current?.abort();
+    setContextOpen(false);
     setOpen(false);
   }, []);
 
@@ -199,7 +201,7 @@ export function Copilot() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: DURATION.fast, ease: EASE }}
-          className="fixed inset-0 z-[95] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm md:p-6"
+          className="fixed inset-0 z-[95] flex items-center justify-center bg-black/70 p-0 backdrop-blur-sm md:p-6"
           onClick={close}
         >
           <motion.div
@@ -211,21 +213,33 @@ export function Copilot() {
             exit={{ opacity: 0, scale: 0.98, y: 12 }}
             transition={{ duration: DURATION.fast, ease: EASE }}
             onClick={(e) => e.stopPropagation()}
-            className="glass-strong flex h-full max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-3xl"
+            className="glass-strong relative flex h-dvh w-full max-w-5xl flex-col overflow-hidden rounded-none md:h-full md:max-h-[92vh] md:rounded-3xl"
           >
             {/* header */}
-            <div className="flex items-center justify-between border-b border-line px-5 py-3">
-              <div>
-                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
-                  COPILOT → GROUNDED RAG → STREAM
-                </p>
-                <h2 className="font-serif text-lg italic text-ink">{DIALOG_LABEL[chromeLang]}</h2>
+            <div className="flex items-center justify-between gap-3 border-b border-line px-5 pb-3 pt-[max(1rem,env(safe-area-inset-top))] md:pt-3">
+              <div className="flex items-center gap-3">
+                <div>
+                  <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-accent">
+                    COPILOT → GROUNDED RAG → STREAM
+                  </p>
+                  <h2 className="font-serif text-lg italic text-ink">{DIALOG_LABEL[chromeLang]}</h2>
+                </div>
+                {lastRun && (
+                  <button
+                    type="button"
+                    onClick={() => setContextOpen((o) => !o)}
+                    aria-expanded={contextOpen}
+                    className="rounded-lg border border-line px-3 py-1.5 font-mono text-xs text-ink-soft transition-colors hover:border-border-strong hover:text-ink md:hidden"
+                  >
+                    {chromeLang === "ar" ? "السياق" : "Context"}
+                  </button>
+                )}
               </div>
               <button
                 type="button"
                 onClick={close}
                 aria-label="Close copilot"
-                className="rounded-full border border-line px-3 py-1 font-mono text-xs text-ink-soft transition-colors hover:text-ink"
+                className="rounded-lg border border-line px-3 py-1.5 font-mono text-xs text-ink-soft transition-colors hover:text-ink"
               >
                 Esc
               </button>
@@ -308,7 +322,7 @@ export function Copilot() {
 
                 {/* footer stats */}
                 {lastRun?.sources && lastRun.sources.length > 0 && (
-                  <div className="flex items-center gap-3 border-t border-line px-5 py-2 font-mono text-[10px] text-ink-faint">
+                  <div className="flex items-center gap-3 border-t border-line px-5 py-2.5 font-mono text-[11px] text-ink-faint">
                     <span>
                       {lastRun.sources.length <= 3
                         ? groundedIn(
@@ -328,7 +342,7 @@ export function Copilot() {
                 )}
 
                 {devMode && lastRun && (
-                  <div className="border-t border-line bg-bg/40 px-5 py-3 font-mono text-[10px] text-ink-faint">
+                  <div className="panel border-t border-line px-5 py-3 font-mono text-[11px] text-ink-faint">
                     <p className="mb-1 uppercase tracking-[0.18em]">
                       classification={lastRun.plan?.template === "casual" ? "casual" : "portfolio"} · intent=
                       {lastRun.stats?.intent} · confidence={lastRun.stats?.confidence?.toFixed(2)} · strategy=
@@ -344,7 +358,7 @@ export function Copilot() {
                     </p>
                     <ul className="flex flex-col gap-1">
                       {lastRun.sources.map((s) => (
-                        <li key={s.id} className="flex items-center gap-2 text-[11px] text-ink-soft">
+                        <li key={s.id} className="flex items-center gap-2 text-xs text-ink-soft">
                           <span className="rounded bg-surface-2 px-1.5 py-0.5">{s.score.toFixed(2)}</span>
                           <span className="truncate">{s.title}</span>
                           <span className="ml-auto hidden truncate text-ink-faint sm:block">{s.reasons.join(" · ")}</span>
@@ -354,11 +368,11 @@ export function Copilot() {
                   </div>
                 )}
                 {lastRun && showMetricsStrip(lastRun.plan) && (
-                  <div className="flex flex-wrap items-center gap-2 border-t border-line bg-bg/40 px-5 py-2.5">
+                  <div className="flex flex-wrap items-center gap-2 border-t border-line bg-panel px-5 py-2.5">
                     {[...stats, ...githubStats].map((s) => (
                       <span
                         key={s.label}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1 font-mono text-[10px] text-ink-soft"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1 font-mono text-[11px] text-ink-soft"
                       >
                         <bdi dir="ltr" lang="en" className="ltr-token text-ink">{s.value}</bdi>
                         <span>{lastRun.lang === "ar" ? (STAT_LABEL_AR[s.label] ?? s.label) : s.label}</span>
@@ -367,13 +381,13 @@ export function Copilot() {
                   </div>
                 )}
                 {lastRun?.plan?.suggestions && (
-                  <div className="border-t border-line bg-bg/40 px-5 py-3 text-sm text-ink-soft" dir={chromeLang === "ar" ? "rtl" : "ltr"}>
+                  <div className="panel border-t border-line px-5 py-3 text-sm text-ink-soft" dir={chromeLang === "ar" ? "rtl" : "ltr"}>
                     {RELATED[lastRun.lang]} {lastRun.plan.suggestions.join(", ")}
                   </div>
                 )}
 
-                {/* input */}
-                <div className="flex items-center gap-2 border-t border-line px-5 py-3">
+                {/* input — solid elevated surface, safe-area aware */}
+                <div className="flex items-center gap-2 border-t border-line px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
                   <input
                     ref={inputRef}
                     value={input}
@@ -382,27 +396,66 @@ export function Copilot() {
                     placeholder={PLACEHOLDER[chromeLang]}
                     dir={chromeLang === "ar" ? "rtl" : "ltr"}
                     lang={chromeLang}
-                    className="flex-1 rounded-xl border border-line bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none"
+                    className="flex-1 rounded-xl border border-line bg-panel px-4 py-3 text-sm text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={send}
                     disabled={streaming || !input.trim()}
-                    className="rounded-xl bg-ink px-4 py-2.5 text-sm font-medium text-bg transition-opacity hover:opacity-85 disabled:opacity-40"
+                    className="rounded-lg bg-ink px-4 py-3 text-sm font-medium text-bg transition-opacity hover:opacity-85 disabled:opacity-40"
                   >
                     Send
                   </button>
                 </div>
               </div>
 
-              {/* card rail */}
-              <div className="hidden overflow-y-auto border-l border-line bg-bg/20 p-4 md:block">
-                <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-faint" dir={chromeLang === "ar" ? "rtl" : "ltr"}>
+              {/* card rail (desktop) */}
+              <div className="hidden overflow-y-auto border-l border-line bg-panel-2/60 p-4 md:block">
+                <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint" dir={chromeLang === "ar" ? "rtl" : "ltr"}>
                   {contextLabel(contextTopic(lastRun?.plan ?? null, lastRun?.sources), chromeLang)}
                 </p>
                 <CopilotCardPanel card={lastRun?.card ?? null} planCard={lastRun?.plan?.card} sources={lastRun?.sources} lang={lastRun?.lang ?? "en"} />
               </div>
             </div>
+
+            {/* context bottom drawer (mobile) */}
+            <AnimatePresence>
+              {contextOpen && (
+                <>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2, ease: EASE }}
+                    onClick={() => setContextOpen(false)}
+                    className="absolute inset-0 z-20 bg-black/60 md:hidden"
+                    aria-hidden="true"
+                  />
+                  <motion.div
+                    initial={{ y: 48, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: 48, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: EASE }}
+                    dir={chromeLang === "ar" ? "rtl" : "ltr"}
+                    className="absolute inset-x-0 bottom-0 z-30 max-h-[70%] overflow-y-auto rounded-t-2xl border-t border-line bg-panel-2 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] md:hidden"
+                  >
+                    <div className="mb-4 flex items-center justify-between gap-3">
+                      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">
+                        {contextLabel(contextTopic(lastRun?.plan ?? null, lastRun?.sources), chromeLang)}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setContextOpen(false)}
+                        className="rounded-lg border border-line px-3 py-1.5 font-mono text-xs text-ink-soft transition-colors hover:text-ink"
+                      >
+                        {chromeLang === "ar" ? "إغلاق" : "Close"}
+                      </button>
+                    </div>
+                    <CopilotCardPanel card={lastRun?.card ?? null} planCard={lastRun?.plan?.card} sources={lastRun?.sources} lang={lastRun?.lang ?? "en"} />
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
           </motion.div>
         </motion.div>
       )}

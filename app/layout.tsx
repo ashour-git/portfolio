@@ -5,7 +5,6 @@ import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { getSiteUrl } from "@/lib/site";
 import { ThemeInit } from "@/components/theme-init";
 import { CommandPalette } from "@/components/command-palette";
-import { CursorGlow } from "@/components/cursor-glow";
 import { Splash } from "@/components/splash";
 import { MotionProvider } from "@/components/motion-provider";
 import { Footer } from "@/components/footer";
@@ -128,7 +127,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="bg-bg text-ink antialiased">
         <div className="aurora" aria-hidden="true" />
         <div className="grid-glow" aria-hidden="true" />
-        <CursorGlow />
         <Splash />
         <CommandPalette />
         <Copilot />

@@ -21,7 +21,7 @@ export function Insights() {
                   href={note.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group grid gap-3 py-7 transition-colors hover:bg-surface/40 md:grid-cols-[4rem_9rem_1fr_auto] md:items-baseline md:gap-8"
+                  className="group grid gap-3 py-7 transition-colors hover:bg-surface-hover md:grid-cols-[4rem_9rem_1fr_auto] md:items-baseline md:gap-8"
                 >
                   <span className="eyebrow">{note.index}</span>
                   <span className="eyebrow text-ink-soft">{note.tag}</span>

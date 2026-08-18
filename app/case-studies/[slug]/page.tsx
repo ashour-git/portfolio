@@ -180,7 +180,7 @@ export default async function CaseStudyPage({
             <Section label="Tradeoffs">
               <div className="grid gap-4 sm:grid-cols-2">
                 {s.tradeoffs.map((t) => (
-                  <div key={t.choice} className="surface rounded-2xl p-5">
+                  <div key={t.choice} className="panel rounded-2xl p-5">
                     <p className="text-sm font-semibold text-ink">{t.choice}</p>
                     <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
                       {t.cost}
@@ -206,11 +206,11 @@ export default async function CaseStudyPage({
             <Section label="Results">
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                 {p.performance.map((m) => (
-                  <div key={m.label} className="surface rounded-2xl p-5 text-center">
+                  <div key={m.label} className="panel rounded-2xl p-5 text-center">
                     <p className="text-xl font-semibold tracking-tight text-ink">
                       {m.value}
                     </p>
-                    <p className="mt-1 font-mono text-[10px] uppercase tracking-wide text-ink-faint">
+                    <p className="mt-1 font-mono text-[11px] uppercase tracking-wide text-ink-faint">
                       {m.label}
                     </p>
                   </div>
@@ -232,7 +232,7 @@ export default async function CaseStudyPage({
 
             {/* write-up */}
             <Section label="Engineering write-up">
-                <div className="surface flex flex-col gap-4 rounded-2xl p-6 sm:flex-row sm:items-center sm:justify-between">
+                <div className="panel-strong flex flex-col gap-4 rounded-2xl p-6 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm font-semibold text-ink">
                     How this was built, start to finish
@@ -247,7 +247,7 @@ export default async function CaseStudyPage({
                   href={p.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex shrink-0 items-center gap-2 rounded-full border border-line px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-line px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg"
                 >
                   Read the write-up
                   <ArrowIcon className="h-4 w-4" />
@@ -278,7 +278,7 @@ export default async function CaseStudyPage({
               return (
                 <Link
                   href={`/case-studies/${next.study!.slug}`}
-                  className="group flex flex-col gap-2 rounded-2xl border border-line bg-surface p-6 transition-colors hover:border-border-strong sm:flex-row sm:items-center sm:justify-between"
+                  className="panel-strong group flex flex-col gap-2 rounded-2xl p-6 transition-colors hover:border-border-strong sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
                     <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">

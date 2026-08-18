@@ -3,15 +3,24 @@
 @theme {
   --color-bg: #060a09;
   --color-bg-2: #0b1211;
-  --color-surface: rgba(255, 255, 255, 0.06);
-  --color-surface-2: rgba(255, 255, 255, 0.1);
-  --color-surface-3: rgba(255, 255, 255, 0.14);
-  --color-border: rgba(255, 255, 255, 0.09);
-  --color-border-strong: rgba(255, 255, 255, 0.16);
+
+  /* surface hierarchy (spec §3): distinct opacity + border per level.
+     LEVEL 1 — solid panels for primary content / text-heavy cards.
+     LEVEL 2 — glass for navigation, secondary cards, floating metadata.
+     LEVEL 3 — ambient layers (aurora, mesh) live outside these tokens. */
+  --color-panel: #0d1514;
+  --color-panel-2: #111c1a;
+  --color-surface: rgba(255, 255, 255, 0.07);
+  --color-surface-2: rgba(255, 255, 255, 0.12);
+  --color-surface-3: rgba(255, 255, 255, 0.17);
+  --color-surface-hover: rgba(46, 230, 163, 0.07);
+  --color-surface-active: rgba(46, 230, 163, 0.13);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.18);
 
   --color-ink: #eef5f2;
-  --color-ink-soft: #a7b5af;
-  --color-ink-faint: #7d8d86;
+  --color-ink-soft: #a9b8b2;
+  --color-ink-faint: #8ba39b;
 
   --color-accent: #2ee6a3;
   --color-accent-2: #0ea5c9;
@@ -31,21 +40,25 @@
 :root[data-theme="light"] {
   --color-bg: #f4f7f5;
   --color-bg-2: #fafcfa;
-  --color-surface: rgba(255, 255, 255, 0.72);
-  --color-surface-2: rgba(255, 255, 255, 0.82);
-  --color-surface-3: rgba(255, 255, 255, 0.9);
-  --color-border: rgba(16, 44, 32, 0.1);
-  --color-border-strong: rgba(16, 44, 32, 0.18);
+  --color-panel: #ffffff;
+  --color-panel-2: #f1f6f3;
+  --color-surface: rgba(255, 255, 255, 0.8);
+  --color-surface-2: rgba(255, 255, 255, 0.9);
+  --color-surface-3: rgba(255, 255, 255, 0.96);
+  --color-surface-hover: rgba(13, 138, 95, 0.06);
+  --color-surface-active: rgba(13, 138, 95, 0.12);
+  --color-border: rgba(16, 44, 32, 0.12);
+  --color-border-strong: rgba(16, 44, 32, 0.2);
 
   --color-ink: #0f1a16;
-  --color-ink-soft: #3a4a44;
-  --color-ink-faint: #5c6b64;
+  --color-ink-soft: #35463f;
+  --color-ink-faint: #54645d;
 
   --color-accent: #0d8a5f;
   --color-accent-2: #06767e;
   --color-accent-soft: rgba(13, 138, 95, 0.1);
 
-  --color-line: rgba(16, 44, 32, 0.1);
+  --color-line: rgba(16, 44, 32, 0.12);
 }
 
 /* ---------- base ---------- */
@@ -118,44 +131,56 @@ body {
   mask-image: radial-gradient(ellipse 90% 60% at 50% -5%, #000 0%, transparent 70%);
 }
 
-/* ---------- glass surfaces ---------- */
+/* ---------- glass surfaces ----------
+   Glass is used intentionally: floating metadata and shells, not every card.
+   Base opacity is high so text stays readable; blur provides depth, never
+   decoration (spec §2). Level 3 ambient layers (mesh) do not use backdrop-filter. */
 .glass {
   background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.08), transparent 40%),
-    linear-gradient(160deg, var(--color-surface-2), var(--color-surface-3)),
-    var(--color-bg);
+    linear-gradient(160deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.02) 45%),
+    rgba(11, 18, 17, 0.9);
   border: 1px solid var(--color-border);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 18px 44px -30px rgba(0, 0, 0, 0.65);
+}
+
+/* near-opaque shells: modals, the Copilot — long-form text lives here and
+   must not fight the background (spec §12). */
+.glass-strong {
+  background:
+    linear-gradient(180deg, rgba(21, 30, 28, 0.97), rgba(10, 16, 15, 0.98));
+  border: 1px solid var(--color-border-strong);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.08) inset,
-    0 24px 60px -32px rgba(0, 0, 0, 0.5);
+    0 32px 80px -44px rgba(0, 0, 0, 0.8);
 }
 
-.glass-strong {
+:root[data-theme="light"] .glass {
   background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.12), transparent 40%),
-    linear-gradient(160deg, var(--color-surface-3), var(--color-surface-2)),
-    var(--color-bg);
-  border: 1px solid var(--color-border-strong);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
+    linear-gradient(160deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.4) 45%),
+    rgba(255, 255, 255, 0.82);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.1) inset,
-    0 32px 60px -36px rgba(0, 0, 0, 0.6);
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 18px 44px -30px rgba(24, 24, 29, 0.16);
 }
-
-:root[data-theme="light"] .glass,
 :root[data-theme="light"] .glass-strong {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 248, 0.98));
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.7) inset,
-    0 24px 50px -32px rgba(24, 24, 29, 0.18);
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 32px 80px -44px rgba(24, 24, 29, 0.24);
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass,
+  .glass {
+    background: var(--color-panel-2);
+  }
   .glass-strong {
-    background: var(--color-bg);
+    background: var(--color-panel-2);
   }
 }
 
@@ -182,7 +207,9 @@ body {
   color: transparent;
 }
 
-/* ---------- editorial flat surfaces (glass is an accent, not the system — spec §21) ---------- */
+/* ---------- surface hierarchy ----------
+   surface / surface-strong = LEVEL 2 glass (nav, secondary cards, chips).
+   panel / panel-strong     = LEVEL 1 solid (primary content, text-heavy cards). */
 .surface {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -191,13 +218,21 @@ body {
   background: var(--color-surface-2);
   border: 1px solid var(--color-border-strong);
 }
+.panel {
+  background: var(--color-panel);
+  border: 1px solid var(--color-border);
+}
+.panel-strong {
+  background: var(--color-panel-2);
+  border: 1px solid var(--color-border-strong);
+}
 
 /* ---------- editorial type helpers ---------- */
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   color: var(--color-ink-faint);
 }
 .display {
@@ -225,6 +260,14 @@ body {
   font-weight: 400;
 }
 
+/* quiet technical caption — one step up from the old 10px mono */
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  color: var(--color-ink-faint);
+}
+
 /* ---------- art-direction tokens: deliberate, not generated (spec §20, §27) ---------- */
 :root {
   --radius-image: 1.75rem;
@@ -234,7 +277,8 @@ body {
 }
 
 /* Buttons: monochrome at rest, accent only on interaction.
-   Accent therefore marks an important action (spec §20), not decoration. */
+   Accent therefore marks an important action (spec §20), not decoration.
+   Rounded-square rather than full pill — quieter, less template. */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -242,8 +286,8 @@ body {
   font-size: 0.875rem;
   font-weight: 600;
   line-height: 1;
-  border-radius: 999px;
-  padding: 0.8rem 1.35rem;
+  border-radius: 0.7rem;
+  padding: 0.85rem 1.4rem;
   transition: background-color 0.22s ease, color 0.22s ease,
     border-color 0.22s ease, opacity 0.22s ease, transform 0.22s ease;
   white-space: nowrap;
@@ -271,9 +315,18 @@ body {
 /* editorial number — used as a quiet index, not a repeating badge */
 .index-mark {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.18em;
   color: var(--color-ink-faint);
+}
+
+/* hide scrollbars on horizontally scrolling rows (project filters on mobile) */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* thin custom scrollbar */
@@ -349,6 +402,21 @@ body {
 @keyframes frame-sweep {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
+}
+
+/* Mobile motion budget: kill ambient drift, heavy blur, and decorative
+   sweeps on small screens — motion must not cost performance or attention
+   (spec §18). Reduced-motion users get the same via the global override. */
+@media (max-width: 767px) {
+  .mesh-bg {
+    animation: none;
+    filter: blur(56px);
+  }
+  .pipeline-pulse,
+  .flow-dot,
+  .frame-sweep {
+    animation: none;
+  }
 }
 
 /* ---------- copilot markdown tables (spec §8) ---------- */

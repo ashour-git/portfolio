@@ -29,6 +29,14 @@ const HOVER_DIR: Record<CommandWidget["anchor"], number> = {
   "bottom": 0,
 };
 
+// Compact system card shown only on mobile (spec §8): 2–3 widgets max,
+// no floating layers, no connector lines.
+const MOBILE_STATS = [
+  { value: "18/18", label: "security tests" },
+  { value: "162", label: "automated tests" },
+  { value: "~67ms", label: "retrieval p95" },
+];
+
 function statusColor(status: CommandWidget["status"]) {
   return status === "ready" ? "bg-accent"
     : status === "busy" ? "bg-amber-400"
@@ -74,10 +82,10 @@ function Widget({
       >
         <span className="flex items-center gap-2">
           <span aria-hidden="true" className={`h-1 w-1 rounded-full ${statusColor(w.status)}`} />
-          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-faint">{w.label}</span>
+          <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">{w.label}</span>
         </span>
         <span className="mt-1 block text-sm font-semibold tracking-tight text-ink">{w.value}</span>
-        {w.meta && <span className="mt-0.5 block font-mono text-[10px] text-ink-faint">{w.meta}</span>}
+        {w.meta && <span className="mt-0.5 block font-mono text-[11px] text-ink-faint">{w.meta}</span>}
       </motion.div>
 
       <AnimatePresence>
@@ -90,7 +98,7 @@ function Widget({
             className="absolute left-0 top-full mt-2 hidden md:block"
             aria-hidden="true"
           >
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-bg/90 px-3 py-1.5 font-mono text-[10px] text-ink-soft backdrop-blur">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-panel-2 px-3 py-1.5 font-mono text-[11px] text-ink-soft">
               {w.flow.map((step, i) => (
                 <span key={step} className="inline-flex items-center gap-1.5">
                   {i > 0 && <span className="text-ink-faint">→</span>}
@@ -108,7 +116,7 @@ function Widget({
 function TrackRecord() {
   return (
     <div className="surface absolute -left-2 bottom-2 hidden rounded-xl px-5 py-4 md:block">
-      <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-faint">Track record</p>
+      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">Track record</p>
       <div className="mt-3 flex gap-6">
         {stats.slice(0, 2).map((s) => (
           <div key={s.label}>
@@ -176,6 +184,8 @@ export function CommandCenter() {
   const rotateX = useTransform(sy, [-0.5, 0.5], ["2deg", "-2deg"]);
 
   const handleMove = (e: React.PointerEvent) => {
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
     mx.set((e.clientX - r.left) / r.width - 0.5);
     my.set((e.clientY - r.top) / r.height - 0.5);
@@ -210,6 +220,31 @@ export function CommandCenter() {
         </div>
         <TrackRecord />
       </motion.div>
+
+      {/* mobile: focused compact system card — no floating widgets, no wires */}
+      <div className="mt-4 md:hidden">
+        <div className="panel rounded-2xl p-4">
+          <div className="flex items-center justify-between">
+            <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">
+              Pipeline OS · runtime
+            </span>
+            <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-accent">
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-accent" />
+              ready
+            </span>
+          </div>
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            {MOBILE_STATS.map((s) => (
+              <div key={s.label}>
+                <p className="text-lg font-semibold tracking-tight text-ink">{s.value}</p>
+                <p className="mt-1 font-mono text-[10px] uppercase leading-relaxed text-ink-faint">
+                  {s.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

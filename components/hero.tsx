@@ -13,10 +13,10 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative overflow-hidden pt-36 md:pt-40"
+      className="relative overflow-hidden pt-32 md:pt-40"
     >
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
-        <div className="grid items-center gap-16 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
            {/* headline */}
            <motion.div
              initial={{ opacity: 0, y: 16 }}
@@ -54,13 +54,13 @@ export function Hero() {
                  href={profile.github}
                  target="_blank"
                  rel="noopener noreferrer"
-                 className="text-sm font-medium text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline"
+                 className="py-2 text-sm font-medium text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline"
                >
                  GitHub
                </a>
                <a
                  href="#work"
-                 className="text-sm font-medium text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline"
+                 className="py-2 text-sm font-medium text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline"
                >
                  Projects
                </a>
@@ -68,7 +68,7 @@ export function Hero() {
                  href={profile.linkedin}
                  target="_blank"
                  rel="noopener noreferrer"
-                 className="text-sm font-medium text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline"
+                 className="py-2 text-sm font-medium text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline"
                >
                  LinkedIn
                </a>
