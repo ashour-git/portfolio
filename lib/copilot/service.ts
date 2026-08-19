@@ -15,7 +15,7 @@ import { classifyConversation, casualReply } from "@/lib/copilot/conversation";
 import { rewriteQuery } from "@/lib/copilot/rewrite";
 import { buildPlan } from "@/lib/copilot/planner";
 import { buildMessages } from "@/lib/copilot/prompt";
-import { streamGroq, listGroqModels, GroqError } from "@/lib/copilot/groq";
+import { streamGroq, listGroqModels, GroqError, pickModel } from "@/lib/copilot/groq";
 import { RateLimiter } from "@/lib/copilot/rate-limit";
 import type { ErrorKind } from "@/lib/copilot/types";
 
@@ -24,7 +24,16 @@ export const DEFAULT_MODEL = "llama-3.3-70b-versatile";
 export const MODEL = process.env.GROQ_MODEL || DEFAULT_MODEL;
 
 const MODEL_CHECK_TTL = 5 * 60_000;
-let modelCheckCache: { at: number; ok: boolean; detail?: string; available: string[] } = { at: 0, ok: true, available: [] };
+let modelCheckCache: { at: number; ok: boolean; detail?: string; model?: string; available: string[] } = {
+  at: 0,
+  ok: true,
+  available: [],
+};
+
+/** Test seam — clears the module-level model-resolution cache between cases. */
+export function __resetModelCache(): void {
+  modelCheckCache = { at: 0, ok: true, available: [] };
+}
 
 export const MAX_MESSAGE = 600;
 export const MAX_HISTORY = 6;
@@ -56,46 +65,66 @@ export type RunDeps = {
   ip?: string;
   signal?: AbortSignal;
   fetchImpl?: typeof fetch;
+  listModels?: (o: { apiKey: string; fetchImpl?: typeof fetch }) => Promise<{ ids: string[] }>;
   getEmbedder?: () => Promise<(t: string) => Promise<Float32Array>>;
   classifyIntent?: (message: string) => IntentResult | Promise<IntentResult>;
   cacheHits?: Map<string, CacheEntry>;
 };
 
 /**
- * Confirms the configured model is actually served by Groq for this API key
- * before streaming. Cached for MODEL_CHECK_TTL. If the check itself fails
- * (transient network, auth), we proceed optimistically and let the streaming
- * call surface the authoritative error — we only ever *deny* a model that
- * Groq's models list has explicitly confirmed is absent.
+ * Resolves the model the key can actually use. Different Groq keys/projects are
+ * served different model sets, so a configured model like llama-3.3-70b-versatile
+ * may be absent. We fall back to the best available chat model (see pickModel)
+ * rather than denying the request. Cached for MODEL_CHECK_TTL.
+ *
+ * Failure modes:
+ *  - the models list cannot be reached → proceed optimistically with the
+ *    configured model; the streaming call surfaces the authoritative error
+ *  - the list is reachable but offers no usable chat model → hard deny (503)
  */
-async function verifyModelAvailability(input: {
+async function resolveModel(input: {
   apiKey: string;
-  model: string;
+  configured: string;
   fetchImpl?: typeof fetch;
-}): Promise<{ ok: boolean; detail?: string }> {
-  // Tests inject a fake transport (fetchImpl) that only speaks the chat
-  // contract — skip the pre-flight there; the injected stream is authoritative.
-  if (input.fetchImpl) return { ok: true };
+  listModels?: (o: { apiKey: string; fetchImpl?: typeof fetch }) => Promise<{ ids: string[] }>;
+}): Promise<{ ok: true; model: string; matched: boolean } | { ok: false; detail: string }> {
   const now = Date.now();
   if (now - modelCheckCache.at < MODEL_CHECK_TTL) {
-    return modelCheckCache.ok ? { ok: true } : { ok: false, detail: modelCheckCache.detail };
+    if (modelCheckCache.ok) {
+      const cached = modelCheckCache.model ?? input.configured;
+      return { ok: true, model: cached, matched: cached === input.configured };
+    }
+    return { ok: false, detail: modelCheckCache.detail! };
   }
+
+  // An injected test transport speaks only the chat contract — trust the stream
+  // and skip the /models pre-flight unless the test injects a list seam too.
+  if (!input.listModels && input.fetchImpl) {
+    return { ok: true, model: input.configured, matched: true };
+  }
+
   try {
-    const { ids } = await listGroqModels({ apiKey: input.apiKey });
-    const ok = ids.includes(input.model);
+    const { ids } = await (input.listModels ?? listGroqModels)({
+      apiKey: input.apiKey,
+      fetchImpl: input.fetchImpl,
+    });
+    const pick = pickModel(input.configured, ids);
+    if (pick) {
+      modelCheckCache = { at: now, ok: true, model: pick, available: ids };
+      return { ok: true, model: pick, matched: pick === input.configured };
+    }
+    const denyDetail = `No chat model is available to this Groq project. Configured '${input.configured}' is not among the ${ids.length} listed models — set GROQ_MODEL to one that is.`;
     modelCheckCache = {
       at: now,
-      ok,
-      detail: ok
-        ? undefined
-        : `Model '${input.model}' is not available to this Groq project (${ids.length} models listed). Set GROQ_MODEL to a listed model.`,
+      ok: false,
+      detail: denyDetail,
       available: ids,
     };
-    return { ok, detail: modelCheckCache.detail };
+    return { ok: false, detail: denyDetail };
   } catch {
     // Could not verify — do not block. The streaming call will classify real errors.
-    modelCheckCache = { at: now, ok: true, available: [] };
-    return { ok: true };
+    modelCheckCache = { at: now, ok: true, model: input.configured, available: [] };
+    return { ok: true, model: input.configured, matched: true };
   }
 }
 
@@ -160,6 +189,29 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
     return;
   }
 
+  // Resolve the model this key can actually use BEFORE any retrieval work, so a
+  // key without the configured model falls back to a served chat model instead
+  // of failing every request. Only a key with no usable chat model is denied.
+  const resolved = await resolveModel({
+    apiKey,
+    configured: model,
+    fetchImpl: deps.fetchImpl,
+    listModels: deps.listModels,
+  });
+  if (!resolved.ok) {
+    yield {
+      type: "error",
+      code: 503,
+      kind: "model_unavailable",
+      message: resolved.detail,
+      provider: "groq",
+      model,
+      requestId: id,
+    };
+    return;
+  }
+  const activeModel = resolved.model;
+
   const { chunks, embeddings } = loadIndex();
 
   const getEmbedder = async () =>
@@ -219,7 +271,7 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
 
   const plan = buildPlan({ intent, results });
 
-  yield { type: "meta", id, mode, model, startedAt, lang };
+  yield { type: "meta", id, mode, model: activeModel, startedAt, lang };
   yield { type: "plan", plan };
 
   const sourcesEvent: CopilotEvent = { type: "sources", sources: results };
@@ -246,22 +298,8 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
   let tokensOut = 0;
   let finish: "stop" | "length" = "stop";
 
-  const modelCheck = await verifyModelAvailability({ apiKey, model, fetchImpl: deps.fetchImpl });
-  if (!modelCheck.ok) {
-    yield {
-      type: "error",
-      code: 503,
-      kind: "model_unavailable",
-      message: modelCheck.detail ?? "Model unavailable.",
-      provider: "groq",
-      model,
-      requestId: id,
-    };
-    return;
-  }
-
   try {
-    for await (const ev of streamGroq({ apiKey, model, messages, signal: deps.signal, fetchImpl: deps.fetchImpl })) {
+    for await (const ev of streamGroq({ apiKey, model: activeModel, messages, signal: deps.signal, fetchImpl: deps.fetchImpl })) {
       if (ev.delta) yield { type: "delta", text: ev.delta };
       if (ev.finish) finish = ev.finish;
       if (ev.usage) {
@@ -279,7 +317,7 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
         message: err.message,
         requestId: err.requestId,
         provider: "groq",
-        model,
+        model: activeModel,
       };
     } else if (err instanceof DOMException && err.name === "AbortError") {
       return;
@@ -290,7 +328,7 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
         kind: "network",
         message: "Network error reaching the model provider.",
         provider: "groq",
-        model,
+        model: activeModel,
       };
     }
     return;

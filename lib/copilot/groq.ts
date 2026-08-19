@@ -66,6 +66,37 @@ export async function listGroqModels(input: {
   return { ids: (json.data ?? []).map((m) => m.id), requestId };
 }
 
+/**
+ * Resolves which model to stream with, given the configured model and the ids
+ * the key can actually access. Different Groq keys/projects are served
+ * different model sets (org restrictions, regional routing, model retirement),
+ * so a hard-coded default like llama-3.3-70b-versatile may simply not exist
+ * for a given key. Preference order:
+ *   1. the configured model, if the key has access
+ *   2. known broadly-served chat models (70b before 8b, latest before older)
+ *   3. any remaining chat-capable model id, deterministic pick
+ * Returns null when the key has no usable chat model at all.
+ */
+const KNOWN_CHAT_FALLBACKS = [
+  "llama-3.3-70b-versatile",
+  "llama-3.1-70b-versatile",
+  "llama-3.1-8b-instant",
+  "llama3-70b-8192",
+  "llama3-8b-8192",
+  "llama-3.2-3b-preview",
+];
+const CHAT_RE = /llama|mistral|gemma|qwen|deepseek/;
+
+export function pickModel(configured: string, ids: string[]): string | null {
+  if (ids.includes(configured)) return configured;
+  for (const candidate of KNOWN_CHAT_FALLBACKS) {
+    if (ids.includes(candidate)) return candidate;
+  }
+  const chat = ids.filter((id) => CHAT_RE.test(id));
+  if (chat.length) return [...chat].sort()[0];
+  return null;
+}
+
 export type GroqStreamEvent = {
   delta?: string;
   finish?: "stop" | "length";

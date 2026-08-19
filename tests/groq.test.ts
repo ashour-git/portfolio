@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { streamGroq, listGroqModels, GroqError } from "../lib/copilot/groq";
+import { streamGroq, listGroqModels, GroqError, pickModel } from "../lib/copilot/groq";
 
 function fakeFetch(chunks: string[]): typeof fetch {
   const encoder = new TextEncoder();
@@ -119,4 +119,23 @@ test("listGroqModels throws a typed GroqError on failure", async () => {
     assert.equal(err.kind, "auth");
     return true;
   });
+});
+
+test("pickModel prefers the configured model when the key has access", () => {
+  assert.equal(pickModel("llama-3.3-70b-versatile", ["llama-3.3-70b-versatile", "whisper-large-v3"]), "llama-3.3-70b-versatile");
+  assert.equal(pickModel("custom-model", ["custom-model"]), "custom-model");
+});
+
+test("pickModel falls back to a known chat model when the configured one is absent", () => {
+  assert.equal(pickModel("llama-3.3-70b-versatile", ["llama-3.1-8b-instant", "whisper-large-v3"]), "llama-3.1-8b-instant");
+  assert.equal(pickModel("gone-model", ["llama3-70b-8192", "mixtral-8x7b-32768"]), "llama3-70b-8192");
+});
+
+test("pickModel picks a deterministic chat model from an unknown set", () => {
+  assert.equal(pickModel("gone", ["deepseek-r1-distill-qwen-32b", "whisper-large-v3"]), "deepseek-r1-distill-qwen-32b");
+});
+
+test("pickModel returns null when the key has no chat model at all", () => {
+  assert.equal(pickModel("llama-3.3-70b-versatile", ["whisper-large-v3", "whisper-large-v3-turbo"]), null);
+  assert.equal(pickModel("anything", []), null);
 });

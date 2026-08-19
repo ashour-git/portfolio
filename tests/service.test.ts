@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { runCopilot, validateInput } from "../lib/copilot/service";
+import { runCopilot, validateInput, __resetModelCache } from "../lib/copilot/service";
 import type { RequestBody, RetrievalResult } from "../lib/copilot/types";
 import { loadIndex } from "../lib/copilot/index";
 
@@ -209,4 +209,66 @@ test("'مين محمد؟' still routes to the portfolio pipeline", async () => {
   const stats = events.find((e) => e.type === "stats");
   assert.notEqual(stats.intent, "casual");
   assert.ok(events.some((e) => e.type === "sources"), "portfolio query must retrieve");
+});
+
+test("configured model is used when the key has access to it", async () => {
+  __resetModelCache();
+  const events: any[] = [];
+  for await (const ev of runCopilot(
+    { message: "Tell me about RestAI", mode: "general", history: [] },
+    {
+      apiKey: "k",
+      model: "llama-3.3-70b-versatile",
+      fetchImpl: fakeGroq(["data: [DONE]\n\n"]),
+      listModels: async () => ({ ids: ["llama-3.3-70b-versatile", "whisper-large-v3"] }),
+      getEmbedder: async () => fastEmbed,
+    },
+  )) {
+    events.push(ev);
+  }
+  assert.ok(!events.some((e) => e.type === "error"), "no error when configured model is available");
+  assert.equal(events.find((e) => e.type === "meta").model, "llama-3.3-70b-versatile");
+});
+
+test("falls back to a served chat model when the configured one is absent", async () => {
+  __resetModelCache();
+  const events: any[] = [];
+  for await (const ev of runCopilot(
+    { message: "Tell me about RestAI", mode: "general", history: [] },
+    {
+      apiKey: "k",
+      model: "llama-3.3-70b-versatile",
+      fetchImpl: fakeGroq(["data: [DONE]\n\n"]),
+      listModels: async () => ({ ids: ["llama-3.1-8b-instant", "whisper-large-v3"] }),
+      getEmbedder: async () => fastEmbed,
+    },
+  )) {
+    events.push(ev);
+  }
+  assert.ok(!events.some((e) => e.type === "error"), "fallback must not surface an error");
+  const meta = events.find((e) => e.type === "meta");
+  assert.equal(meta.model, "llama-3.1-8b-instant");
+  assert.ok(events.some((e) => e.type === "done"), "stream must complete on the fallback model");
+});
+
+test("denies with model_unavailable only when the key has no usable chat model", async () => {
+  __resetModelCache();
+  const events: any[] = [];
+  for await (const ev of runCopilot(
+    { message: "Tell me about RestAI", mode: "general", history: [] },
+    {
+      apiKey: "k",
+      model: "llama-3.3-70b-versatile",
+      fetchImpl: fakeGroq(["data: [DONE]\n\n"]),
+      listModels: async () => ({ ids: ["whisper-large-v3", "whisper-large-v3-turbo"] }),
+      getEmbedder: async () => fastEmbed,
+    },
+  )) {
+    events.push(ev);
+  }
+  const err = events.find((e) => e.type === "error");
+  assert.ok(err, "no usable model must yield an error event");
+  assert.equal(err.kind, "model_unavailable");
+  assert.equal(err.code, 503);
+  assert.ok(!events.some((e) => e.type === "delta"), "nothing may stream when no model is usable");
 });
