@@ -105,3 +105,14 @@ test("Arabic context message asks for names instead of [N] citations", () => {
   assert.ok(context, "Arabic context message expected");
   assert.ok(!context.content.includes("[1]"), "no [N] citation instruction in Arabic context");
 });
+
+test("answer length guidance is adaptive per template and localized", () => {
+  const short = buildSystemPrompt("general", { template: "resume", stance: "high", card: "resume" });
+  const long = buildSystemPrompt("general", { template: "recruiter", stance: "high", card: "resume" });
+  assert.ok(/under 100 words/.test(short), "resume answers must stay short");
+  assert.ok(/150–220 words/.test(long), "recruiter answers get a larger budget");
+  const arShort = buildSystemPrompt("general", { template: "skills", stance: "high", card: "skills" }, "ar");
+  assert.ok(/أقل من 100 كلمة/.test(arShort), "Arabic skills answers must stay short");
+  const arRecruiter = buildSystemPrompt("general", { template: "recruiter", stance: "high", card: "resume" }, "ar");
+  assert.ok(/150–220 كلمة/.test(arRecruiter), "Arabic recruiter answers get a larger budget");
+});

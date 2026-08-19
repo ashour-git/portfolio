@@ -69,6 +69,51 @@ export const AR_TEMPLATE_HINTS: Record<Plan["template"], string> = {
     "أجب بإيجاز مع البقاء في إطار السياق. استخدم فقرات قصيرة وقائمة نقطية عند الحاجة.",
 };
 
+/**
+ * Explicit answer-length budget per template (spec: adaptive length by intent).
+ * Casual, resume, skills, and decision answers must be short and scannable;
+ * recruiter and project answers carry evidence and get more room; interview and
+ * architecture sit in between. The budget is guidance, not a hard cap.
+ */
+const LENGTH_GUIDE: Record<Plan["template"], { en: string; ar: string }> = {
+  casual: {
+    en: "Keep it to 1–3 short sentences.",
+    ar: "أبقِ الإجابة في 1–3 جمل قصيرة.",
+  },
+  recruiter: {
+    en: "Aim for 150–220 words: scannable, evidence-first, lead with numbers.",
+    ar: "استهدف 150–220 كلمة: سهلة المسح، تبدأ بالأدلة والأرقام.",
+  },
+  project: {
+    en: "Aim for 120–180 words with section headers.",
+    ar: "استهدف 120–180 كلمة مع عناوين أقسام.",
+  },
+  interview: {
+    en: "Aim for 100–160 words, direct first-person reasoning.",
+    ar: "استهدف 100–160 كلمة بمنطق مباشر بضمير المتكلم.",
+  },
+  resume: {
+    en: "Keep it under 100 words, bullets only.",
+    ar: "أبقِها أقل من 100 كلمة بنقاط فقط.",
+  },
+  skills: {
+    en: "Keep it scannable and under 100 words.",
+    ar: "أبقِها سهلة المسح وأقل من 100 كلمة.",
+  },
+  experience: {
+    en: "Aim for 120–180 words with an overview table.",
+    ar: "استهدف 120–180 كلمة مع جدول ملخص.",
+  },
+  decision: {
+    en: "Aim for 80–140 words, one line per decision.",
+    ar: "استهدف 80–140 كلمة، سطر واحد لكل قرار.",
+  },
+  general: {
+    en: "Keep it under 120 words.",
+    ar: "أبقِها أقل من 120 كلمة.",
+  },
+};
+
 export function buildSystemPrompt(mode: CopilotMode, plan?: Plan, lang: Lang = "en"): string {
   const identity = lang === "ar" ? AR_IDENTITY : IDENTITY;
   const modeInstruction = lang === "ar" ? AR_MODE_INSTRUCTIONS[mode] : MODE_INSTRUCTIONS[mode];
@@ -76,6 +121,7 @@ export function buildSystemPrompt(mode: CopilotMode, plan?: Plan, lang: Lang = "
   if (plan) {
     const hint = lang === "ar" ? AR_TEMPLATE_HINTS[plan.template] : TEMPLATE_HINTS[plan.template];
     parts.push(hint);
+    parts.push(lang === "ar" ? LENGTH_GUIDE[plan.template].ar : LENGTH_GUIDE[plan.template].en);
     if (plan.stance === "fallback") {
       parts.push(
         lang === "ar"

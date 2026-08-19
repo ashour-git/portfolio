@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import type { CopilotCard, CopilotEvent, CopilotMode, ErrorKind, Lang, Plan, RetrievalResult } from "@/lib/copilot/types";
 import { COPILOT_MODES } from "@/lib/copilot/types";
 import { EASE, DURATION } from "@/lib/motion";
@@ -182,6 +182,16 @@ export function Copilot() {
       const update = (fn: (r: Run) => Run) =>
         setRuns((prev) => ({ ...prev, [runId]: fn(prev[runId]) }));
 
+      // batch deltas — flush at most once per ~60ms instead of once per token
+      let pending = "";
+      const flush = () => {
+        if (!pending) return;
+        const chunk = pending;
+        pending = "";
+        setMessages((prev) => prev.map((m) => (m.id === runId ? { ...m, text: m.text + chunk } : m)));
+      };
+      const timer = setInterval(flush, 60);
+
       try {
         const history = messagesRef.current
           .map((m) => ({ role: m.role, content: m.text }))
@@ -216,9 +226,7 @@ export function Copilot() {
             }
             const ev = JSON.parse(line) as CopilotEvent;
             if (ev.type === "delta") {
-              setMessages((prev) =>
-                prev.map((m) => (m.id === runId ? { ...m, text: m.text + ev.text } : m)),
-              );
+              pending += ev.text;
             } else if (ev.type === "plan") {
               update((r) => ({ ...r, plan: ev.plan }));
             } else if (ev.type === "sources") {
@@ -254,6 +262,8 @@ export function Copilot() {
           update((r) => ({ ...r, error: { kind: "network", message: "Network error reaching the copilot." } }));
         }
       } finally {
+        flush();
+        clearInterval(timer);
         update((r) => ({ ...r, done: true }));
         setStreaming(false);
       }
@@ -290,7 +300,8 @@ export function Copilot() {
   const followups = lastRun?.plan ? (FOLLOWUPS[lastRun.plan.template] ?? []) : [];
 
   return (
-    <AnimatePresence>
+    <MotionConfig reducedMotion="user">
+      <AnimatePresence>
       {open && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -310,7 +321,7 @@ export function Copilot() {
             transition={{ duration: DURATION.fast, ease: EASE }}
             onClick={(e) => e.stopPropagation()}
             style={isMobile && vh ? { height: vh } : undefined}
-            className="glass-strong relative flex h-[100dvh] w-full max-w-5xl flex-col overflow-hidden rounded-none md:h-[92vh] md:rounded-3xl"
+            className="glass-strong copilot-shell relative flex h-[100dvh] w-full max-w-5xl flex-col overflow-hidden rounded-none md:h-[92vh] md:rounded-3xl"
           >
             {/* header — compact single intent: identity + close (spec §4) */}
             <div className="flex items-center justify-between gap-3 border-b border-line px-4 pb-2.5 pt-[max(0.75rem,env(safe-area-inset-top))] md:px-6 md:pt-4">
@@ -644,5 +655,6 @@ export function Copilot() {
         </motion.div>
       )}
     </AnimatePresence>
+    </MotionConfig>
   );
 }
