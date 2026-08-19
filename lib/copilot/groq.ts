@@ -68,16 +68,19 @@ export async function listGroqModels(input: {
 
 /**
  * Resolves which model to stream with, given the configured model and the ids
- * the key can actually access. Different Groq keys/projects are served
- * different model sets (org restrictions, regional routing, model retirement),
- * so a hard-coded default like llama-3.3-70b-versatile may simply not exist
- * for a given key. Preference order:
- *   1. the configured model, if the key has access
+ * the key can list. Different Groq keys/projects are served different model
+ * sets (org restrictions, regional routing, model retirement), so a hard-coded
+ * default like llama-3.3-70b-versatile may simply not exist for a given key.
+ *
+ * NOTE: /v1/models under-reports chat access for some keys (a model can stream
+ * even when absent from the list), so pickModel is only used to CHOOSE a
+ * fallback candidate — never to deny a request. Preference order:
+ *   1. the configured model (bare or `meta-llama/`-prefixed)
  *   2. known broadly-served chat models (70b before 8b, latest before older)
  *   3. any remaining chat-capable model id, deterministic pick
- * Returns null when the key has no usable chat model at all.
+ * Returns null when no chat-capable model is listed at all.
  */
-const KNOWN_CHAT_FALLBACKS = [
+export const KNOWN_CHAT_FALLBACKS = [
   "llama-3.3-70b-versatile",
   "llama-3.1-70b-versatile",
   "llama-3.1-8b-instant",
@@ -85,16 +88,28 @@ const KNOWN_CHAT_FALLBACKS = [
   "llama3-8b-8192",
   "llama-3.2-3b-preview",
 ];
-const CHAT_RE = /llama|mistral|gemma|qwen|deepseek/;
+
+/** Classifier / audio / embedding ids are listed on /v1/models but cannot serve chat. */
+const NON_CHAT_RE = /guard|prompt-guard|whisper|tts|stt|asr|embedding|rerank/;
+const CHAT_FAMILY_RE = /llama|mistral|gemma|qwen|deepseek/;
+
+export function isChatModelId(id: string): boolean {
+  return CHAT_FAMILY_RE.test(id) && !NON_CHAT_RE.test(id);
+}
+
+/** True when id is exactly `name` or a namespaced form like `meta-llama/<name>`. */
+function idMatches(id: string, name: string): boolean {
+  return id === name || id.endsWith(`/${name}`);
+}
 
 export function pickModel(configured: string, ids: string[]): string | null {
-  if (ids.includes(configured)) return configured;
+  if (ids.some((id) => idMatches(id, configured))) return configured;
   for (const candidate of KNOWN_CHAT_FALLBACKS) {
-    if (ids.includes(candidate)) return candidate;
+    const match = ids.find((id) => idMatches(id, candidate));
+    if (match) return match;
   }
-  const chat = ids.filter((id) => CHAT_RE.test(id));
-  if (chat.length) return [...chat].sort()[0];
-  return null;
+  const chat = ids.filter(isChatModelId).sort();
+  return chat.length ? chat[0] : null;
 }
 
 export type GroqStreamEvent = {

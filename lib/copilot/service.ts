@@ -15,7 +15,7 @@ import { classifyConversation, casualReply } from "@/lib/copilot/conversation";
 import { rewriteQuery } from "@/lib/copilot/rewrite";
 import { buildPlan } from "@/lib/copilot/planner";
 import { buildMessages } from "@/lib/copilot/prompt";
-import { streamGroq, listGroqModels, GroqError, pickModel } from "@/lib/copilot/groq";
+import { streamGroq, listGroqModels, GroqError, pickModel, KNOWN_CHAT_FALLBACKS } from "@/lib/copilot/groq";
 import { RateLimiter } from "@/lib/copilot/rate-limit";
 import type { ErrorKind } from "@/lib/copilot/types";
 
@@ -34,7 +34,6 @@ let modelCheckCache: { at: number; ok: boolean; detail?: string; model?: string;
 export function __resetModelCache(): void {
   modelCheckCache = { at: 0, ok: true, available: [] };
 }
-
 export const MAX_MESSAGE = 600;
 export const MAX_HISTORY = 6;
 export const RETRIEVE_K = 5;
@@ -72,59 +71,39 @@ export type RunDeps = {
 };
 
 /**
- * Resolves the model the key can actually use. Different Groq keys/projects are
- * served different model sets, so a configured model like llama-3.3-70b-versatile
- * may be absent. We fall back to the best available chat model (see pickModel)
- * rather than denying the request. Cached for MODEL_CHECK_TTL.
+ * Returns the ordered list of models to attempt streaming with. /v1/models
+ * under-reports chat access for some keys — a model can stream even when absent
+ * from the list — so the list is used only to PICK candidates, never to deny.
  *
- * Failure modes:
- *  - the models list cannot be reached → proceed optimistically with the
- *    configured model; the streaming call surfaces the authoritative error
- *  - the list is reachable but offers no usable chat model → hard deny (503)
+ * Order: configured model first (it usually works), then the best chat model the
+ * key lists, then known broadly-served chat models. Each candidate is tried in
+ * turn; the first stream that does not 404 wins. The outcome is cached so the
+ * /models call happens at most once per instance.
  */
-async function resolveModel(input: {
+async function resolveModelCandidates(input: {
   apiKey: string;
   configured: string;
   fetchImpl?: typeof fetch;
   listModels?: (o: { apiKey: string; fetchImpl?: typeof fetch }) => Promise<{ ids: string[] }>;
-}): Promise<{ ok: true; model: string; matched: boolean } | { ok: false; detail: string }> {
-  const now = Date.now();
-  if (now - modelCheckCache.at < MODEL_CHECK_TTL) {
-    if (modelCheckCache.ok) {
-      const cached = modelCheckCache.model ?? input.configured;
-      return { ok: true, model: cached, matched: cached === input.configured };
-    }
-    return { ok: false, detail: modelCheckCache.detail! };
-  }
+}): Promise<string[]> {
+  const configured = input.configured;
+  const knowns = KNOWN_CHAT_FALLBACKS.filter((k) => k !== configured);
 
-  // An injected test transport speaks only the chat contract — trust the stream
-  // and skip the /models pre-flight unless the test injects a list seam too.
-  if (!input.listModels && input.fetchImpl) {
-    return { ok: true, model: input.configured, matched: true };
-  }
+  // An injected test transport speaks only the chat contract — skip the list
+  // unless the test injects a list seam too.
+  if (input.fetchImpl && !input.listModels) return [configured, ...knowns];
 
   try {
     const { ids } = await (input.listModels ?? listGroqModels)({
       apiKey: input.apiKey,
       fetchImpl: input.fetchImpl,
     });
-    const pick = pickModel(input.configured, ids);
-    if (pick) {
-      modelCheckCache = { at: now, ok: true, model: pick, available: ids };
-      return { ok: true, model: pick, matched: pick === input.configured };
-    }
-    const denyDetail = `No chat model is available to this Groq project. Configured '${input.configured}' is not among the ${ids.length} listed models — set GROQ_MODEL to one that is.`;
-    modelCheckCache = {
-      at: now,
-      ok: false,
-      detail: denyDetail,
-      available: ids,
-    };
-    return { ok: false, detail: denyDetail };
+    const pick = pickModel(configured, ids);
+    const fromList = pick && pick !== configured ? [pick] : [];
+    return [...new Set([configured, ...fromList, ...knowns])];
   } catch {
-    // Could not verify — do not block. The streaming call will classify real errors.
-    modelCheckCache = { at: now, ok: true, model: input.configured, available: [] };
-    return { ok: true, model: input.configured, matched: true };
+    // list unavailable — rely on the configured model then known chat models
+    return [configured, ...knowns];
   }
 }
 
@@ -189,28 +168,34 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
     return;
   }
 
-  // Resolve the model this key can actually use BEFORE any retrieval work, so a
-  // key without the configured model falls back to a served chat model instead
-  // of failing every request. Only a key with no usable chat model is denied.
-  const resolved = await resolveModel({
-    apiKey,
-    configured: model,
-    fetchImpl: deps.fetchImpl,
-    listModels: deps.listModels,
-  });
-  if (!resolved.ok) {
-    yield {
-      type: "error",
-      code: 503,
-      kind: "model_unavailable",
-      message: resolved.detail,
-      provider: "groq",
-      model,
-      requestId: id,
-    };
-    return;
+  // Decide which models to attempt BEFORE any retrieval work, so a key without
+  // the configured model falls back to a served chat model instead of failing
+  // every request. Only a key whose streams all fail with 404 is denied.
+  const now = Date.now();
+  let candidates: string[];
+  if (now - modelCheckCache.at < MODEL_CHECK_TTL) {
+    if (!modelCheckCache.ok) {
+      yield {
+        type: "error",
+        code: 503,
+        kind: "model_unavailable",
+        message: modelCheckCache.detail ?? "No usable chat model for this Groq key.",
+        provider: "groq",
+        model,
+        requestId: id,
+      };
+      return;
+    }
+    candidates = [modelCheckCache.model ?? model];
+  } else {
+    candidates = await resolveModelCandidates({
+      apiKey,
+      configured: model,
+      fetchImpl: deps.fetchImpl,
+      listModels: deps.listModels,
+    });
   }
-  const activeModel = resolved.model;
+  const primaryModel = candidates[0];
 
   const { chunks, embeddings } = loadIndex();
 
@@ -271,7 +256,7 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
 
   const plan = buildPlan({ intent, results });
 
-  yield { type: "meta", id, mode, model: activeModel, startedAt, lang };
+  yield { type: "meta", id, mode, model: primaryModel, startedAt, lang };
   yield { type: "plan", plan };
 
   const sourcesEvent: CopilotEvent = { type: "sources", sources: results };
@@ -298,41 +283,78 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
   let tokensOut = 0;
   let finish: "stop" | "length" = "stop";
 
-  try {
-    for await (const ev of streamGroq({ apiKey, model: activeModel, messages, signal: deps.signal, fetchImpl: deps.fetchImpl })) {
-      if (ev.delta) yield { type: "delta", text: ev.delta };
-      if (ev.finish) finish = ev.finish;
-      if (ev.usage) {
-        tokensIn = ev.usage.prompt_tokens;
-        tokensOut = ev.usage.completion_tokens;
+  let activeModel: string | null = null;
+  let lastModelErr: GroqError | null = null;
+  for (const candidate of candidates) {
+    try {
+      for await (const ev of streamGroq({ apiKey, model: candidate, messages, signal: deps.signal, fetchImpl: deps.fetchImpl })) {
+        if (ev.delta) yield { type: "delta", text: ev.delta };
+        if (ev.finish) finish = ev.finish;
+        if (ev.usage) {
+          tokensIn = ev.usage.prompt_tokens;
+          tokensOut = ev.usage.completion_tokens;
+        }
       }
-    }
-  } catch (err) {
-    if (isAbort(deps.signal)) return;
-    if (err instanceof GroqError) {
-      yield {
-        type: "error",
-        code: err.kind === "rate_limited" ? 429 : 502,
-        kind: toErrorKind(err.kind),
-        message: err.message,
-        requestId: err.requestId,
-        provider: "groq",
-        model: activeModel,
-      };
-    } else if (err instanceof DOMException && err.name === "AbortError") {
-      return;
-    } else {
+    } catch (err) {
+      if (isAbort(deps.signal)) return;
+      if (err instanceof GroqError) {
+        // A 404 means this key cannot use this model — try the next candidate.
+        // A 400 "reduce the length of the messages or completion" is the
+        // signature of a non-chat model (e.g. llama-prompt-guard) whose max
+        // output tokens are tiny — treat it as unusable too.
+        const unusable =
+          err.kind === "model_unavailable" ||
+          (err.status === 400 && /reduce the length of the messages or completion/i.test(err.message));
+        if (unusable) {
+          lastModelErr = err;
+          continue;
+        }
+        yield {
+          type: "error",
+          code: err.kind === "rate_limited" ? 429 : 502,
+          kind: toErrorKind(err.kind),
+          message: err.message,
+          requestId: err.requestId,
+          provider: "groq",
+          model: candidate,
+        };
+        return;
+      }
+      if (err instanceof DOMException && err.name === "AbortError") return;
       yield {
         type: "error",
         code: 502,
         kind: "network",
         message: "Network error reaching the model provider.",
         provider: "groq",
-        model: activeModel,
+        model: candidate,
       };
+      return;
     }
+    // The generator completed without throwing — this model answered.
+    activeModel = candidate;
+    break;
+  }
+
+  if (!activeModel) {
+    // Every candidate streamed a model-unavailable-class failure — the key has
+    // no usable chat model. Cache the denial so repeats fail fast.
+    const denyDetail = lastModelErr
+      ? `No chat model available to this Groq project can answer (last: ${lastModelErr.message}). Set GROQ_MODEL to a model this key can use.`
+      : "No chat model available to this Groq project.";
+    modelCheckCache = { at: Date.now(), ok: false, detail: denyDetail, available: [] };
+    yield {
+      type: "error",
+      code: 503,
+      kind: "model_unavailable",
+      message: denyDetail,
+      provider: "groq",
+      model: candidates[0],
+      requestId: lastModelErr?.requestId ?? id,
+    };
     return;
   }
+  modelCheckCache = { at: Date.now(), ok: true, model: activeModel, available: [] };
 
   const totalMs = Date.now() - startedAt;
   yield {

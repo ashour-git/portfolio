@@ -17,6 +17,43 @@ function fakeGroq(parts: string[]): typeof fetch {
   }) as typeof fetch;
 }
 
+/** Streams `parts` for models not in `failFor`; returns a Groq 404 for those. */
+function fakeGroqWithFailures(failFor: string[], parts: string[], requested: string[]): typeof fetch {
+  return (async (url: string, init?: any) => {
+    const body = JSON.parse(init?.body ?? "{}");
+    requested.push(body.model);
+    if (failFor.includes(body.model)) {
+      return {
+        ok: false,
+        status: 404,
+        text: async () => JSON.stringify({ error: { message: `${body.model} is not available to this groq model provider` } }),
+        headers: { get: () => undefined },
+      } as unknown as Response;
+    }
+    const encoder = new TextEncoder();
+    const streamBody = new ReadableStream<Uint8Array>({
+      start(c) {
+        for (const p of parts) c.enqueue(encoder.encode(p));
+        c.close();
+      },
+    });
+    return { ok: true, status: 200, body: streamBody } as unknown as Response;
+  }) as typeof fetch;
+}
+
+/** Streams 404 for every model — simulates a key with no usable chat model. */
+function fakeGroqFailsAll(): typeof fetch {
+  return (async (url: string, init?: any) => {
+    const body = JSON.parse(init?.body ?? "{}");
+    return {
+      ok: false,
+      status: 404,
+      text: async () => JSON.stringify({ error: { message: `${body.model} is not available to this groq model provider` } }),
+      headers: { get: () => undefined },
+    } as unknown as Response;
+  }) as typeof fetch;
+}
+
 const fastEmbed = async () => loadIndex().embeddings["project-restai"];
 
 test("validateInput enforces message cap", () => {
@@ -214,12 +251,13 @@ test("'مين محمد؟' still routes to the portfolio pipeline", async () => {
 test("configured model is used when the key has access to it", async () => {
   __resetModelCache();
   const events: any[] = [];
+  const requested: string[] = [];
   for await (const ev of runCopilot(
     { message: "Tell me about RestAI", mode: "general", history: [] },
     {
       apiKey: "k",
       model: "llama-3.3-70b-versatile",
-      fetchImpl: fakeGroq(["data: [DONE]\n\n"]),
+      fetchImpl: fakeGroqWithFailures(["whisper-large-v3"], ["data: [DONE]\n\n"], requested),
       listModels: async () => ({ ids: ["llama-3.3-70b-versatile", "whisper-large-v3"] }),
       getEmbedder: async () => fastEmbed,
     },
@@ -228,17 +266,19 @@ test("configured model is used when the key has access to it", async () => {
   }
   assert.ok(!events.some((e) => e.type === "error"), "no error when configured model is available");
   assert.equal(events.find((e) => e.type === "meta").model, "llama-3.3-70b-versatile");
+  assert.deepEqual(requested, ["llama-3.3-70b-versatile"], "only the configured model is streamed");
 });
 
-test("falls back to a served chat model when the configured one is absent", async () => {
+test("falls back to a served chat model when the configured one 404s", async () => {
   __resetModelCache();
   const events: any[] = [];
+  const requested: string[] = [];
   for await (const ev of runCopilot(
     { message: "Tell me about RestAI", mode: "general", history: [] },
     {
       apiKey: "k",
       model: "llama-3.3-70b-versatile",
-      fetchImpl: fakeGroq(["data: [DONE]\n\n"]),
+      fetchImpl: fakeGroqWithFailures(["llama-3.3-70b-versatile"], ["data: [DONE]\n\n"], requested),
       listModels: async () => ({ ids: ["llama-3.1-8b-instant", "whisper-large-v3"] }),
       getEmbedder: async () => fastEmbed,
     },
@@ -246,12 +286,35 @@ test("falls back to a served chat model when the configured one is absent", asyn
     events.push(ev);
   }
   assert.ok(!events.some((e) => e.type === "error"), "fallback must not surface an error");
-  const meta = events.find((e) => e.type === "meta");
-  assert.equal(meta.model, "llama-3.1-8b-instant");
   assert.ok(events.some((e) => e.type === "done"), "stream must complete on the fallback model");
+  assert.ok(requested.includes("llama-3.3-70b-versatile"), "configured model is attempted first");
+  assert.ok(requested.includes("llama-3.1-8b-instant"), "list-derived fallback is streamed");
 });
 
-test("denies with model_unavailable only when the key has no usable chat model", async () => {
+test("list unavailable falls back to a known chat model when the configured one 404s", async () => {
+  __resetModelCache();
+  const events: any[] = [];
+  const requested: string[] = [];
+  for await (const ev of runCopilot(
+    { message: "Tell me about RestAI", mode: "general", history: [] },
+    {
+      apiKey: "k",
+      model: "llama-3.3-70b-versatile",
+      fetchImpl: fakeGroqWithFailures(["llama-3.3-70b-versatile"], ["data: [DONE]\n\n"], requested),
+      listModels: async () => {
+        throw new Error("models endpoint unreachable");
+      },
+      getEmbedder: async () => fastEmbed,
+    },
+  )) {
+    events.push(ev);
+  }
+  assert.ok(!events.some((e) => e.type === "error"), "must fall back without surfacing an error");
+  assert.ok(events.some((e) => e.type === "done"));
+  assert.ok(requested.some((m) => m !== "llama-3.3-70b-versatile"), "a known chat model is streamed");
+});
+
+test("denies with model_unavailable only when every candidate 404s", async () => {
   __resetModelCache();
   const events: any[] = [];
   for await (const ev of runCopilot(
@@ -259,7 +322,7 @@ test("denies with model_unavailable only when the key has no usable chat model",
     {
       apiKey: "k",
       model: "llama-3.3-70b-versatile",
-      fetchImpl: fakeGroq(["data: [DONE]\n\n"]),
+      fetchImpl: fakeGroqFailsAll(),
       listModels: async () => ({ ids: ["whisper-large-v3", "whisper-large-v3-turbo"] }),
       getEmbedder: async () => fastEmbed,
     },

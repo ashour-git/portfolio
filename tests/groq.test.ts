@@ -126,13 +126,22 @@ test("pickModel prefers the configured model when the key has access", () => {
   assert.equal(pickModel("custom-model", ["custom-model"]), "custom-model");
 });
 
+test("pickModel matches a namespaced form of the configured model", () => {
+  assert.equal(pickModel("llama-3.3-70b-versatile", ["meta-llama/llama-3.3-70b-versatile"]), "llama-3.3-70b-versatile");
+});
+
 test("pickModel falls back to a known chat model when the configured one is absent", () => {
   assert.equal(pickModel("llama-3.3-70b-versatile", ["llama-3.1-8b-instant", "whisper-large-v3"]), "llama-3.1-8b-instant");
-  assert.equal(pickModel("gone-model", ["llama3-70b-8192", "mixtral-8x7b-32768"]), "llama3-70b-8192");
+  assert.equal(pickModel("gone-model", ["meta-llama/llama3-70b-8192", "mixtral-8x7b-32768"]), "meta-llama/llama3-70b-8192");
 });
 
 test("pickModel picks a deterministic chat model from an unknown set", () => {
   assert.equal(pickModel("gone", ["deepseek-r1-distill-qwen-32b", "whisper-large-v3"]), "deepseek-r1-distill-qwen-32b");
+});
+
+test("pickModel never picks classifier, audio, or embedding models", () => {
+  assert.equal(pickModel("llama-3.3-70b-versatile", ["meta-llama/llama-prompt-guard-2-22m", "whisper-large-v3", "bge-reranker-v2-m3"]), null);
+  assert.equal(pickModel("anything", ["meta-llama/llama-guard-3-8b"]), null);
 });
 
 test("pickModel returns null when the key has no chat model at all", () => {
