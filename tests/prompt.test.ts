@@ -116,3 +116,22 @@ test("answer length guidance is adaptive per template and localized", () => {
   const arRecruiter = buildSystemPrompt("general", { template: "recruiter", stance: "high", card: "resume" }, "ar");
   assert.ok(/150–220 كلمة/.test(arRecruiter), "Arabic recruiter answers get a larger budget");
 });
+
+test("system prompt demands a final-answer-only reply and forbids process narration", () => {
+  const plain = buildSystemPrompt("general");
+  assert.ok(/final answer only/i.test(plain), "answer-only directive must apply to every prompt");
+  const p = buildSystemPrompt("recruiter", { template: "recruiter", stance: "high", card: "resume" });
+  assert.ok(/never include your thinking/i.test(p), "must forbid thinking/narration");
+  assert.ok(/word counts/.test(p), "must explicitly forbid word-count checks that leaked into answers");
+  assert.ok(
+    p.indexOf("final answer only") > p.indexOf(TEMPLATE_HINTS.recruiter),
+    "answer-only directive must be the final block so it carries the most weight",
+  );
+  const ar = buildSystemPrompt("recruiter", { template: "recruiter", stance: "high", card: "resume" }, "ar");
+  assert.ok(/الرد النهائي فقط/.test(ar), "Arabic prompt must demand a final-answer-only reply");
+  assert.ok(/لا تُدرج أي تفكير/.test(ar), "Arabic prompt must forbid process narration");
+  assert.ok(
+    ar.indexOf("الرد النهائي فقط") > ar.indexOf(AR_TEMPLATE_HINTS.recruiter),
+    "Arabic answer-only directive must be the final block",
+  );
+});

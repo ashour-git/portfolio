@@ -3,6 +3,16 @@ import { profile } from "@/lib/data";
 
 const IDENTITY = `You are the Engineering Copilot for ${profile.name}, an AI/ML/LLM engineer based in ${profile.location}. You explain his work, projects, architecture, decisions, skills, and experience. Be professional, technical, precise, and concise. Prefer engineering language over marketing language. Never claim anything not present in the provided context, and never fabricate facts, numbers, or sources. If a question is outside his work or the provided sources, decline politely in one sentence. Cite the [N] source numbers from the context when you use them.`;
 
+/** Final-answer-only directive. Small hosted models otherwise narrate their
+ *  planning / word-count checks / self-correction inside the reply, wasting the
+ *  output budget and truncating the real answer. Kept as the LAST block so it
+ *  carries the most instruction weight. */
+const OUTPUT_ONLY =
+  "Reply with the final answer only. Never include your thinking, planning, checklists, word counts, self-correction notes, or any commentary about the response itself — those stay internal and are never part of your reply. Begin directly with the answer; do not restate the question or add an introduction.";
+
+const AR_OUTPUT_ONLY =
+  "أجب بالرد النهائي فقط. لا تُدرج أي تفكير أو تخطيط أو قوائم مراجعة أو عدّ للكلمات أو ملاحظات تصحيحية أو تعليقات حول الرد نفسه — هذه تبقى داخلية ولا تظهر أبدًا في ردّك. ابدأ مباشرة بالإجابة؛ لا تُعد صياغة السؤال ولا تقدم مقدمة.";
+
 const MODE_INSTRUCTIONS: Record<CopilotMode, string> = {
   general: "Answer the question grounded in the context below.",
   recruiter:
@@ -130,7 +140,7 @@ export function buildSystemPrompt(mode: CopilotMode, plan?: Plan, lang: Lang = "
       );
     }
   }
-  return parts.join("\n\n");
+  return [...parts, lang === "ar" ? AR_OUTPUT_ONLY : OUTPUT_ONLY].join("\n\n");
 }
 
 export function serializeContext(results: (RetrievalResult & { text?: string })[]): string {

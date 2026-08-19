@@ -1,6 +1,10 @@
 import type { ChatMessage } from "@/lib/copilot/types";
 
 const DEFAULT_BASE_URL = "https://api.groq.com/openai/v1";
+/** Output budget per reply. Generous enough that long evidence-heavy answers
+ *  are never truncated by the provider default (2048), while the system prompt
+ *  keeps real answers well under this by suppressing process narration. */
+const MAX_OUTPUT_TOKENS = 4096;
 
 export type GroqErrorKind = "auth" | "model_unavailable" | "rate_limited" | "network" | "unknown";
 
@@ -138,6 +142,7 @@ export async function* streamGroq(input: {
       messages: input.messages,
       stream: true,
       stream_options: { include_usage: true },
+      max_tokens: MAX_OUTPUT_TOKENS,
     }),
     signal: input.signal,
   });
