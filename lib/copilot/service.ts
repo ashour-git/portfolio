@@ -16,6 +16,7 @@ import { rewriteQuery } from "@/lib/copilot/rewrite";
 import { buildPlan } from "@/lib/copilot/planner";
 import { buildMessages } from "@/lib/copilot/prompt";
 import { streamGroq, listGroqModels, GroqError, pickModel, KNOWN_CHAT_FALLBACKS } from "@/lib/copilot/groq";
+import { ThinkingTagFilter } from "@/lib/copilot/narration";
 import { RateLimiter } from "@/lib/copilot/rate-limit";
 import type { ErrorKind } from "@/lib/copilot/types";
 
@@ -41,13 +42,6 @@ export const RELAXED_K = RETRIEVE_K + 2;
 export const PRIMARY_MIN_SCORE = 0.25;
 export const RELAXED_MIN_SCORE = 0.12;
 export const RELAX_CONFIDENCE_THRESHOLD = 0.35;
-
-/** Templates whose answers must start with markdown headings. The model often
- *  emits a reasoning preamble (thinking/word counts/self-correction) before the
- *  first heading; for these templates we buffer deltas until the first heading
- *  and drop whatever came before it. */
-const HEADING_TEMPLATES = new Set(["recruiter", "project"]);
-const MAX_PREAMBLE = 16_000;
 
 export function validateInput(body: unknown): { ok: true; data: RequestBody } | { ok: false; error: string } {
   if (typeof body !== "object" || body === null) return { ok: false, error: "invalid body" };
@@ -292,30 +286,13 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
 
   let activeModel: string | null = null;
   let lastModelErr: GroqError | null = null;
-  let held = "";
-  let holdHeading = HEADING_TEMPLATES.has(plan.template);
   for (const candidate of candidates) {
+    const tagFilter = new ThinkingTagFilter();
     try {
       for await (const ev of streamGroq({ apiKey, model: candidate, messages, signal: deps.signal, fetchImpl: deps.fetchImpl })) {
         if (ev.delta) {
-          if (holdHeading) {
-            held += ev.delta;
-            const at = held.search(/\n(#{1,3}) /);
-            if (at !== -1) {
-              yield { type: "delta", text: held.slice(at + 1) };
-              held = "";
-              holdHeading = false;
-            } else if (/^(#{1,3}) /.test(held)) {
-              yield { type: "delta", text: held };
-              held = "";
-              holdHeading = false;
-            } else if (held.length > MAX_PREAMBLE) {
-              yield { type: "delta", text: held };
-              held = "";
-              holdHeading = false;
-            }
-          } else {
-            yield { type: "delta", text: ev.delta };
+          for (const out of tagFilter.push(ev.delta)) {
+            yield { type: "delta", text: out };
           }
         }
         if (ev.finish) finish = ev.finish;
@@ -323,6 +300,9 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
           tokensIn = ev.usage.prompt_tokens;
           tokensOut = ev.usage.completion_tokens;
         }
+      }
+      for (const out of tagFilter.flush()) {
+        yield { type: "delta", text: out };
       }
     } catch (err) {
       if (isAbort(deps.signal)) return;
@@ -361,10 +341,6 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
       return;
     }
     // The generator completed without throwing — this model answered.
-    if (held) {
-      yield { type: "delta", text: held };
-      held = "";
-    }
     activeModel = candidate;
     break;
   }

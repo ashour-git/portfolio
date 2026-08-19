@@ -8,10 +8,10 @@ const IDENTITY = `You are the Engineering Copilot for ${profile.name}, an AI/ML/
  *  output budget and truncating the real answer. Kept as the LAST block so it
  *  carries the most instruction weight. */
 const OUTPUT_ONLY =
-  "Final-answer-only rule: your reply must contain ONLY the final answer for the user. You may reason internally, but you must never write that reasoning down — no thinking section, no analysis, no drafts, no planning, no word-count checks, no checklists, no self-correction notes, no commentary about the response, and no 'Let me…' or 'Proceeds.' Running notes of any kind are forbidden. Start your reply directly with the answer — no heading, no introduction, no restatement of the question.";
+  "Final-answer-only rule: your reply must contain ONLY the final answer for the user. You may reason internally, but you must never write that reasoning down — no thinking section, no analysis, no drafts, no planning, no word-count checks, no checklists, no self-correction notes, no commentary about the response, no tags or markers around the answer, and no 'Let me…' or 'Proceeds.' Running notes of any kind are forbidden. Start your reply directly with the answer — no heading, no introduction, no restatement of the question.";
 
 const AR_OUTPUT_ONLY =
-  "قاعدة الرد النهائي فقط: يجب أن يحتوي ردّك على الإجابة النهائية للمستخدم فقط. يمكنك التفكير داخليًا، لكن لا تكتب هذا التفكير أبدًا — لا قسم تفكير، ولا تحليلًا، ولا مسودات، ولا تخطيطًا، ولا عدّ كلمات، ولا قوائم مراجعة، ولا ملاحظات تصحيحية، ولا تعليقًا على الرد نفسه، ولا عبارات مثل «دعني أتحقق» أو «أكمل». ابدأ ردّك مباشرة بالإجابة — بلا عنوان تقديمي ولا مقدمة ولا إعادة صياغة للسؤال.";
+  "قاعدة الرد النهائي فقط: يجب أن يحتوي ردّك على الإجابة النهائية للمستخدم فقط. يمكنك التفكير داخليًا، لكن لا تكتب هذا التفكير أبدًا — لا قسم تفكير، ولا تحليلًا، ولا مسودات، ولا تخطيطًا، ولا عدّ كلمات، ولا قوائم مراجعة، ولا ملاحظات تصحيحية، ولا تعليقًا على الرد نفسه، ولا وسومًا أو علامات حول الإجابة، ولا عبارات مثل «دعني أتحقق» أو «أكمل». ابدأ ردّك مباشرة بالإجابة — بلا عنوان تقديمي ولا مقدمة ولا إعادة صياغة للسؤال.";
 
 const MODE_INSTRUCTIONS: Record<CopilotMode, string> = {
   general: "Answer the question grounded in the context below.",

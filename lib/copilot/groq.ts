@@ -1,10 +1,10 @@
 import type { ChatMessage } from "@/lib/copilot/types";
 
 const DEFAULT_BASE_URL = "https://api.groq.com/openai/v1";
-/** Output budget per reply. Generous enough that long evidence-heavy answers
- *  are never truncated by the provider default (2048), while the system prompt
- *  keeps real answers well under this by suppressing process narration. */
-const MAX_OUTPUT_TOKENS = 4096;
+/** Output budget per reply. Generous because some hosted models spend part of
+ *  the budget on (stripped) reasoning narration before the answer; the system
+ *  prompt still keeps real answers well under this. */
+const MAX_OUTPUT_TOKENS = 8192;
 
 export type GroqErrorKind = "auth" | "model_unavailable" | "rate_limited" | "network" | "unknown";
 

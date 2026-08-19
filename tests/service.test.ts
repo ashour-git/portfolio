@@ -336,10 +336,10 @@ test("denies with model_unavailable only when every candidate 404s", async () =>
   assert.ok(!events.some((e) => e.type === "delta"), "nothing may stream when no model is usable");
 });
 
-test("reasoning preamble before the first heading is dropped for heading templates", async () => {
+test("thinking wrapped in tags is dropped and only the real answer streams", async () => {
   __resetModelCache();
   const leaked =
-    "Thinking Process:\n\n1. Analyze the request.\n2. Draft content.\nWord count check: ~250.\nLet's go.\n\n" +
+    "<thinking>\nThinking Process:\n\n1. Analyze the request.\n2. Draft content.\nWord count check: ~250.\nLet's go.\n</thinking>\n\n" +
     "### Overview\nRestAI is a production restaurant SaaS [1].\n\n" +
     "### Impact\nGrounded answers.\n";
   const events: any[] = [];
@@ -355,13 +355,38 @@ test("reasoning preamble before the first heading is dropped for heading templat
     events.push(ev);
   }
   const plan = events.find((e) => e.type === "plan");
-  assert.equal(plan.plan.template, "recruiter", "test must exercise a heading template");
+  assert.equal(plan.plan.template, "recruiter", "test must exercise a grounded template");
   const deltas = events.filter((e) => e.type === "delta").map((e) => e.text).join("");
   assert.ok(!deltas.includes("Thinking Process"), "reasoning preamble must never reach the client");
   assert.ok(!deltas.includes("Word count"), "word-count narration must never reach the client");
   assert.ok(deltas.includes("### Overview"), "the real answer must be preserved");
   assert.ok(deltas.includes("### Impact"), "later sections must be preserved");
   assert.ok(events.some((e) => e.type === "done"), "run must complete normally");
+});
+
+test("tag-wrapped Arabic narration is dropped and the Arabic answer is preserved", async () => {
+  __resetModelCache();
+  const leaked =
+    "<thinking>\nHere's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Question:** ما هو مشروع RestAI؟\n   - **Constraints:** أجب بالعربية.\n</thinking>\n\n" +
+    "مشروع RestAI هو منصة SaaS لإدارة المطاعم تعمل في بيئة إنتاجية.\n\n" +
+    "القرارات الهندسية الأساسية:\n- RAG على بيانات حية لضمان دقة الإجابات.\n";
+  const events: any[] = [];
+  for await (const ev of runCopilot(
+    { message: "ما هو مشروع RestAI؟", mode: "general", history: [] },
+    {
+      apiKey: "k",
+      model: "llama-3.3-70b-versatile",
+      fetchImpl: fakeGroq([`data: ${JSON.stringify({ choices: [{ delta: { content: leaked } }] })}\n\n`]),
+      getEmbedder: async () => fastEmbed,
+    },
+  )) {
+    events.push(ev);
+  }
+  const deltas = events.filter((e) => e.type === "delta").map((e) => e.text).join("");
+  assert.ok(!deltas.includes("thinking process"), "Arabic narration must never reach the client");
+  assert.ok(!deltas.includes("Analyze User Input"), "analysis must never reach the client");
+  assert.ok(deltas.includes("مشروع RestAI هو منصة SaaS"), "the Arabic answer must be preserved");
+  assert.ok(deltas.includes("القرارات الهندسية الأساسية"), "later Arabic sections must be preserved");
 });
 
 test("answers without a heading are streamed untouched", async () => {
