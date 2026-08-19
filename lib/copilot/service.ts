@@ -47,7 +47,7 @@ export const RELAX_CONFIDENCE_THRESHOLD = 0.35;
  *  first heading; for these templates we buffer deltas until the first heading
  *  and drop whatever came before it. */
 const HEADING_TEMPLATES = new Set(["recruiter", "project"]);
-const MAX_PREAMBLE = 4000;
+const MAX_PREAMBLE = 16_000;
 
 export function validateInput(body: unknown): { ok: true; data: RequestBody } | { ok: false; error: string } {
   if (typeof body !== "object" || body === null) return { ok: false, error: "invalid body" };
