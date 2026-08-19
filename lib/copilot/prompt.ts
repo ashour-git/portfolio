@@ -8,10 +8,10 @@ const IDENTITY = `You are the Engineering Copilot for ${profile.name}, an AI/ML/
  *  output budget and truncating the real answer. Kept as the LAST block so it
  *  carries the most instruction weight. */
 const OUTPUT_ONLY =
-  "Reply with the final answer only. Never include your thinking, planning, checklists, word counts, self-correction notes, or any commentary about the response itself — those stay internal and are never part of your reply. Begin directly with the answer; do not restate the question or add an introduction.";
+  "Final-answer-only rule: your reply must contain ONLY the final answer for the user. You may reason internally, but you must never write that reasoning down — no thinking section, no analysis, no drafts, no planning, no word-count checks, no checklists, no self-correction notes, no commentary about the response, and no 'Let me…' or 'Proceeds.' Running notes of any kind are forbidden. Start your reply directly with the answer — no heading, no introduction, no restatement of the question.";
 
 const AR_OUTPUT_ONLY =
-  "أجب بالرد النهائي فقط. لا تُدرج أي تفكير أو تخطيط أو قوائم مراجعة أو عدّ للكلمات أو ملاحظات تصحيحية أو تعليقات حول الرد نفسه — هذه تبقى داخلية ولا تظهر أبدًا في ردّك. ابدأ مباشرة بالإجابة؛ لا تُعد صياغة السؤال ولا تقدم مقدمة.";
+  "قاعدة الرد النهائي فقط: يجب أن يحتوي ردّك على الإجابة النهائية للمستخدم فقط. يمكنك التفكير داخليًا، لكن لا تكتب هذا التفكير أبدًا — لا قسم تفكير، ولا تحليلًا، ولا مسودات، ولا تخطيطًا، ولا عدّ كلمات، ولا قوائم مراجعة، ولا ملاحظات تصحيحية، ولا تعليقًا على الرد نفسه، ولا عبارات مثل «دعني أتحقق» أو «أكمل». ابدأ ردّك مباشرة بالإجابة — بلا عنوان تقديمي ولا مقدمة ولا إعادة صياغة للسؤال.";
 
 const MODE_INSTRUCTIONS: Record<CopilotMode, string> = {
   general: "Answer the question grounded in the context below.",
@@ -80,10 +80,11 @@ export const AR_TEMPLATE_HINTS: Record<Plan["template"], string> = {
 };
 
 /**
- * Explicit answer-length budget per template (spec: adaptive length by intent).
+ * Explicit answer-budget per template (spec: adaptive length by intent).
  * Casual, resume, skills, and decision answers must be short and scannable;
- * recruiter and project answers carry evidence and get more room; interview and
- * architecture sit in between. The budget is guidance, not a hard cap.
+ * recruiter and project answers carry evidence and get more room. Stated
+ * qualitatively (no numeric budgets) because models literalize word counts and
+ * narrate them into the reply.
  */
 const LENGTH_GUIDE: Record<Plan["template"], { en: string; ar: string }> = {
   casual: {
@@ -91,36 +92,36 @@ const LENGTH_GUIDE: Record<Plan["template"], { en: string; ar: string }> = {
     ar: "أبقِ الإجابة في 1–3 جمل قصيرة.",
   },
   recruiter: {
-    en: "Aim for 150–220 words: scannable, evidence-first, lead with numbers.",
-    ar: "استهدف 150–220 كلمة: سهلة المسح، تبدأ بالأدلة والأرقام.",
+    en: "Lead with evidence and numbers. Keep it scannable and focused — several short sections, no filler.",
+    ar: "ابدأ بالأدلة والأرقام. اجعل الإجابة سهلة المسح والتركيز — عدة أقسام قصيرة دون حشو.",
   },
   project: {
-    en: "Aim for 120–180 words with section headers.",
-    ar: "استهدف 120–180 كلمة مع عناوين أقسام.",
+    en: "Keep it tight: concise sections, one markdown table for stack or performance, no filler.",
+    ar: "حافظ على الإيجاز: أقسام موجزة، وجدول ماركداوين واحد للتقنيات أو الأداء، دون حشو.",
   },
   interview: {
-    en: "Aim for 100–160 words, direct first-person reasoning.",
-    ar: "استهدف 100–160 كلمة بمنطق مباشر بضمير المتكلم.",
+    en: "Direct first-person reasoning in short paragraphs.",
+    ar: "منطق مباشر بضمير المتكلم في فقرات قصيرة.",
   },
   resume: {
-    en: "Keep it under 100 words, bullets only.",
-    ar: "أبقِها أقل من 100 كلمة بنقاط فقط.",
+    en: "Short and scannable — bullets only.",
+    ar: "قصيرة وسهلة المسح — نقاط فقط.",
   },
   skills: {
-    en: "Keep it scannable and under 100 words.",
-    ar: "أبقِها سهلة المسح وأقل من 100 كلمة.",
+    en: "Compact and scannable.",
+    ar: "موجزة وسهلة المسح.",
   },
   experience: {
-    en: "Aim for 120–180 words with an overview table.",
-    ar: "استهدف 120–180 كلمة مع جدول ملخص.",
+    en: "Compact chronological list with an overview table.",
+    ar: "قائمة زمنية موجزة مع جدول ملخص.",
   },
   decision: {
-    en: "Aim for 80–140 words, one line per decision.",
-    ar: "استهدف 80–140 كلمة، سطر واحد لكل قرار.",
+    en: "One line per decision.",
+    ar: "سطر واحد لكل قرار.",
   },
   general: {
-    en: "Keep it under 120 words.",
-    ar: "أبقِها أقل من 120 كلمة.",
+    en: "Concise — short paragraphs.",
+    ar: "موجزة — فقرات قصيرة.",
   },
 };
 

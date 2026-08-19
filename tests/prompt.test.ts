@@ -106,30 +106,33 @@ test("Arabic context message asks for names instead of [N] citations", () => {
   assert.ok(!context.content.includes("[1]"), "no [N] citation instruction in Arabic context");
 });
 
-test("answer length guidance is adaptive per template and localized", () => {
+test("answer budgets are adaptive per template and localized without numeric triggers", () => {
   const short = buildSystemPrompt("general", { template: "resume", stance: "high", card: "resume" });
   const long = buildSystemPrompt("general", { template: "recruiter", stance: "high", card: "resume" });
-  assert.ok(/under 100 words/.test(short), "resume answers must stay short");
-  assert.ok(/150–220 words/.test(long), "recruiter answers get a larger budget");
+  assert.ok(/bullets only/i.test(short), "resume answers must stay short and scannable");
+  assert.ok(/lead with evidence and numbers/i.test(long), "recruiter answers lead with evidence");
+  assert.notEqual(short, long, "budgets must differ per template");
   const arShort = buildSystemPrompt("general", { template: "skills", stance: "high", card: "skills" }, "ar");
-  assert.ok(/أقل من 100 كلمة/.test(arShort), "Arabic skills answers must stay short");
+  assert.ok(/سهلة المسح/.test(arShort), "Arabic skills answers must stay scannable");
   const arRecruiter = buildSystemPrompt("general", { template: "recruiter", stance: "high", card: "resume" }, "ar");
-  assert.ok(/150–220 كلمة/.test(arRecruiter), "Arabic recruiter answers get a larger budget");
+  assert.ok(/ابدأ بالأدلة والأرقام/.test(arRecruiter), "Arabic recruiter answers lead with evidence");
+  assert.ok(!/\d+\s*[-–]\s*\d+\s*words?/.test(long), "no numeric word budgets in English prompt");
+  assert.ok(!/\d+\s*[-–]\s*\d+\s*كلمة/.test(arRecruiter), "no numeric word budgets in Arabic prompt");
 });
 
 test("system prompt demands a final-answer-only reply and forbids process narration", () => {
   const plain = buildSystemPrompt("general");
-  assert.ok(/final answer only/i.test(plain), "answer-only directive must apply to every prompt");
+  assert.ok(/final-answer-only rule/i.test(plain), "answer-only directive must apply to every prompt");
   const p = buildSystemPrompt("recruiter", { template: "recruiter", stance: "high", card: "resume" });
-  assert.ok(/never include your thinking/i.test(p), "must forbid thinking/narration");
-  assert.ok(/word counts/.test(p), "must explicitly forbid word-count checks that leaked into answers");
+  assert.ok(/never write that reasoning down/i.test(p), "must forbid writing reasoning down");
+  assert.ok(/word-count checks/.test(p), "must explicitly forbid word-count checks that leaked into answers");
   assert.ok(
-    p.indexOf("final answer only") > p.indexOf(TEMPLATE_HINTS.recruiter),
+    p.toLowerCase().indexOf("final-answer-only") > p.toLowerCase().indexOf(TEMPLATE_HINTS.recruiter.toLowerCase()),
     "answer-only directive must be the final block so it carries the most weight",
   );
   const ar = buildSystemPrompt("recruiter", { template: "recruiter", stance: "high", card: "resume" }, "ar");
   assert.ok(/الرد النهائي فقط/.test(ar), "Arabic prompt must demand a final-answer-only reply");
-  assert.ok(/لا تُدرج أي تفكير/.test(ar), "Arabic prompt must forbid process narration");
+  assert.ok(/لا تكتب هذا التفكير أبدًا/.test(ar), "Arabic prompt must forbid process narration");
   assert.ok(
     ar.indexOf("الرد النهائي فقط") > ar.indexOf(AR_TEMPLATE_HINTS.recruiter),
     "Arabic answer-only directive must be the final block",

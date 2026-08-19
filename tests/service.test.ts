@@ -335,3 +335,49 @@ test("denies with model_unavailable only when every candidate 404s", async () =>
   assert.equal(err.code, 503);
   assert.ok(!events.some((e) => e.type === "delta"), "nothing may stream when no model is usable");
 });
+
+test("reasoning preamble before the first heading is dropped for heading templates", async () => {
+  __resetModelCache();
+  const leaked =
+    "Thinking Process:\n\n1. Analyze the request.\n2. Draft content.\nWord count check: ~250.\nLet's go.\n\n" +
+    "### Overview\nRestAI is a production restaurant SaaS [1].\n\n" +
+    "### Impact\nGrounded answers.\n";
+  const events: any[] = [];
+  for await (const ev of runCopilot(
+    { message: "Why should I hire you?", mode: "general", history: [] },
+    {
+      apiKey: "k",
+      model: "llama-3.3-70b-versatile",
+      fetchImpl: fakeGroq([`data: ${JSON.stringify({ choices: [{ delta: { content: leaked } }] })}\n\n`]),
+      getEmbedder: async () => fastEmbed,
+    },
+  )) {
+    events.push(ev);
+  }
+  const plan = events.find((e) => e.type === "plan");
+  assert.equal(plan.plan.template, "recruiter", "test must exercise a heading template");
+  const deltas = events.filter((e) => e.type === "delta").map((e) => e.text).join("");
+  assert.ok(!deltas.includes("Thinking Process"), "reasoning preamble must never reach the client");
+  assert.ok(!deltas.includes("Word count"), "word-count narration must never reach the client");
+  assert.ok(deltas.includes("### Overview"), "the real answer must be preserved");
+  assert.ok(deltas.includes("### Impact"), "later sections must be preserved");
+  assert.ok(events.some((e) => e.type === "done"), "run must complete normally");
+});
+
+test("answers without a heading are streamed untouched", async () => {
+  __resetModelCache();
+  const events: any[] = [];
+  for await (const ev of runCopilot(
+    { message: "What tools does Mohamed use for ML?", mode: "general", history: [] },
+    {
+      apiKey: "k",
+      model: "llama-3.3-70b-versatile",
+      fetchImpl: fakeGroq([`data: ${JSON.stringify({ choices: [{ delta: { content: "FastAPI, PyTorch, and pgvector." } }] })}\n\n`]),
+      getEmbedder: async () => fastEmbed,
+    },
+  )) {
+    events.push(ev);
+  }
+  const deltas = events.filter((e) => e.type === "delta").map((e) => e.text).join("");
+  assert.equal(deltas, "FastAPI, PyTorch, and pgvector.", "non-heading answer must stream verbatim");
+});
