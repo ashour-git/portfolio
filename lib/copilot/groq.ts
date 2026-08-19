@@ -1,10 +1,10 @@
 import type { ChatMessage } from "@/lib/copilot/types";
 
 const DEFAULT_BASE_URL = "https://api.groq.com/openai/v1";
-/** Output budget per reply. Generous because some hosted models spend part of
- *  the budget on (stripped) reasoning narration before the answer; the system
- *  prompt still keeps real answers well under this. */
-const MAX_OUTPUT_TOKENS = 8192;
+/** Output budget per reply. Kept modest because free Groq tiers bill tokens per
+ *  minute (input + max output); 8192 pushes a typical request over an 8000-TPM
+ *  tier. The reasoning strip + final-answer directive keep real answers short. */
+const MAX_OUTPUT_TOKENS = 4096;
 
 export type GroqErrorKind = "auth" | "model_unavailable" | "rate_limited" | "network" | "unknown";
 
@@ -25,7 +25,7 @@ export class GroqError extends Error {
 function classifyStatus(status: number): GroqErrorKind {
   if (status === 401 || status === 403) return "auth";
   if (status === 404) return "model_unavailable";
-  if (status === 429) return "rate_limited";
+  if (status === 429 || status === 413) return "rate_limited";
   if (status >= 500) return "unknown";
   return "unknown";
 }

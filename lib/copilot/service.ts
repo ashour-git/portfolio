@@ -322,7 +322,10 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
           type: "error",
           code: err.kind === "rate_limited" ? 429 : 502,
           kind: toErrorKind(err.kind),
-          message: err.message,
+          message:
+            err.kind === "rate_limited"
+              ? "The model provider is rate-limited right now. Wait a few seconds and try again."
+              : err.message,
           requestId: err.requestId,
           provider: "groq",
           model: candidate,

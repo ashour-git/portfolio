@@ -54,6 +54,23 @@ function fakeGroqFailsAll(): typeof fetch {
   }) as typeof fetch;
 }
 
+function fakeGroq413(): typeof fetch {
+  return (async (url: string, init?: any) => {
+    const body = JSON.parse(init?.body ?? "{}");
+    return {
+      ok: false,
+      status: 413,
+      text: async () =>
+        JSON.stringify({
+          error: {
+            message: `Request too large for model \`${body.model}\` on tokens per minute (TPM): Limit 8000, Requested 11130`,
+          },
+        }),
+      headers: { get: () => undefined },
+    } as unknown as Response;
+  }) as typeof fetch;
+}
+
 const fastEmbed = async () => loadIndex().embeddings["project-restai"];
 
 test("validateInput enforces message cap", () => {
@@ -334,6 +351,29 @@ test("denies with model_unavailable only when every candidate 404s", async () =>
   assert.equal(err.kind, "model_unavailable");
   assert.equal(err.code, 503);
   assert.ok(!events.some((e) => e.type === "delta"), "nothing may stream when no model is usable");
+});
+
+test("oversized-request 413 surfaces a calm rate-limited error", async () => {
+  __resetModelCache();
+  const events: any[] = [];
+  for await (const ev of runCopilot(
+    { message: "Tell me about RestAI", mode: "general", history: [] },
+    {
+      apiKey: "k",
+      model: "llama-3.3-70b-versatile",
+      fetchImpl: fakeGroq413(),
+      listModels: async () => ({ ids: ["llama-3.3-70b-versatile"] }),
+      getEmbedder: async () => fastEmbed,
+    },
+  )) {
+    events.push(ev);
+  }
+  const err = events.find((e) => e.type === "error");
+  assert.ok(err, "413 must yield an error event");
+  assert.equal(err.kind, "rate_limited");
+  assert.equal(err.code, 429);
+  assert.ok(!/org_|Request too large|TPM|billing/i.test(err.message), "provider details must not leak");
+  assert.ok(!events.some((e) => e.type === "delta"), "no partial answer on an oversized request");
 });
 
 test("thinking wrapped in tags is dropped and only the real answer streams", async () => {
