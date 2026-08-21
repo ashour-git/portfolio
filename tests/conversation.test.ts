@@ -108,3 +108,18 @@ test("casual messages carry shouldRetrieve=false", () => {
   assert.equal(r.casual, true);
   if (r.casual) assert.equal(r.shouldRetrieve, false);
 });
+
+test("typoed recruiter queries with greeting prefix are NOT casual (human-like typo tolerance)", () => {
+  const cases = [
+    "hi , whay I should hire u",
+    "hi, whay I should hire u",
+    "whay I should hire u",
+    "hire u why????",
+    "why I should hire u",
+    "hi whay should i hire you",
+  ];
+  for (const m of cases) {
+    const r = classifyConversation(m);
+    assert.equal(r.casual, false, `expected portfolio (typo-tolerant): ${m} got casual=${r.casual}`);
+  }
+});

@@ -65,6 +65,8 @@ function hasPhrase(norm: string, phrase: string): boolean {
  */
 const PORTFOLIO_SIGNALS: string[] = [
   ...Object.values(INTENT_RULES).flat(),
+  // typo-tolerant recruiter signals (common misspellings, informal)
+  "whay", "whyy", "hie you", "hire u", "hire me", "hir you", "whay i should", "why i should hire",
   // project names
   "restai", "restaurant ai", "storefy", "text2sql", "text-to-sql", "text to sql",
   "semantic book", "book recommender", "kepler", "kepler vision", "hand gesture",
@@ -175,9 +177,20 @@ export function classifyConversation(message: string): ConversationClassificatio
   // Casual tokens are short ("yo", "hi", "ok", "yes", "sup") and MUST be matched
   // on word boundaries only — a naive substring match would fire on "you",
   // "this", "yesterday", "support", etc. and wrongly suppress retrieval.
+  // Also, a greeting followed by substantive content (e.g. "hi, why should I hire you")
+  // must NOT be treated as casual — the RAG pipeline should handle it.
   for (const subtype of Object.keys(CASUAL_PATTERNS) as CasualSubtype[]) {
-    if (CASUAL_PATTERNS[subtype].some((p) => hasPhrase(norm, p))) {
-      return { casual: true, subtype, language: lang, shouldRetrieve: false };
+    for (const p of CASUAL_PATTERNS[subtype]) {
+      if (hasPhrase(norm, p)) {
+        const phraseWords = p.split(/\s+/).filter(Boolean).length;
+        const normWords = norm.split(/\s+/).filter(Boolean).length;
+        // If message has substantially more words than the casual phrase, it's a mixed query, not pure casual
+        if (normWords > phraseWords + 2) continue;
+        // If remaining text contains portfolio-like keywords, don't treat as casual
+        const remaining = norm.replace(new RegExp(`(^|\\s)${p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(\\s|$)`, "i"), " ").trim();
+        if (/(hire|whay|why|recruit|job|work|project|restai|rag|resume|experience|should)/i.test(remaining)) continue;
+        return { casual: true, subtype, language: lang, shouldRetrieve: false };
+      }
     }
   }
 
