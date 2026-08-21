@@ -323,8 +323,8 @@ export function Copilot() {
             style={isMobile && vh ? { height: vh } : undefined}
             className="glass-strong copilot-shell relative flex h-[100dvh] w-full max-w-5xl flex-col overflow-hidden rounded-none md:h-[92vh] md:rounded-3xl"
           >
-            {/* header — compact single intent: identity + close (spec §4) */}
-            <div className="flex items-center justify-between gap-3 border-b border-line px-4 pb-2.5 pt-[max(0.75rem,env(safe-area-inset-top))] md:px-6 md:pt-4">
+            {/* header — blueprint grid + brass hairline signature */}
+            <div className="copilot-header flex items-center justify-between gap-3 border-b border-line px-4 pb-2.5 pt-[max(0.75rem,env(safe-area-inset-top))] md:px-6 md:pt-4">
               <div className="min-w-0">
                 <p className="label truncate text-accent">{chromeLang === "ar" ? "مساعد · راج مُسنَد" : "COPILOT · GROUNDED RAG"}</p>
                 <h2 className="mt-0.5 truncate font-serif text-lg italic text-ink md:text-xl">{DIALOG_LABEL[chromeLang]}</h2>
@@ -389,7 +389,7 @@ export function Copilot() {
                       {messages.map((m) => {
                         if (m.role === "user") {
                           return (
-                            <div key={m.id} className="w-fit max-w-full">
+                            <div key={m.id} className="copilot-msg w-fit max-w-full">
                               <div className="copilot-bubble-user me-auto whitespace-pre-wrap">
                                 {m.text}
                               </div>
@@ -399,7 +399,7 @@ export function Copilot() {
                         const runState = runs[m.id];
                         const failedEmpty = runState?.error && !m.text;
                         return (
-                          <div key={m.id} className="max-w-full" dir={dir}>
+                          <div key={m.id} className="copilot-msg max-w-full" dir={dir}>
                             {failedEmpty ? (
                               <ErrorState
                                 error={runState.error!}
@@ -409,6 +409,13 @@ export function Copilot() {
                             ) : (
                               <>
                                 <CopilotMarkdown text={m.text} lang={runState?.lang ?? detectLanguage(m.text)} />
+                                {runState?.done && !runState?.error && runState?.sources.length > 0 && m.text && (
+                                  <div className="grounded-stamp mt-3" dir={dir}>
+                                    {runState.lang === "ar"
+                                      ? `مُسنَد · ${runState.sources.length} مصادر · ${runState.stats?.retrievalMs ?? "—"}ms`
+                                      : `GROUNDED · ${runState.sources.length} sources · ${runState.stats?.retrievalMs ?? "—"}ms`}
+                                  </div>
+                                )}
                                 {runState?.error && m.text && (
                                   <p className="mt-2 text-xs text-ink-faint">
                                     {chromeLang === "ar" ? "اكتملت الإجابة جزئيًا." : "Answer completed partially."}
@@ -566,14 +573,15 @@ export function Copilot() {
                       lang={chromeLang}
                       aria-label={PLACEHOLDER[chromeLang]}
                       disabled={streaming}
-                      className="h-12 flex-1 rounded-xl border border-line bg-panel px-4 text-[0.9375rem] text-ink placeholder:text-ink-faint focus:border-accent focus:outline-none disabled:opacity-60"
+                      className="copilot-input h-12 flex-1 rounded-xl border border-line bg-panel px-4 text-[0.9375rem] text-ink placeholder:text-ink-faint focus:outline-none disabled:opacity-60"
                     />
                     <button
                       type="button"
                       onClick={send}
                       disabled={streaming || !input.trim()}
+                      data-ready={input.trim() ? "true" : "false"}
                       aria-label={chromeLang === "ar" ? "إرسال" : "Send"}
-                      className="flex h-12 min-w-12 items-center justify-center rounded-xl bg-ink text-bg transition-opacity hover:opacity-85 disabled:opacity-35"
+                      className="copilot-send flex h-12 min-w-12 items-center justify-center rounded-xl bg-ink text-bg transition-opacity hover:opacity-85 disabled:opacity-35"
                     >
                       <SendIcon />
                     </button>
@@ -596,8 +604,8 @@ export function Copilot() {
                 </div>
               </div>
 
-              {/* card rail (desktop) — calmer surfaces (spec §11) */}
-              <div className="hidden overflow-y-auto border-l border-line bg-panel-2/60 p-4 md:block">
+              {/* card rail — blueprint dots + brass accent */}
+              <div className="copilot-rail hidden overflow-y-auto border-l border-line bg-panel-2/60 p-4 md:block">
                 <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint" dir={dir}>
                   {contextLabel(contextTopic(lastRun?.plan ?? null, lastRun?.sources), chromeLang)}
                 </p>
