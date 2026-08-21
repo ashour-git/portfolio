@@ -117,7 +117,7 @@ export function Copilot() {
   const [devMode, setDevMode] = useState(false);
   const [contextOpen, setContextOpen] = useState(false);
   const [explainId, setExplainId] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<Message[]>([]);
   const abortRef = useRef<AbortController | null>(null);
@@ -178,6 +178,7 @@ export function Copilot() {
       }));
       setStreaming(true);
       setInput("");
+      if (inputRef.current) inputRef.current.style.height = "auto";
 
       const update = (fn: (r: Run) => Run) =>
         setRuns((prev) => ({ ...prev, [runId]: fn(prev[runId]) }));
@@ -389,8 +390,8 @@ export function Copilot() {
                       {messages.map((m) => {
                         if (m.role === "user") {
                           return (
-                            <div key={m.id} className="copilot-msg w-fit max-w-full">
-                              <div className="copilot-bubble-user me-auto whitespace-pre-wrap">
+                            <div key={m.id} className="copilot-msg flex w-full justify-start">
+                              <div className="copilot-bubble-user whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
                                 {m.text}
                               </div>
                             </div>
@@ -563,17 +564,27 @@ export function Copilot() {
                   style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}
                 >
                   <div className="flex items-end gap-2">
-                    <input
+                    <textarea
                       ref={inputRef}
                       value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && send()}
+                      onChange={(e) => {
+                        setInput(e.target.value);
+                        e.target.style.height = "auto";
+                        e.target.style.height = Math.min(e.target.scrollHeight, 112) + "px";
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          send();
+                        }
+                      }}
                       placeholder={PLACEHOLDER[chromeLang]}
                       dir={dir}
                       lang={chromeLang}
                       aria-label={PLACEHOLDER[chromeLang]}
                       disabled={streaming}
-                      className="copilot-input h-12 flex-1 rounded-xl border border-line bg-panel px-4 text-[0.9375rem] text-ink placeholder:text-ink-faint focus:outline-none disabled:opacity-60"
+                      rows={1}
+                      className="copilot-input min-h-12 max-h-28 flex-1 resize-none overflow-y-auto rounded-xl border border-line bg-panel px-4 py-3.5 text-[0.9375rem] leading-[1.5] text-ink placeholder:text-ink-faint focus:outline-none disabled:opacity-60"
                     />
                     <button
                       type="button"
