@@ -5,7 +5,7 @@ import { RateLimiter } from "@/lib/copilot/rate-limit";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const limiter = new RateLimiter({ limitPerMinute: 5, limitPerHour: 30 });
+const limiter = new RateLimiter({ limitPerMinute: 10, limitPerHour: 60 });
 const cacheHits = new Map<string, { results: RetrievalResult[]; retrievalMs: number }>();
 
 function clientIp(req: Request): string {

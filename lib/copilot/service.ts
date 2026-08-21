@@ -43,16 +43,36 @@ export const PRIMARY_MIN_SCORE = 0.25;
 export const RELAXED_MIN_SCORE = 0.12;
 export const RELAX_CONFIDENCE_THRESHOLD = 0.35;
 
+function dedupeRepeatedPhrase(text: string): string {
+  const t = text.trim().replace(/\s+/g, " ");
+  // "why I hire u why I hire u ..." → keep one occurrence
+  const m = t.match(/^(.{6,}?)(?:\s+\1){2,}\s*$/i);
+  if (m) return m[1].trim();
+  // also handle without strict repetition: split and check if 3+ identical segments
+  const words = t.split(" ");
+  if (words.length >= 12) {
+    const segLen = Math.floor(words.length / 3);
+    if (segLen >= 3) {
+      const a = words.slice(0, segLen).join(" ");
+      const b = words.slice(segLen, segLen * 2).join(" ");
+      const c = words.slice(segLen * 2, segLen * 3).join(" ");
+      if (a.toLowerCase() === b.toLowerCase() && b.toLowerCase() === c.toLowerCase()) return a;
+    }
+  }
+  return text;
+}
+
 export function validateInput(body: unknown): { ok: true; data: RequestBody } | { ok: false; error: string } {
   if (typeof body !== "object" || body === null) return { ok: false, error: "invalid body" };
   const b = body as Partial<RequestBody>;
   if (typeof b.message !== "string" || b.message.trim().length === 0) return { ok: false, error: "message is required" };
-  if (b.message.length > MAX_MESSAGE) return { ok: false, error: "message too long" };
+  const deduped = dedupeRepeatedPhrase(b.message);
+  if (deduped.length > MAX_MESSAGE) return { ok: false, error: "message too long" };
   if (b.mode !== undefined && !["general", "recruiter", "interview", "architecture", "explore"].includes(b.mode))
     return { ok: false, error: "unknown mode" };
   if (b.history !== undefined && (!Array.isArray(b.history) || b.history.length > MAX_HISTORY))
     return { ok: false, error: "history too long" };
-  return { ok: true, data: { message: b.message, mode: b.mode, history: b.history } };
+  return { ok: true, data: { message: deduped, mode: b.mode, history: b.history } };
 }
 
 export type CacheEntry = { results: RetrievalResult[]; retrievalMs: number; strategy?: "primary" | "relaxed" };
@@ -128,7 +148,7 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
   const lang = detectLanguage(body.message);
   const conv = classifyConversation(body.message);
   const id = `req-${startedAt}-${Math.random().toString(36).slice(2, 8)}`;
-  const limiter = deps.limiter ?? new RateLimiter({ limitPerMinute: 5, limitPerHour: 30 });
+  const limiter = deps.limiter ?? new RateLimiter({ limitPerMinute: 10, limitPerHour: 60 });
   const ip = deps.ip ?? "local";
   const cache = deps.cacheHits ?? new Map<string, CacheEntry>();
 
