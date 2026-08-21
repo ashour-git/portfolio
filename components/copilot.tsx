@@ -419,8 +419,8 @@ export function Copilot() {
                                   <div className="mt-3 flex flex-wrap items-center gap-2" dir={dir}>
                                     <span className="label">{runState.lang === "ar" ? "مُسنَد إلى" : "Grounded in"}</span>
                                     {runState.sources
-                                      .filter((s, i, arr) => arr.findIndex((x) => x.source.kind === s.source.kind && x.label === s.label) === i)
-                                      .slice(0, 4)
+                                      .filter((s, i, arr) => arr.findIndex((x) => x.source.kind === s.source.kind) === i)
+                                      .slice(0, 3)
                                       .map((s) => {
                                       const href = sourceHref(s.source.kind, s.source);
                                       const label = sourceLabel(s.source.kind, s.label, runState.lang);

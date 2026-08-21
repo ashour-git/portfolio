@@ -30,9 +30,20 @@ export function modeLabel(mode: CopilotMode, lang: Lang): string {
   return lang === "ar" ? AR_MODE[mode] : EN_MODE[mode];
 }
 
+const EN_SOURCE: Partial<Record<SourceKind, string>> = {
+  resume: "Resume",
+  experience: "Experience",
+  skill: "Skills",
+  stats: "Stats",
+  hire: "Hire",
+  about: "About",
+  project: "Projects",
+  linkedin: "LinkedIn",
+};
+
 export function sourceLabel(kind: SourceKind, display: string, lang: Lang): string {
-  if (lang !== "ar") return display;
-  return AR_SOURCE[kind] ?? display;
+  if (lang === "ar") return AR_SOURCE[kind] ?? display;
+  return EN_SOURCE[kind] ?? display;
 }
 
 export const QUICK_ACTIONS: Record<Lang, string[]> = {

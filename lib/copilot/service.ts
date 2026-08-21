@@ -255,6 +255,18 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
     cache.set(cacheKey, { results, retrievalMs, strategy });
   }
 
+  // Language-aware filtering: prefer chunks whose text language matches the query
+  // Prevents EN answers from grounding in AR chunks and vice versa (fixes mixed chips).
+  // We keep the highest-scoring chunks per language, falling back if not enough.
+  const chunkTextById = new Map(chunks.map((c) => [c.id, c.text]));
+  const isArText = (t: string) => /[\u0600-\u06FF]/.test(t);
+  const matching = results.filter((r) => {
+    const t = chunkTextById.get(r.id) ?? "";
+    return lang === "ar" ? isArText(t) : !isArText(t);
+  });
+  // Use matching if we have at least 2, otherwise keep original (avoids empty context)
+  if (matching.length >= 2) results = matching;
+
   const plan = buildPlan({ intent, results });
 
   yield { type: "meta", id, mode, model: primaryModel, startedAt, lang };

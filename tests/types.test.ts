@@ -65,7 +65,7 @@ test("every CopilotEvent literal satisfies the union discriminator", () => {
     { type: "sources", sources: [] },
     { type: "card", card: { kind: "project", slug: "restai", title: "RestAI" } },
     { type: "done", finish: "stop" },
-    { type: "error", code: 429, message: "rate limited" },
+    { type: "error", code: 429, kind: "rate_limited", message: "rate limited" },
     {
       type: "stats",
       tokens: { in: 10, out: 5 },
