@@ -7,14 +7,11 @@ import type {
   RetrievalResult,
   RequestBody,
 } from "@/lib/copilot/types";
-import { loadIndex, loadCentroids } from "@/lib/copilot/index";
-import { retrieveTopK } from "@/lib/copilot/scoring";
-import { classifyMessage } from "@/lib/copilot/intent";
+import { loadIndex } from "@/lib/copilot/index";
 import { detectLanguage } from "@/lib/copilot/language";
 import { classifyConversation, casualReply } from "@/lib/copilot/conversation";
-import { rewriteQuery } from "@/lib/copilot/rewrite";
-import { buildPlan } from "@/lib/copilot/planner";
 import { buildMessages } from "@/lib/copilot/prompt";
+import { retrieveAndPlan } from "./retrieval";
 import { streamGroq, listGroqModels, GroqError, pickModel, KNOWN_CHAT_FALLBACKS } from "@/lib/copilot/groq";
 import { ThinkingTagFilter } from "@/lib/copilot/narration";
 import { RateLimiter } from "@/lib/copilot/rate-limit";
@@ -218,76 +215,15 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
   }
   const primaryModel = candidates[0];
 
-  const { chunks, embeddings } = loadIndex();
-
-  const getEmbedder = async () =>
-    deps.getEmbedder ? deps.getEmbedder() : (await import("@/lib/copilot/index")).getEmbedder();
-
-  const intent: IntentResult = deps.classifyIntent
-    ? await Promise.resolve(deps.classifyIntent(body.message))
-    : /* deterministic, no extra LLM hop */
-      await classifyMessage({
-        message: body.message,
-        embedder: async (t) => (await getEmbedder())(t),
-        centroids: loadCentroids(),
-      });
-
-  const cacheKey = `${body.message.trim().toLowerCase()}:${mode}`;
-  let results: RetrievalResult[];
-  let cacheStatus: "hit" | "build" | "miss";
-  let retrievalMs: number;
-  let strategy: "primary" | "relaxed" = "primary";
-
-  const compute = async (): Promise<RetrievalResult[]> => {
-    const embedder = await getEmbedder();
-    const queryVec = await embedder(body.message); // original query only
-    const tokens = rewriteQuery(body.message, intent.primary);
-    const primary = retrieveTopK(queryVec, tokens, chunks, {
-      k: RETRIEVE_K,
-      minScore: PRIMARY_MIN_SCORE,
-      mode,
-      intent: intent.primary,
-      embeddings,
-    });
-    const top = primary[0]?.score ?? 0;
-    if (primary.length > 0 && top >= RELAX_CONFIDENCE_THRESHOLD) return primary;
-    strategy = "relaxed";
-    return retrieveTopK(queryVec, tokens, chunks, {
-      k: RELAXED_K,
-      minScore: RELAXED_MIN_SCORE,
-      mode,
-      intent: intent.primary,
-      embeddings,
-    });
-  };
-
-  const retrievalStart = Date.now();
-  if (cache.has(cacheKey)) {
-    const entry = cache.get(cacheKey)!;
-    results = entry.results;
-    retrievalMs = entry.retrievalMs;
-    strategy = entry.strategy ?? "primary";
-    cacheStatus = "hit";
-  } else {
-    results = await compute();
-    retrievalMs = Date.now() - retrievalStart;
-    cacheStatus = cache.size === 0 ? "build" : "miss";
-    cache.set(cacheKey, { results, retrievalMs, strategy });
-  }
-
-  // Language-aware filtering: prefer chunks whose text language matches the query
-  // Prevents EN answers from grounding in AR chunks and vice versa (fixes mixed chips).
-  // We keep the highest-scoring chunks per language, falling back if not enough.
-  const chunkTextById = new Map(chunks.map((c) => [c.id, c.text]));
-  const isArText = (t: string) => /[\u0600-\u06FF]/.test(t);
-  const matching = results.filter((r) => {
-    const t = chunkTextById.get(r.id) ?? "";
-    return lang === "ar" ? isArText(t) : !isArText(t);
+  const { results, plan, retrievalMs, strategy, intent, cache: cacheStatus } = await retrieveAndPlan({
+    message: body.message,
+    mode,
+    lang,
+    getEmbedder: deps.getEmbedder,
+    classifyIntent: deps.classifyIntent,
+    cacheHits: cache,
   });
-  // Use matching if we have at least 2, otherwise keep original (avoids empty context)
-  if (matching.length >= 2) results = matching;
-
-  const plan = buildPlan({ intent, results });
+  const { chunks } = loadIndex();
 
   yield { type: "meta", id, mode, model: primaryModel, startedAt, lang };
   yield { type: "plan", plan };
