@@ -56,9 +56,12 @@ function Widget({
 }) {
   const dim = activeId !== null && !active;
   const dir = HOVER_DIR[w.anchor];
+  // Right-anchored widgets open their flow pill toward the inside so it
+  // never spills past the container edge on hover/focus.
+  const pillSide = w.anchor === "top-right" || w.anchor === "mid-right" ? "right-0" : "left-0";
 
   return (
-    <div className={`absolute ${ANCHOR_CLASS[w.anchor]} hidden md:block`}>
+    <div className={`absolute ${ANCHOR_CLASS[w.anchor]} hidden lg:block`}>
       <motion.button
         type="button"
         aria-label={`${w.label}: ${w.value}`}
@@ -96,7 +99,7 @@ function Widget({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.96 }}
             transition={{ duration: 0.18, ease }}
-            className="absolute left-0 top-full mt-2 hidden md:block"
+            className={`absolute top-full mt-2 hidden lg:block ${pillSide}`}
             aria-hidden="true"
           >
             <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-panel-2 px-3 py-1.5 font-mono text-[11px] text-ink-soft">
@@ -115,16 +118,21 @@ function Widget({
 }
 
 function TrackRecord() {
+  // In-flow strip below the portrait — never absolutely overlaid, so it can
+  // never collide with the bottom-anchored widget (previously overlapped it
+  // from md through xl). Static by design; the portrait keeps the motion.
   return (
-    <div className="surface absolute -left-2 bottom-2 hidden rounded-xl px-5 py-4 md:block">
-      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">Track record</p>
-      <div className="mt-3 flex gap-6">
-        {stats.slice(0, 2).map((s) => (
-          <div key={s.label}>
-            <p className="text-2xl font-semibold text-ink">{s.value}</p>
-            <p className="text-xs text-ink-soft">{s.label}</p>
-          </div>
-        ))}
+    <div className="surface mt-4 hidden rounded-xl px-5 py-4 lg:block">
+      <div className="flex items-center justify-between gap-6">
+        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">Track record</p>
+        <div className="flex gap-6">
+          {stats.slice(0, 2).map((s) => (
+            <div key={s.label} className="text-right">
+              <p className="text-2xl font-semibold text-ink">{s.value}</p>
+              <p className="text-xs text-ink-soft">{s.label}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -141,7 +149,7 @@ function WireLayer({ activeId }: { activeId: string | null }) {
   return (
     <svg
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 hidden h-full w-full md:block"
+      className="pointer-events-none absolute inset-0 hidden h-full w-full lg:block"
       viewBox="0 0 480 640"
       preserveAspectRatio="none"
       fill="none"
@@ -211,7 +219,7 @@ export function CommandCenter() {
         {/* wires */}
         <WireLayer activeId={activeId} />
 
-        {/* widgets + track record (motion budget #2: per-widget drift) */}
+        {/* widgets (motion budget #2: per-widget drift) */}
         <div className="pointer-events-none absolute inset-0">
           <motion.div className="pointer-events-auto relative h-full w-full">
             {commandWidgets.map((w) => (
@@ -219,11 +227,14 @@ export function CommandCenter() {
             ))}
           </motion.div>
         </div>
-        <TrackRecord />
       </motion.div>
 
+      {/* track record strip (lg+) and compact system card (<lg) live in flow,
+          below the portrait, so nothing can overlap the floating layer */}
+      <TrackRecord />
+
       {/* mobile: focused compact system card — no floating widgets, no wires */}
-      <div className="mt-4 md:hidden">
+      <div className="mt-4 lg:hidden">
         <div className="panel rounded-2xl p-4">
           <div className="flex items-center justify-between">
             <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">
