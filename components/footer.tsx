@@ -16,14 +16,14 @@ export function Footer() {
           <span className="mx-2 text-border-strong">·</span>
           <span className="text-ink-soft">Production AI Engineer</span>
         </p>
-        <nav aria-label="Contact links" className="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <nav aria-label="Contact links" className="flex flex-wrap items-center gap-x-1 gap-y-2">
           {links.map((l) => (
             <a
               key={l.label}
               href={l.href}
               target={l.href.startsWith("http") ? "_blank" : undefined}
               rel={l.href.startsWith("http") ? "noopener noreferrer" : undefined}
-              className="font-mono text-xs text-ink-soft transition-colors hover:text-accent"
+              className="inline-flex min-h-[2.75rem] items-center rounded-lg px-3 font-mono text-xs text-ink-soft transition-colors hover:text-accent focus-visible:bg-surface-hover"
             >
               {l.label}
             </a>

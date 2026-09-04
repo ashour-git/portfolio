@@ -161,7 +161,13 @@ export function buildMessages(input: {
   const mode = input.mode ?? "general";
   const lang = input.lang ?? "en";
   const plan = input.plan;
-  const history = (input.history ?? []).slice(-6).map((m) => ({ role: m.role, content: m.content }));
+  const history = (input.history ?? [])
+    // Last line before the provider: only user/assistant turns survive, so a
+    // forged system entry can never become an instruction even if a future
+    // caller skips the service-layer sanitizer.
+    .filter((m) => m.role === "user" || m.role === "assistant")
+    .slice(-6)
+    .map((m) => ({ role: m.role, content: m.content }));
   const context = serializeContext(input.results);
   let contextMsg: ChatMessage;
   if (context.length > 0) {

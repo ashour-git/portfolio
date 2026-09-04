@@ -20,6 +20,18 @@ npm install
 npm run dev      # http://localhost:3000
 ```
 
+## Environment
+
+Copy `.env.example` to `.env` for local work. Both variables are also
+required in the Vercel project settings for the Copilot API to answer —
+without them `/api/copilot` returns a typed `config` error instead of
+streaming (the rest of the site is unaffected).
+
+```
+GROQ_API_KEY=your_key_here        # Groq key with access to a chat model
+GROQ_MODEL=llama-3.3-70b-versatile # verified against the Groq Models API
+```
+
 ## Production
 
 ```bash

@@ -334,7 +334,7 @@ export function Copilot() {
                 type="button"
                 onClick={close}
                 aria-label={CLOSE_LABEL[chromeLang]}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-line text-xl leading-none text-ink-soft transition-colors hover:border-border-strong hover:text-ink"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line text-xl leading-none text-ink-soft transition-colors hover:border-border-strong hover:text-ink"
               >
                 <span aria-hidden="true">×</span>
               </button>
@@ -349,7 +349,7 @@ export function Copilot() {
                     type="button"
                     onClick={() => setMode(m)}
                     aria-pressed={mode === m}
-                    className={`rounded-full border px-3.5 py-1.5 font-mono text-xs transition-colors ${
+                    className={`inline-flex min-h-[2.75rem] items-center rounded-full border px-3.5 py-1.5 font-mono text-xs transition-colors ${
                       mode === m
                         ? "border-accent bg-accent/10 text-accent"
                         : "border-line text-ink-soft hover:border-border-strong hover:text-ink"
@@ -438,7 +438,7 @@ export function Copilot() {
                                           href={href}
                                           target="_blank"
                                           rel="noopener noreferrer"
-                                          className="copilot-chip !min-h-8 !px-2.5 !py-1 text-xs"
+                                          className="copilot-chip text-xs"
                                         >
                                           {label}
                                         </a>
@@ -454,7 +454,7 @@ export function Copilot() {
                                     type="button"
                                     onClick={toggleExplain}
                                     aria-expanded={explainOpen && explainId === m.id}
-                                    className="label mt-2.5 text-accent transition-colors hover:underline"
+                                    className="label inline-flex min-h-[2.75rem] items-center text-accent transition-colors hover:underline"
                                   >
                                     {explainWhyLabel(runState.lang)}
                                   </button>
@@ -660,7 +660,7 @@ export function Copilot() {
                       <button
                         type="button"
                         onClick={() => setContextOpen(false)}
-                        className="rounded-lg border border-line px-3 py-1.5 font-mono text-xs text-ink-soft transition-colors hover:text-ink"
+                        className="inline-flex min-h-[2.75rem] items-center rounded-lg border border-line px-3 py-1.5 font-mono text-xs text-ink-soft transition-colors hover:text-ink"
                       >
                         {chromeLang === "ar" ? "إغلاق" : "Close"}
                       </button>

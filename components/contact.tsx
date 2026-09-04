@@ -39,12 +39,12 @@ export function Contact() {
                   href={l.href}
                   target={l.href.startsWith("mailto:") ? undefined : "_blank"}
                   rel="noopener noreferrer"
-                  className="group flex items-center justify-between gap-4 py-5 transition-colors hover:bg-surface-hover"
+                  className="group flex min-h-[4.5rem] items-center justify-between gap-4 rounded-lg px-2 py-5 transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover"
                 >
                   <span className="eyebrow w-24 shrink-0">{l.label}</span>
-                  <span className="flex min-w-0 flex-1 items-center justify-end gap-2 break-words text-base font-medium text-ink transition-colors group-hover:text-accent">
+                  <span className="flex min-w-0 flex-1 items-center justify-end gap-2 break-all text-right text-base font-medium text-ink transition-colors group-hover:text-accent sm:break-normal">
                     {l.value}
-                    <ArrowIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowIcon className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
                   </span>
                 </a>
               </li>

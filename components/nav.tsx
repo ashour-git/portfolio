@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { EASE, DURATION } from "@/lib/motion";
 import { profile } from "@/lib/data";
@@ -23,6 +23,8 @@ export function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<string | null>(null);
+  const toggleRef = useRef<HTMLButtonElement | null>(null);
+  const firstMobileLinkRef = useRef<HTMLAnchorElement | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -66,12 +68,15 @@ export function Nav() {
   }, [open]);
 
   // lock page scroll while the full-screen mobile menu is open
+  // + move focus into the menu on open, restore it to the toggle on close
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    firstMobileLinkRef.current?.focus({ preventScroll: true });
     return () => {
       document.body.style.overflow = prev;
+      toggleRef.current?.focus({ preventScroll: true });
     };
   }, [open]);
 
@@ -80,8 +85,12 @@ export function Nav() {
       <div className="relative z-10 px-4 pt-4 md:px-6">
         <nav
           aria-label="Primary"
-          className={`surface mx-auto flex h-14 w-full max-w-6xl items-center justify-between rounded-2xl px-5 transition-colors ${
-            open ? "bg-surface-2/80" : ""
+          className={`mx-auto flex h-14 w-full max-w-6xl items-center justify-between rounded-2xl border px-5 backdrop-blur-xl transition-colors duration-300 ${
+            open
+              ? "border-border-strong bg-surface-2/90 shadow-xl shadow-black/10"
+              : scrolled
+                ? "surface-strong shadow-lg shadow-black/10"
+                : "surface shadow-md shadow-black/5"
           }`}
         >
           <a
@@ -92,15 +101,15 @@ export function Nav() {
           </a>
 
           {/* desktop links */}
-          <div className="hidden items-center gap-6 lg:flex">
+          <div className="hidden items-center gap-1 lg:flex">
             {links.map((l) => {
               const isActive = active === l.href.slice(1);
               return (
                 <a
                   key={l.href}
                   href={l.href}
-                  aria-current={isActive ? "true" : undefined}
-                  className={`relative py-1 text-sm transition-colors duration-300 ${
+                  aria-current={isActive ? "location" : undefined}
+                  className={`relative rounded-lg px-3 py-2.5 text-sm transition-colors duration-300 focus-visible:bg-surface-hover ${
                     isActive ? "text-ink" : "text-ink-soft hover:text-ink"
                   }`}
                 >
@@ -109,7 +118,7 @@ export function Nav() {
                     <motion.span
                       layoutId="nav-underline"
                       transition={{ duration: DURATION.fast, ease: EASE }}
-                      className="absolute inset-x-0 -bottom-0.5 h-px bg-gradient-to-r from-accent to-accent-2"
+                      className="absolute inset-x-3 -bottom-0.5 h-px bg-ink"
                     />
                   )}
                 </a>
@@ -122,15 +131,15 @@ export function Nav() {
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event("ma:open-copilot"))}
-              className="hidden items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 font-mono text-xs text-ink-faint transition-colors hover:text-ink md:flex"
+              className="hidden min-h-[2.75rem] items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 font-mono text-xs text-ink-faint transition-colors hover:border-border-strong hover:text-ink focus-visible:border-accent md:flex"
             >
-              <span className="text-ink-soft">⌘J</span>
+              <span aria-hidden="true" className="text-ink-soft">⌘J</span>
               copilot
             </button>
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event("ma:open-copilot"))}
-              className="flex h-10 items-center rounded-xl border border-line bg-surface px-3.5 font-mono text-xs text-ink-faint transition-colors hover:text-ink md:hidden"
+              className="flex min-h-[2.75rem] items-center rounded-xl border border-line bg-surface px-3.5 font-mono text-xs text-ink-faint transition-colors hover:text-ink md:hidden"
             >
               copilot
             </button>
@@ -139,25 +148,26 @@ export function Nav() {
               href="/resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden rounded-lg border border-line px-4 py-1.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg sm:block"
+              className="hidden min-h-[2.75rem] items-center rounded-lg border border-line px-4 py-1.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg sm:inline-flex"
             >
               Resume
             </a>
             <a
               href="#contact"
-              className="hidden rounded-lg bg-ink px-4 py-1.5 text-sm font-medium text-bg transition-colors hover:opacity-85 sm:block"
+              className="hidden min-h-[2.75rem] items-center rounded-lg bg-ink px-4 py-1.5 text-sm font-medium text-bg transition-opacity hover:opacity-85 sm:inline-flex"
             >
               Hire me
             </a>
 
             {/* mobile menu toggle */}
             <button
+              ref={toggleRef}
               type="button"
               onClick={() => setOpen((o) => !o)}
               aria-expanded={open}
               aria-controls="mobile-menu"
               aria-label={open ? "Close navigation menu" : "Open navigation menu"}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-surface lg:hidden"
+              className="flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-surface transition-colors hover:border-border-strong lg:hidden"
             >
               <span
                 aria-hidden="true"
@@ -208,10 +218,11 @@ export function Nav() {
                     return (
                       <li key={l.href} className="border-b border-line">
                         <a
+                          ref={i === 0 ? firstMobileLinkRef : undefined}
                           href={l.href}
                           onClick={() => setOpen(false)}
-                          aria-current={isActive ? "true" : undefined}
-                          className={`group flex items-baseline gap-4 py-5 ${
+                          aria-current={isActive ? "location" : undefined}
+                          className={`group flex min-h-[3.5rem] items-baseline gap-4 rounded-lg py-5 focus-visible:bg-surface-hover ${
                             isActive ? "text-ink" : "text-ink-soft"
                           }`}
                         >

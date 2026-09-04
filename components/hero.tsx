@@ -36,10 +36,13 @@ export function Hero() {
                 products, shipped end to end, and measured in production. The work
                 is real, and it is verifiable on GitHub.
               </p>
-              <p className="mt-6 font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">
+              <p
+                aria-label="Core specialties"
+                className="mt-6 font-mono text-xs uppercase leading-loose tracking-[0.18em] text-ink-faint"
+              >
                 {stackRow.join("  ·  ")}
               </p>
-              <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <div className="mt-9 flex flex-wrap items-center gap-x-2 gap-y-3">
                 <Magnetic>
                   <a
                     href={profile.resume}
@@ -50,29 +53,37 @@ export function Hero() {
                     Resume
                   </a>
                 </Magnetic>
-               <a
-                 href={profile.github}
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 className="py-2 text-sm font-medium text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline"
-               >
-                 GitHub
-               </a>
-               <a
-                 href="#work"
-                 className="py-2 text-sm font-medium text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline"
-               >
-                 Projects
-               </a>
-               <a
-                 href={profile.linkedin}
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 className="py-2 text-sm font-medium text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline"
-               >
-                 LinkedIn
-               </a>
-             </div>
+                <a
+                  href={profile.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-[2.75rem] items-center rounded-lg px-3 py-2 text-sm font-medium text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline focus-visible:bg-surface-hover"
+                >
+                  GitHub
+                </a>
+                <a
+                  href="#work"
+                  className="inline-flex min-h-[2.75rem] items-center rounded-lg px-3 py-2 text-sm font-medium text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline focus-visible:bg-surface-hover"
+                >
+                  Projects
+                </a>
+                <a
+                  href={profile.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-[2.75rem] items-center rounded-lg px-3 py-2 text-sm font-medium text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline focus-visible:bg-surface-hover"
+                >
+                  LinkedIn
+                </a>
+              </div>
+              <a
+                href="#work"
+                aria-label="See the evidence: 162 automated tests, 18 out of 18 security tests passing, 67 millisecond average retrieval"
+                className="audit-stamp mt-8"
+              >
+                <strong>Receipt</strong>
+                <span>162 tests · 18/18 gates · ~67ms retrieval</span>
+              </a>
            </motion.div>
 
           {/* portrait composition */}

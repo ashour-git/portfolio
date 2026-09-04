@@ -26,6 +26,13 @@
   --color-accent-2: #0ea5c9;
   --color-accent-soft: rgba(46, 230, 163, 0.14);
 
+  /* AUDIT BRASS — verified-evidence semantics only (receipts, spec marks,
+     stamps). Mint marks what is LIVE; brass marks what is PROVEN.
+     The two never decorate the same element. */
+  --color-brass: #d8b26a;
+  --color-brass-strong: #c9a05a;
+  --color-brass-soft: rgba(216, 178, 106, 0.14);
+
   --color-line: rgba(255, 255, 255, 0.1);
 
   --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
@@ -58,6 +65,10 @@
   --color-accent-2: #06767e;
   --color-accent-soft: rgba(13, 138, 95, 0.1);
 
+  --color-brass: #7a5a22;
+  --color-brass-strong: #7a5a22;
+  --color-brass-soft: rgba(122, 90, 34, 0.1);
+
   --color-line: rgba(16, 44, 32, 0.12);
 }
 
@@ -83,6 +94,8 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  /* fixed nav is ~72px tall — keep anchors + keyboard focus unobscured (WCAG 2.2 Focus Not Obscured) */
+  scroll-padding-top: 5.5rem;
 }
 
 body {
@@ -92,6 +105,33 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* pointer affordance + fast tap response (Pro Max pre-delivery checklist) */
+a,
+button,
+[role="button"] {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* editorial headlines balance lines instead of orphaning one word */
+.display,
+.display-xl,
+h1,
+h2 {
+  text-wrap: balance;
+}
+
+.lead,
+p {
+  text-wrap: pretty;
+}
+
+img,
+svg {
+  shape-rendering: geometricPrecision;
 }
 
 ::selection {
@@ -194,17 +234,45 @@ body {
   );
 }
 
-.text-gradient {
-  background: linear-gradient(120deg, #7bfecd 0%, #2ee6a3 45%, #38d9e8 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+/* ---------- audit stamp (signature) ----------
+   A dashed brass receipt pinned to verifiable claims. Static by design —
+   stamps do not animate, and the pill itself never navigates; adjacent
+   buttons carry the action. */
+.audit-stamp {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  color: var(--color-ink-faint);
+  border: 1px dashed color-mix(in srgb, var(--color-brass) 48%, transparent);
+  background: var(--color-brass-soft);
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
 }
-:root[data-theme="light"] .text-gradient {
-  background: linear-gradient(120deg, #0da36d 0%, #0c8a5f 55%, #0673a3 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.audit-stamp::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--color-brass);
+}
+.audit-stamp strong {
+  color: var(--color-brass);
+  font-weight: 600;
+}
+a.audit-stamp {
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+a.audit-stamp:hover {
+  border-color: var(--color-brass);
+  color: var(--color-ink);
 }
 
 /* ---------- surface hierarchy ----------
@@ -282,12 +350,14 @@ body {
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
   line-height: 1;
   border-radius: 0.7rem;
   padding: 0.85rem 1.4rem;
+  min-height: 2.75rem;
   transition: background-color 0.22s ease, color 0.22s ease,
     border-color 0.22s ease, opacity 0.22s ease, transform 0.22s ease;
   white-space: nowrap;
@@ -313,11 +383,15 @@ body {
 }
 
 /* editorial number — used as a quiet index, not a repeating badge */
-.index-mark {
+.spec-mark {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.18em;
   color: var(--color-ink-faint);
+  white-space: nowrap;
+}
+.spec-mark > span:first-child {
+  color: var(--color-brass);
 }
 
 /* hide scrollbars on horizontally scrolling rows (project filters on mobile) */

@@ -12,7 +12,9 @@ export function Principles() {
           {principles.map((p, i) => (
             <Reveal key={p.index} delay={i * 50} as="div">
               <div className="grid gap-4 border-b border-line py-9 md:grid-cols-[8rem_1fr] md:gap-12">
-                <span className="font-mono text-sm text-ink-faint">{p.index}</span>
+                <span className="spec-mark pt-1" aria-hidden="true">
+                  <span>§&nbsp;</span>{p.index}
+                </span>
                 <div>
                   <h3 className="text-xl font-semibold tracking-tight text-ink md:text-2xl">
                     {p.title}

@@ -34,6 +34,9 @@ export function __resetModelCache(): void {
 }
 export const MAX_MESSAGE = 600;
 export const MAX_HISTORY = 6;
+/** Per-entry cap — bounds the worst-case history token budget (6 × 600)
+ *  the same way MAX_MESSAGE bounds the current turn. */
+export const MAX_HISTORY_ENTRY = 600;
 export const RETRIEVE_K = 5;
 export const RELAXED_K = RETRIEVE_K + 2;
 export const PRIMARY_MIN_SCORE = 0.25;
@@ -67,9 +70,27 @@ export function validateInput(body: unknown): { ok: true; data: RequestBody } | 
   if (deduped.length > MAX_MESSAGE) return { ok: false, error: "message too long" };
   if (b.mode !== undefined && !["general", "recruiter", "interview", "architecture", "explore"].includes(b.mode))
     return { ok: false, error: "unknown mode" };
-  if (b.history !== undefined && (!Array.isArray(b.history) || b.history.length > MAX_HISTORY))
-    return { ok: false, error: "history too long" };
-  return { ok: true, data: { message: deduped, mode: b.mode, history: b.history } };
+  if (b.history !== undefined) {
+    if (!Array.isArray(b.history) || b.history.length > MAX_HISTORY)
+      return { ok: false, error: "history too long" };
+    for (const entry of b.history) {
+      // Client-controlled history is untrusted input: roles are restricted to
+      // user/assistant so a forged { role: "system" } entry can never land in
+      // the provider message list as an instruction (prompt injection), and
+      // per-entry length is capped so history cannot smuggle an unbounded
+      // token budget past the MAX_MESSAGE turn cap.
+      if (typeof entry !== "object" || entry === null) return { ok: false, error: "invalid history entry" };
+      const role = (entry as { role?: unknown }).role;
+      const content = (entry as { content?: unknown }).content;
+      if (role !== "user" && role !== "assistant") return { ok: false, error: "history role must be user or assistant" };
+      if (typeof content !== "string" || content.trim().length === 0) return { ok: false, error: "invalid history entry" };
+      if (content.length > MAX_HISTORY_ENTRY) return { ok: false, error: "history entry too long" };
+    }
+  }
+  // Rebuild entries with only the known fields — extra runtime properties on
+  // client objects (e.g. name, tool_calls) are dropped, never forwarded.
+  const history = b.history?.map((h) => ({ role: h.role, content: h.content }));
+  return { ok: true, data: { message: deduped, mode: b.mode, history } };
 }
 
 export type CacheEntry = { results: RetrievalResult[]; retrievalMs: number; strategy?: "primary" | "relaxed" };
@@ -245,7 +266,12 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
 
   const textById = new Map(chunks.map((c) => [c.id, c.text]));
   const contextResults = results.map((r) => ({ ...r, text: textById.get(r.id) ?? "" }));
-  const history: ChatMessage[] = (body.history ?? []).map((h) => ({ role: h.role, content: h.content }));
+  // Defense in depth: runCopilot is also called directly (tests, future
+  // callers), so re-apply the role whitelist here. Anything that is not an
+  // explicit user/assistant turn is dropped before it can reach the provider.
+  const history: ChatMessage[] = (body.history ?? [])
+    .filter((h) => h.role === "user" || h.role === "assistant")
+    .map((h) => ({ role: h.role, content: h.content.slice(0, MAX_HISTORY_ENTRY) }));
   const messages = buildMessages({ message: body.message, mode, history, results: contextResults, plan, lang });
 
   let tokensIn = 0;

@@ -17,6 +17,8 @@ function Cover({ p, className = "" }: { p: Project; className?: string }) {
         alt={`${p.title} interface`}
         className={`object-cover ${className}`}
         loading="lazy"
+        decoding="async"
+        draggable={false}
       />
     );
   }
@@ -49,42 +51,59 @@ export function Projects() {
     <section id="work" className="relative scroll-mt-24 py-24 md:py-32">
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
         <div className="mb-12 md:mb-16">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
+          <SectionHeader variant="statement" title="Built as systems," accent="shipped as products." />
+          <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-3">
+            <p id="project-filter-label" className="eyebrow">
+              Filter
+            </p>
             <div
-              className="no-scrollbar ml-auto flex max-w-full flex-nowrap items-center gap-2 overflow-x-auto md:flex-wrap"
+              className="no-scrollbar -mx-1 flex max-w-full flex-nowrap items-center gap-2 overflow-x-auto px-1 py-1 md:flex-wrap"
               role="group"
-              aria-label="Filter projects by domain"
+              aria-labelledby="project-filter-label"
             >
-              {projectFilters.map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className={`shrink-0 rounded-full border px-3.5 py-1.5 font-mono text-xs transition-colors ${
-                    filter === f
-                      ? "border-transparent bg-accent text-bg"
-                      : "border-line bg-surface text-ink-soft hover:text-ink"
-                  }`}
-                >
-                  {f}
-                </button>
-              ))}
+              {projectFilters.map((f) => {
+                const selected = filter === f;
+                return (
+                  <button
+                    key={f}
+                    type="button"
+                    onClick={() => setFilter(f)}
+                    aria-pressed={selected}
+                    className={`inline-flex min-h-[2.75rem] shrink-0 items-center rounded-full border px-4 py-2 font-mono text-xs transition-colors focus-visible:border-accent ${
+                      selected
+                        ? "border-transparent bg-accent font-semibold text-bg"
+                        : "border-line bg-surface text-ink-soft hover:border-border-strong hover:text-ink"
+                    }`}
+                  >
+                    {f}
+                  </button>
+                );
+              })}
             </div>
-          </div>
-          <div className="mt-5">
-            <SectionHeader variant="statement" title="Built as systems," accent="shipped as products." />
+            <p aria-live="polite" role="status" className="font-mono text-xs text-ink-faint">
+              {filter === "All"
+                ? `${projects.length} projects`
+                : `${visibleRest.length} in ${filter}`}
+            </p>
           </div>
         </div>
 
         <ProjectCard p={featured} prominence="flagship" />
         <span className="hairline my-16 block" aria-hidden="true" />
 
-        <div className="grid gap-8 md:grid-cols-2">
-          <AnimatePresence mode="popLayout">
-            {visibleRest.map((p, i) => (
-              <ProjectCard key={p.index} p={p} prominence="showcase" index={i} />
-            ))}
-          </AnimatePresence>
-        </div>
+        {visibleRest.length > 0 ? (
+          <div className="grid gap-8 md:grid-cols-2">
+            <AnimatePresence mode="popLayout">
+              {visibleRest.map((p, i) => (
+                <ProjectCard key={p.index} p={p} prominence="showcase" index={i} />
+              ))}
+            </AnimatePresence>
+          </div>
+        ) : (
+          <p className="panel rounded-2xl p-8 text-center text-sm text-ink-soft">
+            No projects match this filter yet — try “All”.
+          </p>
+        )}
       </div>
     </section>
   );
@@ -147,6 +166,12 @@ function FlagshipCard({ p }: { p: Project }) {
         </div>
         <p className="lead">{p.tagline}</p>
       </div>
+      <p className="audit-stamp mt-8">
+        <strong>Receipt</strong>
+        <span>
+          {p.performance.map((m) => `${m.value} ${m.label}`).join("  ·  ")}
+        </span>
+      </p>
 
       {/* NARRATIVE */}
       <div className="mt-12 border-t border-line">
@@ -252,6 +277,7 @@ function ShowcaseCard({ p, index = 0 }: { p: Project; index?: number }) {
 
   return (
     <motion.article
+      id={`project-${p.index}`}
       layout
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -263,7 +289,7 @@ function ShowcaseCard({ p, index = 0 }: { p: Project; index?: number }) {
         ease,
       }}
       whileHover={{ y: -4 }}
-      className="panel flex flex-col overflow-hidden rounded-3xl transition-colors hover:border-border-strong"
+      className="panel flex scroll-mt-28 flex-col overflow-hidden rounded-3xl transition-colors hover:border-border-strong focus-within:border-border-strong"
     >
       {/* IMAGE — the primary evidence, kept clean of chrome */}
       <div className="group relative aspect-[16/9] overflow-hidden">
@@ -280,7 +306,9 @@ function ShowcaseCard({ p, index = 0 }: { p: Project; index?: number }) {
           <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">
             {p.domain}
           </p>
-          <span className="font-mono text-xs text-ink-faint">{p.index}</span>
+          <span className="spec-mark" aria-label={`Project reference ${p.index}`}>
+            <span aria-hidden="true">REF&nbsp;</span>{p.index}
+          </span>
         </div>
         <h3 className="mt-2 text-xl font-semibold tracking-tight text-ink">
           {p.title}
@@ -304,9 +332,10 @@ function ShowcaseCard({ p, index = 0 }: { p: Project; index?: number }) {
         {/* expandable architecture — tap/focus equivalent for the hover-free web */}
         <div className="mt-2">
           <button
+            type="button"
             onClick={() => setShowArch((o) => !o)}
             aria-expanded={showArch}
-            className="flex w-full items-center justify-between gap-3 rounded-xl px-2 py-3 text-sm font-medium text-ink transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover"
+            className="flex min-h-[2.75rem] w-full items-center justify-between gap-3 rounded-xl px-2 py-3 text-sm font-medium text-ink transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover"
           >
             <span className="inline-flex items-center gap-2 text-ink-soft">
               <svg
@@ -353,10 +382,10 @@ function ShowcaseCard({ p, index = 0 }: { p: Project; index?: number }) {
           {p.stack.slice(0, 5).join("  ·  ")}
         </p>
 
-        <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line pt-4">
+        <div className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-2 border-t border-line pt-4">
           <a
             href={studyHref(p)}
-            className="inline-flex items-center gap-1.5 py-1 text-sm font-medium text-ink transition-colors hover:text-accent"
+            className="inline-flex min-h-[2.75rem] items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-medium text-ink transition-colors hover:text-accent focus-visible:bg-surface-hover"
           >
             Case study
             <ArrowIcon className="h-3.5 w-3.5" />
@@ -365,7 +394,7 @@ function ShowcaseCard({ p, index = 0 }: { p: Project; index?: number }) {
             href={p.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 py-1 text-sm text-ink-soft transition-colors hover:text-accent"
+            className="inline-flex min-h-[2.75rem] items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-ink-soft transition-colors hover:text-accent focus-visible:bg-surface-hover"
           >
             GitHub
             <ArrowIcon className="h-3.5 w-3.5" />
@@ -375,7 +404,7 @@ function ShowcaseCard({ p, index = 0 }: { p: Project; index?: number }) {
               href={p.demo}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 py-1 text-sm text-ink-soft transition-colors hover:text-accent"
+              className="inline-flex min-h-[2.75rem] items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-ink-soft transition-colors hover:text-accent focus-visible:bg-surface-hover"
             >
               Live demo
               <ArrowIcon className="h-3.5 w-3.5" />

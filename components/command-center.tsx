@@ -59,9 +59,10 @@ function Widget({
 
   return (
     <div className={`absolute ${ANCHOR_CLASS[w.anchor]} hidden md:block`}>
-      <motion.div
-        role="button"
-        tabIndex={0}
+      <motion.button
+        type="button"
+        aria-label={`${w.label}: ${w.value}`}
+        aria-expanded={w.flow ? active : undefined}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
@@ -78,7 +79,7 @@ function Widget({
           y: 0,
         }}
         transition={{ duration: 0.25, ease }}
-        className="glass cursor-pointer rounded-xl px-4 py-3 text-left outline-none transition-colors hover:border-accent/30 focus-visible:border-accent/30 focus-visible:ring-1 focus-visible:ring-accent/30"
+        className="glass min-h-[2.75rem] cursor-pointer rounded-xl px-4 py-3 text-left outline-none transition-colors hover:border-accent/30 focus-visible:border-accent/30 focus-visible:ring-1 focus-visible:ring-accent/30"
       >
         <span className="flex items-center gap-2">
           <span aria-hidden="true" className={`h-1 w-1 rounded-full ${statusColor(w.status)}`} />
@@ -86,7 +87,7 @@ function Widget({
         </span>
         <span className="mt-1 block text-sm font-semibold tracking-tight text-ink">{w.value}</span>
         {w.meta && <span className="mt-0.5 block font-mono text-[11px] text-ink-faint">{w.meta}</span>}
-      </motion.div>
+      </motion.button>
 
       <AnimatePresence>
         {active && w.flow && (
@@ -192,7 +193,7 @@ export function CommandCenter() {
   };
 
   return (
-    <div className="relative mx-auto w-full max-w-sm lg:max-w-none" aria-label="Portrait">
+    <div className="relative mx-auto w-full max-w-sm lg:max-w-none" role="group" aria-label="Live system status">
       {/* ambient mesh (motion budget #1) */}
       <div aria-hidden="true" className="mesh-bg rounded-[3rem]" />
 
