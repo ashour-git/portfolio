@@ -7,10 +7,11 @@ import { Reveal } from "./reveal";
 
 const ANIMATION_SPRING = { stiffness: 160, damping: 20, mass: 1 };
 
-// Rails split by anchor side, preserving data order: left holds MODEL and
-// EXPERIMENTS, right holds RETRIEVAL, API / DEPLOY, and AZURE AI.
-const leftRail = commandWidgets.filter((w) => w.anchor.endsWith("left"));
-const rightRail = commandWidgets.filter((w) => !w.anchor.endsWith("left"));
+// Row-wise order for the 2-column instrument panel: MODEL, RETRIEVAL /
+// EXPERIMENTS, API / AZURE (spanning). Side rails were tried and removed:
+// a ~454px column cannot host a 384px portrait plus five chips beside it.
+const PANEL_ORDER = ["model", "latency", "mlflow", "api", "registry"];
+const panelChips = PANEL_ORDER.map((id) => commandWidgets.find((w) => w.id === id)!).filter(Boolean);
 
 // Compact system card shown below lg (spec §8): 2–3 widgets max,
 // no floating layers, no connector lines.
@@ -30,7 +31,7 @@ function statusColor(status: CommandWidget["status"]) {
 // so it is static text rather than a button that performs no action.
 function StatusChip({ w }: { w: CommandWidget }) {
   return (
-    <div className="glass rounded-xl px-4 py-3">
+    <div className="glass h-full rounded-xl px-4 py-3">
       <span className="flex items-center gap-2">
         <span aria-hidden="true" className={`h-1 w-1 rounded-full ${statusColor(w.status)}`} />
         <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">{w.label}</span>
@@ -42,8 +43,8 @@ function StatusChip({ w }: { w: CommandWidget }) {
 }
 
 function TrackRecord() {
-  // In-flow strip below the portrait — never overlaid, so it can never
-  // collide with a floating element. Static by design.
+  // In-flow strip below the panel — never overlaid, so it can never collide
+  // with another element. Static by design.
   return (
     <div className="surface mt-4 hidden rounded-xl px-5 py-4 lg:block">
       <div className="flex items-center justify-between gap-6">
@@ -83,35 +84,24 @@ export function CommandCenter() {
       {/* ambient mesh (motion budget #1) */}
       <div aria-hidden="true" className="mesh-bg rounded-[3rem]" />
 
-      {/* dossier rails (lg+): readouts docked beside the portrait instead of
-          floating over it — one staggered entrance, then stillness */}
-      <div className="relative lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-6">
-        <div className="hidden flex-col gap-4 lg:flex">
-          {leftRail.map((w, i) => (
-            <Reveal key={w.id} delay={i * 70}>
-              <StatusChip w={w} />
-            </Reveal>
-          ))}
+      <motion.div
+        onPointerMove={handleMove}
+        onPointerLeave={() => { mx.set(0); my.set(0); }}
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        className="relative w-full"
+      >
+        <div className="relative">
+          <Portrait />
         </div>
+      </motion.div>
 
-        <motion.div
-          onPointerMove={handleMove}
-          onPointerLeave={() => { mx.set(0); my.set(0); }}
-          style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-          className="relative w-full lg:max-w-sm"
-        >
-          <div className="relative">
-            <Portrait />
-          </div>
-        </motion.div>
-
-        <div className="hidden flex-col gap-4 lg:flex">
-          {rightRail.map((w, i) => (
-            <Reveal key={w.id} delay={i * 70}>
-              <StatusChip w={w} />
-            </Reveal>
-          ))}
-        </div>
+      {/* instrument panel (lg+): one staggered entrance, then stillness */}
+      <div className="mt-4 hidden lg:grid lg:grid-cols-2 lg:gap-4">
+        {panelChips.map((w, i) => (
+          <Reveal key={w.id} delay={i * 60} className={w.id === "registry" ? "col-span-2" : undefined}>
+            <StatusChip w={w} />
+          </Reveal>
+        ))}
       </div>
 
       {/* track record strip (lg+) and compact system card (<lg) live in flow,

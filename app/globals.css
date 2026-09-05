@@ -152,10 +152,10 @@ svg {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(1000px 560px at 12% -10%, rgba(46, 230, 163, 0.09), transparent 62%),
-    radial-gradient(900px 540px at 94% 4%, rgba(14, 165, 201, 0.07), transparent 60%),
-    radial-gradient(1100px 720px at 55% 118%, rgba(46, 230, 163, 0.05), transparent 62%),
-    radial-gradient(700px 520px at 8% 70%, rgba(14, 165, 201, 0.04), transparent 60%),
+    radial-gradient(1000px 560px at 12% -10%, rgba(46, 230, 163, 0.12), transparent 62%),
+    radial-gradient(900px 540px at 94% 4%, rgba(14, 165, 201, 0.09), transparent 60%),
+    radial-gradient(1100px 720px at 55% 118%, rgba(46, 230, 163, 0.07), transparent 62%),
+    radial-gradient(700px 520px at 8% 70%, rgba(14, 165, 201, 0.055), transparent 60%),
     linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-2) 100%);
 }
 
@@ -168,7 +168,7 @@ svg {
     linear-gradient(var(--color-border) 1px, transparent 1px),
     linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
   background-size: 72px 72px;
-  mask-image: radial-gradient(ellipse 90% 60% at 50% -5%, #000 0%, transparent 70%);
+  mask-image: radial-gradient(ellipse 90% 60% at 50% -5%, #000 0%, transparent 78%);
 }
 
 /* ---------- glass surfaces ----------

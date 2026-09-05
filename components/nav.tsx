@@ -109,7 +109,7 @@ export function Nav() {
                   key={l.href}
                   href={l.href}
                   aria-current={isActive ? "location" : undefined}
-                  className={`relative rounded-lg px-3 py-2.5 text-sm transition-colors duration-300 focus-visible:bg-surface-hover ${
+                  className={`relative whitespace-nowrap rounded-lg px-3 py-2.5 text-sm transition-colors duration-300 focus-visible:bg-surface-hover ${
                     isActive ? "text-ink" : "text-ink-soft hover:text-ink"
                   }`}
                 >
@@ -133,7 +133,7 @@ export function Nav() {
               onClick={() => window.dispatchEvent(new Event("ma:open-copilot"))}
               className="hidden min-h-[2.75rem] items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 font-mono text-xs text-ink-faint transition-colors hover:border-border-strong hover:text-ink focus-visible:border-accent md:flex"
             >
-              <span aria-hidden="true" className="text-ink-soft">⌘J</span>
+              <span aria-hidden="true" className="whitespace-nowrap text-ink-soft">Ctrl J</span>
               copilot
             </button>
             <button
@@ -148,13 +148,13 @@ export function Nav() {
               href="/resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden min-h-[2.75rem] items-center rounded-lg border border-line px-4 py-1.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg sm:inline-flex"
+              className="hidden min-h-[2.75rem] items-center whitespace-nowrap rounded-lg border border-line px-4 py-1.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg sm:inline-flex"
             >
               Resume
             </a>
             <a
               href="#contact"
-              className="hidden min-h-[2.75rem] items-center rounded-lg bg-ink px-4 py-1.5 text-sm font-medium text-bg transition-opacity hover:opacity-85 sm:inline-flex"
+              className="hidden min-h-[2.75rem] items-center whitespace-nowrap rounded-lg bg-ink px-4 py-1.5 text-sm font-medium text-bg transition-opacity hover:opacity-85 sm:inline-flex"
             >
               Hire me
             </a>
