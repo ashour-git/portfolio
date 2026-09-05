@@ -16,15 +16,17 @@ export function CaseStudies() {
 
         <ul className="mt-14 border-t border-line">
           {projects.map((p, i) => (
-            <Reveal key={p.index} delay={(i % 3) * 50} as="li">
-              <li className="border-b border-line">
+              <Reveal key={p.index} delay={(i % 3) * 50} as="li">
+              <div className="border-b border-line">
                 <a
                   href={p.study ? `/case-studies/${p.study.slug}` : p.href}
                   target={p.study ? undefined : "_blank"}
                   rel={p.study ? undefined : "noopener noreferrer"}
                   className="group grid gap-3 py-7 transition-colors hover:bg-surface-hover md:grid-cols-[4rem_10rem_1fr_auto] md:items-baseline md:gap-8"
                 >
-                  <span className="eyebrow">{p.index}</span>
+                  <span className="spec-mark" aria-label={`Project reference ${p.index}`}>
+                    <span aria-hidden="true">REF&nbsp;</span>{p.index}
+                  </span>
                   <span className="eyebrow text-ink-soft">{p.domain}</span>
                   <div>
                     <h3 className="text-lg font-semibold tracking-tight text-ink md:text-xl">
@@ -39,7 +41,7 @@ export function CaseStudies() {
                     <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                   </span>
                 </a>
-              </li>
+              </div>
             </Reveal>
           ))}
         </ul>
@@ -61,7 +63,7 @@ export function CaseStudies() {
                   href={profile.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-5 inline-flex items-center gap-2 rounded-lg border border-line px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg"
+                  className="mt-5 inline-flex min-h-[2.75rem] items-center gap-2 rounded-lg border border-line px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg"
                 >
                   github.com/ashour-git
                   <ArrowIcon className="h-4 w-4" />

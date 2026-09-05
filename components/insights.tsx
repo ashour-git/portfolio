@@ -15,8 +15,8 @@ export function Insights() {
 
         <ul className="mt-12 border-t border-line">
           {insights.map((note, i) => (
-            <Reveal key={note.index} delay={i * 40} as="li">
-              <li className="border-b border-line">
+              <Reveal key={note.index} delay={i * 40} as="li">
+              <div className="border-b border-line">
                 <a
                   href={note.href}
                   target="_blank"
@@ -36,7 +36,7 @@ export function Insights() {
                     <ArrowIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                   </span>
                 </a>
-              </li>
+              </div>
             </Reveal>
           ))}
         </ul>

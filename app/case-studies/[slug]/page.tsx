@@ -59,13 +59,13 @@ export default async function CaseStudyPage({
   const s = p.study;
 
   return (
-    <>
+    <main id="main">
       <article className="relative overflow-hidden pb-24 pt-32 md:pt-36">
         <div className="mx-auto w-full max-w-4xl px-6 md:px-10">
           {/* breadcrumb */}
           <Link
             href="/#work"
-            className="mb-8 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-[0.16em] text-ink-soft transition-colors hover:text-ink"
+            className="mb-8 inline-flex min-h-[2.75rem] items-center gap-1.5 rounded-lg px-2 py-2 font-mono text-xs uppercase tracking-[0.16em] text-ink-soft transition-colors hover:text-ink focus-visible:bg-surface-hover"
           >
             <span aria-hidden="true" className="inline-block rotate-180">
               <ArrowIcon className="h-3 w-3" />
@@ -106,6 +106,12 @@ export default async function CaseStudyPage({
                 </a>
               )}
             </div>
+            <p className="audit-stamp mt-8">
+              <strong>Receipt</strong>
+              <span>
+                {p.performance.map((m) => `${m.value} ${m.label}`).join("  ·  ")}
+              </span>
+            </p>
             <div className="mt-6">
               <PipelineStrip flow={p.architecture} />
             </div>
@@ -123,6 +129,9 @@ export default async function CaseStudyPage({
                 src={p.image}
                 alt={`${p.title} interface`}
                 className="h-full w-full object-cover"
+                loading="lazy"
+                decoding="async"
+                draggable={false}
               />
             </div>
           </div>
@@ -247,7 +256,7 @@ export default async function CaseStudyPage({
                   href={p.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-line px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg"
+                  className="inline-flex min-h-[2.75rem] shrink-0 items-center gap-2 rounded-lg border border-line px-5 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg"
                 >
                   Read the write-up
                   <ArrowIcon className="h-4 w-4" />
@@ -298,6 +307,6 @@ export default async function CaseStudyPage({
           </nav>
         </div>
       </article>
-    </>
+    </main>
   );
 }
