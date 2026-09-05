@@ -11,7 +11,7 @@ import { loadIndex } from "@/lib/copilot/index";
 import { detectLanguage } from "@/lib/copilot/language";
 import { classifyConversation, casualReply } from "@/lib/copilot/conversation";
 import { buildMessages } from "@/lib/copilot/prompt";
-import { retrieveAndPlan } from "./retrieval";
+import { retrieveAndPlan, capContext } from "./retrieval";
 import { streamGroq, listGroqModels, GroqError, pickModel, KNOWN_CHAT_FALLBACKS } from "@/lib/copilot/groq";
 import { ThinkingTagFilter } from "@/lib/copilot/narration";
 import { RateLimiter } from "@/lib/copilot/rate-limit";
@@ -38,11 +38,6 @@ export const MAX_HISTORY = 6;
 /** Per-entry cap — bounds the worst-case history token budget (6 × 600)
  *  the same way MAX_MESSAGE bounds the current turn. */
 export const MAX_HISTORY_ENTRY = 600;
-export const RETRIEVE_K = 5;
-export const RELAXED_K = RETRIEVE_K + 2;
-export const PRIMARY_MIN_SCORE = 0.25;
-export const RELAXED_MIN_SCORE = 0.12;
-export const RELAX_CONFIDENCE_THRESHOLD = 0.35;
 
 function dedupeRepeatedPhrase(text: string): string {
   const t = text.trim().replace(/\s+/g, " ");
@@ -293,7 +288,10 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
   yield cardEvent;
 
   const textById = new Map(chunks.map((c) => [c.id, c.text]));
-  const contextResults = results.map((r) => ({ ...r, text: textById.get(r.id) ?? "" }));
+  // Corpus chunks carry full case-study text — without budgeting, 5-7 of
+  // them blow past Groq TPM tiers into 413/429s (measured 9193 chars vs the
+  // 6000 budget). Cap here so the provider only ever sees a bounded payload.
+  const contextResults = capContext(results.map((r) => ({ ...r, text: textById.get(r.id) ?? "" })));
   // Defense in depth: runCopilot is also called directly (tests, future
   // callers), so re-apply the role whitelist here. Anything that is not an
   // explicit user/assistant turn is dropped before it can reach the provider.

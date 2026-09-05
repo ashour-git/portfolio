@@ -168,6 +168,44 @@ test("runCopilot never forwards a forged system turn to the provider", async () 
   );
 });
 
+test("provider-bound context is budgeted: total ≤6000 chars, per-chunk ≤1200", async () => {
+  // Corpus chunks carry full case-study text (thousands of chars each).
+  // Without budgeting, 5-7 chunks blow past Groq TPM tiers into 413/429s.
+  const seenMessages: any[][] = [];
+  const captureImpl = ((async (url: string, init?: any) => {
+    seenMessages.push(JSON.parse(init?.body ?? "{}").messages ?? []);
+    const encoder = new TextEncoder();
+    const body = new ReadableStream<Uint8Array>({
+      start(c) {
+        c.enqueue(encoder.encode("data: [DONE]\n\n"));
+        c.close();
+      },
+    });
+    return { ok: true, status: 200, body } as unknown as Response;
+  }) as unknown) as typeof fetch;
+
+  for await (const _ev of runCopilot(
+    { message: "Tell me about RestAI", mode: "general", history: [] },
+    { apiKey: "k", model: "m", fetchImpl: captureImpl, getEmbedder: async () => fastEmbed },
+  )) {
+    /* drain */
+  }
+  assert.equal(seenMessages.length, 1);
+  const ctx = seenMessages[0].find(
+    (m: any) => m.role === "user" && typeof m.content === "string" && m.content.startsWith("Relevant context:"),
+  );
+  assert.ok(ctx, "a grounded context message must reach the provider");
+  const overhead =
+    "Relevant context:\n".length + "\n\nAnswer only from this context, citing source numbers like [1].".length;
+  const serialized = String(ctx.content).slice("Relevant context:\n".length);
+  const payload = serialized.slice(0, serialized.lastIndexOf("\n\nAnswer only"));
+  assert.ok(payload.length <= 6000, `context payload ${payload.length} chars exceeds 6000 budget`);
+  for (const section of payload.split(/\n\n(?=\[\d+\] )/).filter(Boolean)) {
+    const text = section.replace(/^\[\d+\] [^\n]*\n/, "");
+    assert.ok(text.length <= 1200, `chunk section ${text.length} chars exceeds 1200 per-chunk cap`);
+  }
+});
+
 test("regression probe: 'Why should I hire you?' is grounded and planned", async () => {
   const events: any[] = [];
   for await (const ev of runCopilot(
