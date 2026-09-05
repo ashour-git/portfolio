@@ -1,6 +1,7 @@
 import type { CopilotEvent, RetrievalResult } from "@/lib/copilot/types";
 import { runCopilot, validateInput } from "@/lib/copilot/service";
 import { RateLimiter } from "@/lib/copilot/rate-limit";
+import { hashIp, logCopilotEvent } from "@/lib/copilot/observe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,22 +16,30 @@ function clientIp(req: Request): string {
 }
 
 export async function POST(req: Request) {
+  const ip = clientIp(req);
+  const ipHash = hashIp(ip);
+  const routeReq = `route-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   let body: unknown;
   try {
     body = await req.json();
   } catch {
+    // Malformed bodies are abuse-shaped far more often than client bugs —
+    // log the reject (no body content, ever) and answer the 400 contract.
+    logCopilotEvent({ req: routeReq, ipHash, level: "warn", errorKind: "bad_request" });
     return new Response("invalid json\n", { status: 400, headers: { "content-type": "application/x-ndjson" } });
   }
 
   const parsed = validateInput(body);
   if (!parsed.ok) {
+    // Validation messages are static strings (no user data) — safe to count
+    // by kind; probes and fuzzers show up here.
+    logCopilotEvent({ req: routeReq, ipHash, level: "warn", errorKind: "bad_request" });
     return new Response(JSON.stringify({ type: "error", code: 400, message: parsed.error }) + "\n", {
       status: 400,
       headers: { "content-type": "application/x-ndjson" },
     });
   }
 
-  const ip = clientIp(req);
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const encoder = new TextEncoder();

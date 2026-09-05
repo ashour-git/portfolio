@@ -15,6 +15,7 @@ import { retrieveAndPlan } from "./retrieval";
 import { streamGroq, listGroqModels, GroqError, pickModel, KNOWN_CHAT_FALLBACKS } from "@/lib/copilot/groq";
 import { ThinkingTagFilter } from "@/lib/copilot/narration";
 import { RateLimiter } from "@/lib/copilot/rate-limit";
+import { hashIp, logCopilotEvent } from "@/lib/copilot/observe";
 import type { ErrorKind } from "@/lib/copilot/types";
 
 export const DEFAULT_MODEL = "llama-3.3-70b-versatile";
@@ -76,20 +77,23 @@ export function validateInput(body: unknown): { ok: true; data: RequestBody } | 
     for (const entry of b.history) {
       // Client-controlled history is untrusted input: roles are restricted to
       // user/assistant so a forged { role: "system" } entry can never land in
-      // the provider message list as an instruction (prompt injection), and
-      // per-entry length is capped so history cannot smuggle an unbounded
-      // token budget past the MAX_MESSAGE turn cap.
+      // the provider message list as an instruction (prompt injection).
+      // Length is a budget concern, not a trust concern — over-long entries
+      // (e.g. the copilot's own long answers sent back as history) are
+      // truncated in the rebuild below, never rejected, so follow-up
+      // questions keep working.
       if (typeof entry !== "object" || entry === null) return { ok: false, error: "invalid history entry" };
       const role = (entry as { role?: unknown }).role;
       const content = (entry as { content?: unknown }).content;
       if (role !== "user" && role !== "assistant") return { ok: false, error: "history role must be user or assistant" };
       if (typeof content !== "string" || content.trim().length === 0) return { ok: false, error: "invalid history entry" };
-      if (content.length > MAX_HISTORY_ENTRY) return { ok: false, error: "history entry too long" };
     }
   }
   // Rebuild entries with only the known fields — extra runtime properties on
-  // client objects (e.g. name, tool_calls) are dropped, never forwarded.
-  const history = b.history?.map((h) => ({ role: h.role, content: h.content }));
+  // client objects (e.g. name, tool_calls) are dropped, never forwarded —
+  // and truncate to MAX_HISTORY_ENTRY so history cannot smuggle an unbounded
+  // token budget past the MAX_MESSAGE turn cap.
+  const history = b.history?.map((h) => ({ role: h.role, content: h.content.slice(0, MAX_HISTORY_ENTRY) }));
   return { ok: true, data: { message: deduped, mode: b.mode, history } };
 }
 
@@ -168,10 +172,21 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
   const id = `req-${startedAt}-${Math.random().toString(36).slice(2, 8)}`;
   const limiter = deps.limiter ?? new RateLimiter({ limitPerMinute: 10, limitPerHour: 60 });
   const ip = deps.ip ?? "local";
+  const ipHash = hashIp(ip);
   const cache = deps.cacheHits ?? new Map<string, CacheEntry>();
+  // Truncation applied below bounds history tokens; record whether it fired
+  // so spend anomalies stay attributable in logs.
+  const rawHistory = body.history ?? [];
+  const truncated = rawHistory.some((h) => h.content.length > MAX_HISTORY_ENTRY);
+  const historyCount = rawHistory.length;
 
   const allowed = limiter.check(ip);
   if (!allowed.ok) {
+    logCopilotEvent({
+      req: id, ipHash, level: "warn", mode, lang, errorKind: "rate_limited",
+      rateLimited: true, retryAfterSec: allowed.retryAfterSec,
+      totalMs: Date.now() - startedAt, historyCount,
+    });
     yield { type: "error", code: 429, kind: "rate_limited", message: `Rate limited. Retry in ${allowed.retryAfterSec}s.` };
     return;
   }
@@ -194,10 +209,19 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
       strategy: "primary",
     };
     yield { type: "done", finish: "stop" };
+    logCopilotEvent({
+      req: id, ipHash, level: "info", mode, lang, intent: "casual",
+      cache: "miss", strategy: "primary", tokensIn: 0, tokensOut: 0,
+      retrievalMs: 0, totalMs: Date.now() - startedAt, historyCount, truncated,
+    });
     return;
   }
 
   if (!apiKey) {
+    logCopilotEvent({
+      req: id, ipHash, level: "error", mode, lang, errorKind: "config",
+      totalMs: Date.now() - startedAt, historyCount,
+    });
     yield {
       type: "error",
       code: 500,
@@ -214,6 +238,10 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
   let candidates: string[];
   if (now - modelCheckCache.at < MODEL_CHECK_TTL) {
     if (!modelCheckCache.ok) {
+      logCopilotEvent({
+        req: id, ipHash, level: "error", mode, lang, model,
+        errorKind: "model_unavailable", totalMs: Date.now() - startedAt, historyCount,
+      });
       yield {
         type: "error",
         code: 503,
@@ -312,6 +340,11 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
           lastModelErr = err;
           continue;
         }
+        logCopilotEvent({
+          req: id, ipHash, level: "error", mode, lang, model: candidate,
+          errorKind: toErrorKind(err.kind), retrievalMs,
+          totalMs: Date.now() - startedAt, historyCount, truncated,
+        });
         yield {
           type: "error",
           code: err.kind === "rate_limited" ? 429 : 502,
@@ -327,6 +360,11 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
         return;
       }
       if (err instanceof DOMException && err.name === "AbortError") return;
+      logCopilotEvent({
+        req: id, ipHash, level: "error", mode, lang, model: candidate,
+        errorKind: "network", retrievalMs,
+        totalMs: Date.now() - startedAt, historyCount, truncated,
+      });
       yield {
         type: "error",
         code: 502,
@@ -349,6 +387,11 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
       ? `No chat model available to this Groq project can answer (last: ${lastModelErr.message}). Set GROQ_MODEL to a model this key can use.`
       : "No chat model available to this Groq project.";
     modelCheckCache = { at: Date.now(), ok: false, detail: denyDetail, available: [] };
+    logCopilotEvent({
+      req: id, ipHash, level: "error", mode, lang, model: candidates[0],
+      errorKind: "model_unavailable", retrievalMs,
+      totalMs: Date.now() - startedAt, historyCount, truncated,
+    });
     yield {
       type: "error",
       code: 503,
@@ -363,6 +406,11 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
   modelCheckCache = { at: Date.now(), ok: true, model: activeModel, available: [] };
 
   const totalMs = Date.now() - startedAt;
+  logCopilotEvent({
+    req: id, ipHash, level: "info", mode, lang, intent: intent.primary,
+    confidence: intent.confidence, cache: cacheStatus, strategy, model: activeModel,
+    tokensIn, tokensOut, retrievalMs, totalMs, historyCount, truncated,
+  });
   yield {
     type: "stats",
     tokens: { in: tokensIn, out: tokensOut },

@@ -97,11 +97,29 @@ test("validateInput rejects malformed history entries", () => {
   assert.equal(validateInput({ message: "hi", history: [{ role: "tool", content: "x" }] }).ok, false);
 });
 
-test("validateInput caps per-entry history length", () => {
+test("validateInput truncates over-long history entries instead of rejecting", () => {
   const long = { message: "hi", history: [{ role: "user", content: "x".repeat(601) }] };
-  assert.equal(validateInput(long).ok, false);
+  const parsed = validateInput(long);
+  assert.equal(parsed.ok, true);
+  if (parsed.ok) {
+    assert.equal(parsed.data.history?.[0].content.length, 600);
+  }
   const edge = { message: "hi", history: [{ role: "assistant", content: "x".repeat(600) }] };
   assert.equal(validateInput(edge).ok, true);
+});
+
+test("validateInput accepts a follow-up after a long assistant answer", () => {
+  // Regression: the copilot's own answers (tables, H3 sections) routinely
+  // exceed the per-entry budget and are sent back as assistant history.
+  // Rejecting them 400s normal follow-up questions.
+  const parsed = validateInput({
+    message: "What about the second project?",
+    history: [{ role: "assistant", content: "A".repeat(2000) }],
+  });
+  assert.equal(parsed.ok, true);
+  if (parsed.ok) {
+    assert.equal(parsed.data.history?.[0].content.length, 600);
+  }
 });
 
 test("validateInput accepts valid history and strips unknown fields", () => {
