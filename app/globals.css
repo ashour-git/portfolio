@@ -295,6 +295,30 @@ a.audit-stamp:hover {
   border: 1px solid var(--color-border-strong);
 }
 
+/* ---------- fixed-dark code surfaces (documented exception) ----------
+   Terminal blocks (log streams, code samples) stay dark in BOTH themes so
+   oneDark syntax colors and phosphor log text keep contrast. Achieved by
+   re-pinning the semantic tokens to their dark values inside this scope —
+   inner markup keeps using tokens, never raw values. */
+.terminal {
+  --color-panel: #0d1514;
+  --color-panel-2: #111c1a;
+  --color-surface: rgba(255, 255, 255, 0.07);
+  --color-surface-2: rgba(255, 255, 255, 0.12);
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.18);
+  --color-ink: #eef5f2;
+  --color-ink-soft: #a9b8b2;
+  --color-ink-faint: #8ba39b;
+  --color-accent: #2ee6a3;
+  --color-accent-2: #0ea5c9;
+  --color-accent-soft: rgba(46, 230, 163, 0.14);
+  --color-line: rgba(255, 255, 255, 0.1);
+  background-color: #0b1211;
+  border: 1px solid var(--color-border);
+  color-scheme: dark;
+}
+
 /* ---------- editorial type helpers ---------- */
 .eyebrow {
   font-family: var(--font-mono);

@@ -3,23 +3,14 @@
 import { motion } from "framer-motion";
 import type { ArchFlow } from "@/lib/data";
 
-const kindColor: Record<string, string> = {
-  client: "text-cyan-300 border-cyan-400/30 bg-cyan-400/10",
-  api: "text-teal-300 border-teal-400/30 bg-teal-400/10",
-  model: "text-emerald-300 border-emerald-400/30 bg-emerald-400/10",
-  gate: "text-amber-300 border-amber-400/30 bg-amber-400/10",
-  db: "text-sky-300 border-sky-400/30 bg-sky-400/10",
-  outcome: "text-rose-300 border-rose-400/30 bg-rose-400/10",
-};
-
-const kindDot: Record<string, string> = {
-  client: "bg-cyan-400",
-  api: "bg-teal-400",
-  model: "bg-emerald-400",
-  gate: "bg-amber-400",
-  db: "bg-sky-400",
-  outcome: "bg-rose-400",
-};
+// One neutral treatment for every layer — layer identity lives in the
+// labels, not the paint. Only the terminal outcome is tinted, brass for
+// proven, matching the site's accent discipline (mint = live, brass =
+// proven). The step numbers stay: a pipeline is a real sequence.
+const LAYER = "border-line bg-surface";
+const LAYER_DOT = "bg-ink-faint";
+const OUTCOME = "border-brass/50 bg-brass-soft";
+const OUTCOME_DOT = "bg-brass";
 
 export function ArchitectureDiagram({ flow }: { flow: ArchFlow }) {
   const { nodes } = flow;
@@ -31,9 +22,8 @@ export function ArchitectureDiagram({ flow }: { flow: ArchFlow }) {
       </div>
       <div className="flex flex-col items-stretch gap-0">
         {nodes.map((node, i) => {
-          const c = kindColor[node.kind ?? "api"] ?? kindColor.api;
-          const d = kindDot[node.kind ?? "api"] ?? kindDot.api;
           const last = i === nodes.length - 1;
+          const outcome = node.kind === "outcome";
           return (
             <div key={`${node.label}-${i}`} className="flex flex-col items-stretch">
               <motion.div
@@ -41,9 +31,9 @@ export function ArchitectureDiagram({ flow }: { flow: ArchFlow }) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ delay: i * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className={`group flex items-center gap-3 rounded-xl border px-4 py-3 transition-transform hover:-translate-y-0.5 ${c}`}
+                className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${outcome ? OUTCOME : LAYER}`}
               >
-                <span className={`h-2 w-2 shrink-0 rounded-full ${d}`} />
+                <span aria-hidden="true" className={`h-2 w-2 shrink-0 rounded-full ${outcome ? OUTCOME_DOT : LAYER_DOT}`} />
                 <div className="min-w-0">
                   <p className="text-sm font-medium leading-tight text-ink">
                     {node.label}

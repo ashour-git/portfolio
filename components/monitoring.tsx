@@ -2,10 +2,10 @@ import type { Observability } from "@/lib/data";
 
 export function Monitoring({ observability }: { observability: Observability }) {
   return (
-    <div className="panel overflow-hidden rounded-2xl">
+    <div className="terminal overflow-hidden rounded-2xl">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3 sm:px-7">
         <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-accent" />
           Production monitoring
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -38,20 +38,15 @@ export function Monitoring({ observability }: { observability: Observability }) 
           </ul>
         </div>
 
-        <div className="bg-black/40 p-5 sm:p-7">
-          <p className="mb-4 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">
-            <span className="flex gap-1.5" aria-hidden="true">
-              <span className="h-2 w-2 rounded-full bg-rose-400/70" />
-              <span className="h-2 w-2 rounded-full bg-amber-400/70" />
-              <span className="h-2 w-2 rounded-full bg-emerald-400/70" />
-            </span>
+        <div className="p-5 sm:p-7">
+          <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">
             log stream
           </p>
-          <pre className="overflow-x-auto font-mono text-xs leading-relaxed text-emerald-300/80">
-            {observability.logs.map((line) => (
-              <div key={line} className="whitespace-pre">
+          <pre className="overflow-x-auto font-mono text-xs leading-relaxed text-accent/80">
+            {observability.logs.map((line, i) => (
+              <span key={i} className="block whitespace-pre">
                 {line}
-              </div>
+              </span>
             ))}
           </pre>
         </div>

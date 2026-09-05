@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Children, cloneElement, isValidElement } from "react";
+import React, { Children, cloneElement, isValidElement, useState } from "react";
 import type { ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -10,16 +10,28 @@ import type { Lang } from "@/lib/copilot/types";
 import { isolateLtrTokens } from "@/lib/copilot/language";
 
 function CodeBlock({ language, value }: { language: string; value: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // Clipboard unavailable (permissions, non-secure context) — the code
+      // remains selectable, so there is nothing else to offer.
+    }
+  };
   return (
-    <div className="panel group relative my-3 overflow-hidden rounded-xl" dir="ltr">
+    <div className="terminal group relative my-3 overflow-hidden rounded-xl" dir="ltr">
       <div className="flex items-center justify-between border-b border-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-ink-faint">
         <span>{language || "code"}</span>
         <button
           type="button"
-          onClick={() => navigator.clipboard.writeText(value)}
-          className="text-ink-soft transition-colors hover:text-ink"
+          onClick={() => void copy()}
+          aria-live="polite"
+          className="inline-flex min-h-[2.75rem] min-w-[2.75rem] items-center justify-center rounded-lg px-2 text-ink-soft transition-colors hover:text-ink focus-visible:bg-surface-hover"
         >
-          copy
+          {copied ? "copied" : "copy"}
         </button>
       </div>
       <SyntaxHighlighter
@@ -83,6 +95,21 @@ export function CopilotMarkdown({ text, lang }: { text: string; lang: Lang }) {
         remarkPlugins={[remarkGfm]}
         components={{
           ...blockOverrides,
+          // Tables carry the metrics — they must scroll inside the
+          // conversation on narrow screens instead of spilling past it.
+          // The region is focusable so keyboard and SR users can reach it.
+          table({ node: _tableNode, ...props }: any) {
+            return (
+              <div
+                role="region"
+                aria-label="Data table, scroll horizontally to see all columns"
+                tabIndex={0}
+                className="overflow-x-auto"
+              >
+                <table {...props} />
+              </div>
+            );
+          },
           code({ className, children }) {
             const match = /language-(\w+)/.exec(className ?? "");
             if (!match) {

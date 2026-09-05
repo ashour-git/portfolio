@@ -14,15 +14,12 @@ export function Skills() {
         />
 
         <div className="mt-12 grid gap-x-12 gap-y-px sm:grid-cols-2">
-          {skills.map((group, i) => (
-            <Reveal key={group.title} delay={(i % 2) * 50} as="div">
+          {skills.map((group) => (
+            <Reveal key={group.title} as="div">
               <div className="border-t border-line py-7">
-                <div className="flex items-baseline gap-3">
-                  <span className="eyebrow w-7 shrink-0">{String(i + 1).padStart(2, "0")}</span>
-                  <h3 className="text-lg font-semibold tracking-tight text-ink">
-                    {group.title}
-                  </h3>
-                </div>
+                <h3 className="text-lg font-semibold tracking-tight text-ink">
+                  {group.title}
+                </h3>
                 <p className="lead mt-2.5 text-[15px]">{group.statement}</p>
                 <p className="mt-3 font-mono text-xs text-ink-faint">
                   {group.items.join("  ·  ")}
