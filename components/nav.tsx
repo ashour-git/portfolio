@@ -148,7 +148,7 @@ export function Nav() {
               href="/resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden min-h-[2.75rem] items-center whitespace-nowrap rounded-lg border border-line px-4 py-1.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg sm:inline-flex"
+              className="hidden min-h-[2.75rem] items-center whitespace-nowrap rounded-lg border border-line px-4 py-1.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg lg:inline-flex"
             >
               Resume
             </a>
