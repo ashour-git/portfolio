@@ -100,8 +100,8 @@ export function Nav() {
             m.ashour<span className="text-accent">.</span>
           </a>
 
-          {/* desktop links */}
-          <div className="hidden items-center gap-1 lg:flex">
+          {/* desktop links — xl+: the full row needs ~1150px, it overflows at lg */}
+          <div className="hidden items-center gap-1 xl:flex">
             {links.map((l) => {
               const isActive = active === l.href.slice(1);
               return (
@@ -167,7 +167,7 @@ export function Nav() {
               aria-expanded={open}
               aria-controls="mobile-menu"
               aria-label={open ? "Close navigation menu" : "Open navigation menu"}
-              className="flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-surface transition-colors hover:border-border-strong lg:hidden"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line bg-surface transition-colors hover:border-border-strong xl:hidden"
             >
               <span
                 aria-hidden="true"
@@ -203,7 +203,7 @@ export function Nav() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: EASE }}
-            className="fixed inset-0 z-0 lg:hidden"
+            className="fixed inset-0 z-0 xl:hidden"
           >
             <div
               className="absolute inset-0 bg-bg/95 backdrop-blur-xl"
