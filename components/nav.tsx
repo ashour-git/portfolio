@@ -82,10 +82,10 @@ export function Nav() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      <div className="relative z-10 px-4 pt-4 md:px-6">
+      <div className="relative z-10 px-3 pt-4 sm:px-4 md:px-6">
         <nav
           aria-label="Primary"
-          className={`mx-auto flex h-14 w-full max-w-6xl items-center justify-between rounded-2xl border px-5 backdrop-blur-xl transition-colors duration-300 ${
+          className={`mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-2 rounded-2xl border px-3 backdrop-blur-xl transition-colors duration-300 sm:px-4 ${
             open
               ? "border-border-strong bg-surface-2/90 shadow-xl shadow-black/10"
               : scrolled
@@ -95,13 +95,13 @@ export function Nav() {
         >
           <a
             href="#top"
-            className="font-mono text-sm font-semibold tracking-tight text-ink transition-colors hover:text-accent"
+            className="shrink-0 font-mono text-sm font-semibold tracking-tight text-ink transition-colors hover:text-accent"
           >
             m.ashour<span className="text-accent">.</span>
           </a>
 
           {/* desktop links — xl+: the full row needs ~1150px, it overflows at lg */}
-          <div className="hidden items-center gap-1 xl:flex">
+          <div className="hidden shrink-0 items-center gap-0.5 xl:flex">
             {links.map((l) => {
               const isActive = active === l.href.slice(1);
               return (
@@ -109,7 +109,7 @@ export function Nav() {
                   key={l.href}
                   href={l.href}
                   aria-current={isActive ? "location" : undefined}
-                  className={`relative whitespace-nowrap rounded-lg px-3 py-2.5 text-sm transition-colors duration-300 focus-visible:bg-surface-hover ${
+                  className={`relative whitespace-nowrap rounded-lg px-2.5 py-2 text-[13px] transition-colors duration-300 focus-visible:bg-surface-hover ${
                     isActive ? "text-ink" : "text-ink-soft hover:text-ink"
                   }`}
                 >
@@ -126,7 +126,7 @@ export function Nav() {
             })}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2">
             <PaletteTrigger />
             <button
               type="button"
@@ -148,13 +148,13 @@ export function Nav() {
               href="/resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden min-h-[2.75rem] items-center whitespace-nowrap rounded-lg border border-line px-4 py-1.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg lg:inline-flex"
+              className="hidden min-h-[2.75rem] items-center whitespace-nowrap rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg lg:inline-flex"
             >
               Resume
             </a>
             <a
               href="#contact"
-              className="hidden min-h-[2.75rem] items-center whitespace-nowrap rounded-lg bg-ink px-4 py-1.5 text-sm font-medium text-bg transition-opacity hover:opacity-85 sm:inline-flex"
+              className="hidden min-h-[2.75rem] items-center whitespace-nowrap rounded-lg bg-ink px-3 py-1.5 text-sm font-medium text-bg transition-opacity hover:opacity-85 sm:inline-flex"
             >
               Hire me
             </a>
