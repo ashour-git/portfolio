@@ -48,7 +48,7 @@ function TrackRecord() {
   return (
     <div className="surface mt-4 hidden rounded-xl px-5 py-4 lg:block">
       <div className="flex items-center justify-between gap-6">
-        <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">Track record</p>
+        <p className="whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">Track record</p>
         <div className="flex gap-6">
           {stats.slice(0, 2).map((s) => (
             <div key={s.label} className="text-right">
