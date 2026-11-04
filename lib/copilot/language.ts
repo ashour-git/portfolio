@@ -4,21 +4,37 @@ const ARABIC_RE = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\
 const LATIN_RE = /[A-Za-z\u00C0-\u024F]/;
 
 export function detectLanguage(message: string): Lang {
-  let ar = 0;
-  let en = 0;
+  // Language is decided by the prose, not by letter volume: an English question
+  // that names an Arabic document ("Tell me about السيرة الذاتية") is still an
+  // English turn, and an Arabic greeting followed by a full English question
+  // should answer in English. Counting *words* per script keeps long technical
+  // terms from outvoting the sentence they sit in; ties fall back to the first
+  // scripted character so "اشرح لي RAG architecture في RestAI" stays Arabic.
+  let arWords = 0;
+  let enWords = 0;
   let first: "ar" | "en" | null = null;
-  for (const ch of message) {
-    if (ARABIC_RE.test(ch)) {
-      if (first === null) first = "ar";
-      ar++;
-    } else if (LATIN_RE.test(ch)) {
-      if (first === null) first = "en";
-      en++;
+
+  for (const word of message.split(/\s+/)) {
+    let ar = 0;
+    let en = 0;
+    for (const ch of word) {
+      if (ARABIC_RE.test(ch)) {
+        if (first === null) first = "ar";
+        ar++;
+      } else if (LATIN_RE.test(ch)) {
+        if (first === null) first = "en";
+        en++;
+      }
     }
+    if (ar === 0 && en === 0) continue;
+    if (ar >= en) arWords++;
+    else enWords++;
   }
-  if (ar === 0 && en === 0) return "en";
-  if (first === "ar") return "ar";
-  return ar > en ? "ar" : "en";
+
+  if (arWords === 0 && enWords === 0) return "en";
+  if (enWords === 0) return "ar";
+  if (arWords === enWords) return first === "ar" ? "ar" : "en";
+  return arWords > enWords ? "ar" : "en";
 }
 
 export const TECH_TERMS: string[] = [

@@ -43,6 +43,14 @@ export const INTENT_RULES: Record<Exclude<Intent, "general">, string[]> = {
     "project work",
     "built",
     "created",
+    "restai",
+    "storefy",
+    "text2sql",
+    "text-to-sql",
+    "text to sql",
+    "kepler",
+    "book recommender",
+    "hand gesture",
     "ماذا بنيت",
     "مشروعك",
     "بنيت",
@@ -184,6 +192,23 @@ const GENERAL_CONFIDENCE = 0.2;
 export const CENTROID_MIN = 0.35;
 export const CENTROID_MAX = 0.82;
 
+/**
+ * When several rule sets fire, the most specific one wins. "Explain the RestAI
+ * architecture" names a project *and* asks for architecture — the architecture
+ * template is the right answer. Broad `project` intent sits last, so a project
+ * name alone still routes there.
+ */
+const RULE_PRIORITY: Exclude<Intent, "general">[] = [
+  "architecture",
+  "decision",
+  "interview",
+  "resume",
+  "skills",
+  "experience",
+  "recruiter",
+  "project",
+];
+
 export function normalizeIntent(text: string): string {
   return text.toLowerCase().replace(/[?!.,;:]+/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -191,8 +216,7 @@ export function normalizeIntent(text: string): string {
 export function classifyByRules(message: string): IntentResult {
   const q = normalizeIntent(message);
   const hits: Intent[] = [];
-  for (const intent of INTENTS) {
-    if (intent === "general") continue;
+  for (const intent of RULE_PRIORITY) {
     if (INTENT_RULES[intent].some((p) => q.includes(p))) hits.push(intent);
   }
   if (hits.length > 0) {

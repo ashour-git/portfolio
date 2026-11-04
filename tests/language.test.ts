@@ -47,6 +47,13 @@ test("detectLanguage uses the dominant script for mixed messages", () => {
   assert.equal(detectLanguage("Explain RAG بالعربي"), "en");
 });
 
+test("detectLanguage follows the prose language, not isolated technical terms", () => {
+  // An English question that names an Arabic document should stay English.
+  assert.equal(detectLanguage("Tell me about السيرة الذاتية"), "en");
+  // An Arabic greeting followed by an English question should answer in English.
+  assert.equal(detectLanguage("أزيك؟ Tell me about RestAI"), "en");
+});
+
 test("detectLanguage returns en for script-neutral or empty input", () => {
   assert.equal(detectLanguage(""), "en");
   assert.equal(detectLanguage("12345"), "en");
