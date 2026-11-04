@@ -3,6 +3,7 @@ import { retrieveTopK } from "./scoring";
 import { rewriteQuery } from "./rewrite";
 import { classifyMessage } from "./intent";
 import { buildPlan } from "./planner";
+import { rerank } from "./rerank";
 import type { CopilotMode, Lang, RetrievalResult, Plan, IntentResult } from "./types";
 
 export const RETRIEVE_K = 5;
@@ -119,6 +120,15 @@ export async function retrieveAndPlan(opts: {
     return lang === "ar" ? isArText(t) : !isArText(t);
   });
   if (matching.length >= 2) results = matching;
+
+  // Optional cross-encoder pass. No scorer is configured today (only the
+  // MiniLM bi-encoder is vendored), so this is an identity function; it exists
+  // as a seam and degrades to cosine order on any failure.
+  results = await rerank({
+    results,
+    query: message,
+    textOf: (r) => chunkTextById.get(r.id) ?? "",
+  });
 
   const plan = buildPlan({ intent, results });
 
