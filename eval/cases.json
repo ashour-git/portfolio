@@ -1,0 +1,257 @@
+[
+  {
+    "id": "en-recruiter-plain",
+    "message": "Why should I hire you?",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "intent": "recruiter",
+      "template": "recruiter",
+      "isolation": "en",
+      "mustCite": true
+    }
+  },
+  {
+    "id": "en-recruiter-typo",
+    "message": "hi , whay I should hire u",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "intent": "recruiter",
+      "template": "recruiter",
+      "isolation": "en",
+      "mustCite": true
+    }
+  },
+  {
+    "id": "en-recruiter-repeat",
+    "message": "why I hire u why I hire u why I hire u why I hire u why I hire u",
+    "expect": {
+      "casual": false,
+      "deduped": "why I hire u",
+      "lang": "en",
+      "intent": "recruiter",
+      "template": "recruiter",
+      "isolation": "en",
+      "mustCite": true
+    }
+  },
+  {
+    "id": "ar-recruiter",
+    "message": "لماذا يجب أن أوظف محمد؟",
+    "expect": {
+      "casual": false,
+      "lang": "ar",
+      "intent": "recruiter",
+      "template": "recruiter",
+      "isolation": "ar",
+      "mustCite": false
+    }
+  },
+  {
+    "id": "en-architecture",
+    "message": "Explain the RestAI architecture",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "intent": "architecture",
+      "template": "architecture",
+      "isolation": "en"
+    }
+  },
+  {
+    "id": "ar-architecture",
+    "message": "اشرح معمارية RestAI",
+    "expect": {
+      "casual": false,
+      "lang": "ar",
+      "intent": "architecture",
+      "template": "architecture",
+      "isolation": "ar"
+    }
+  },
+  {
+    "id": "en-project",
+    "message": "Tell me about RestAI",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "intent": "project",
+      "template": "project",
+      "isolation": "en"
+    }
+  },
+  {
+    "id": "ar-project",
+    "message": "احكيلي عن RestAI",
+    "expect": {
+      "casual": false,
+      "lang": "ar",
+      "intent": "project",
+      "template": "project",
+      "isolation": "ar"
+    }
+  },
+  {
+    "id": "en-resume",
+    "message": "Give me your resume summary",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "intent": "resume",
+      "template": "resume",
+      "isolation": "en",
+      "mustCite": true
+    }
+  },
+  {
+    "id": "ar-resume",
+    "message": "السيرة الذاتية",
+    "expect": {
+      "casual": false,
+      "lang": "ar",
+      "intent": "resume",
+      "template": "resume",
+      "isolation": "ar",
+      "mustCite": false
+    }
+  },
+  {
+    "id": "mixed-resume-stays-english",
+    "message": "Tell me about السيرة الذاتية",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "intent": "resume",
+      "template": "resume",
+      "isolation": "en",
+      "mustCite": true
+    }
+  },
+  {
+    "id": "en-skills",
+    "message": "What's your tech stack?",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "intent": "skills",
+      "template": "skills",
+      "isolation": "en"
+    }
+  },
+  {
+    "id": "ar-skills",
+    "message": "إيه مهاراتك التقنية؟",
+    "expect": {
+      "casual": false,
+      "lang": "ar",
+      "intent": "skills",
+      "template": "skills",
+      "isolation": "ar"
+    }
+  },
+  {
+    "id": "en-experience",
+    "message": "Where have you worked?",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "intent": "experience",
+      "template": "experience",
+      "isolation": "en"
+    }
+  },
+  {
+    "id": "ar-experience",
+    "message": "احكيلي عن خبرتك",
+    "expect": {
+      "casual": false,
+      "lang": "ar",
+      "intent": "experience",
+      "template": "experience",
+      "isolation": "ar"
+    }
+  },
+  {
+    "id": "en-decision",
+    "message": "Why did you choose pgvector over Pinecone?",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "intent": "decision",
+      "template": "decision",
+      "isolation": "en"
+    }
+  },
+  {
+    "id": "en-interview",
+    "message": "Interview me about RestAI",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "intent": "interview",
+      "template": "interview",
+      "isolation": "en"
+    }
+  },
+  {
+    "id": "ar-interview",
+    "message": "قابلني في مقابلة تقنية",
+    "expect": {
+      "casual": false,
+      "lang": "ar",
+      "intent": "interview",
+      "template": "interview",
+      "isolation": "ar"
+    }
+  },
+  {
+    "id": "en-casual-greeting",
+    "message": "Hi",
+    "expect": { "casual": true, "lang": "en" }
+  },
+  {
+    "id": "ar-casual-greeting",
+    "message": "أزيك يا محمد",
+    "expect": { "casual": true, "lang": "ar" }
+  },
+  {
+    "id": "en-casual-thanks",
+    "message": "Thanks a lot",
+    "expect": { "casual": true, "lang": "en" }
+  },
+  {
+    "id": "en-greeting-plus-substance",
+    "message": "hi, why should I hire you",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "intent": "recruiter",
+      "template": "recruiter",
+      "isolation": "en",
+      "mustCite": true
+    }
+  },
+  {
+    "id": "en-no-context-fallback",
+    "message": "What is the capital of France?",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "intent": "general",
+      "stance": "fallback",
+      "maxResults": 0
+    }
+  },
+  {
+    "id": "ar-out-of-scope-stays-arabic",
+    "message": "ما هي عاصمة فرنسا؟",
+    "note": "The vendored MiniLM embedder is English-only and scores Arabic out-of-domain text too highly, so retrieval stance is not asserted here; the deterministic guarantee is that an Arabic turn never receives English sources.",
+    "expect": {
+      "casual": false,
+      "lang": "ar",
+      "intent": "general",
+      "isolation": "ar"
+    }
+  }
+]
