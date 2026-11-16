@@ -1,5 +1,6 @@
 "use client";
 
+import { NeuralWeb } from "./neural-web";
 import { useEffect, useRef } from "react";
 import { FRAG, LAYOUT, VERT } from "./black-hole-shader";
 
@@ -207,6 +208,7 @@ export function BlackHole() {
         <img className="bh-poster" src="/space/blackhole.webp" alt="" width={1600} height={680} />
       </div>
       <canvas ref={canvasRef} className="bh-canvas" />
+      <NeuralWeb />
       <div className="bh-detect" aria-hidden="true">
         <div className="detect">
           <span className="detect-label">event_horizon 0.99</span>

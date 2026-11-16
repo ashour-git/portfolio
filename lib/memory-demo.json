@@ -1,0 +1,106 @@
+[
+ {
+  "question": "How does RestAI ground its answers?",
+  "retrievalMs": 14101,
+  "hits": [
+   {
+    "id": "project-restai",
+    "score": 0.299
+   },
+   {
+    "id": "hire",
+    "score": 0.223
+   },
+   {
+    "id": "about",
+    "score": 0.203
+   },
+   {
+    "id": "principles",
+    "score": 0.179
+   },
+   {
+    "id": "project-text2sql",
+    "score": 0.147
+   }
+  ]
+ },
+ {
+  "question": "Which projects use computer vision?",
+  "retrievalMs": 8,
+  "hits": [
+   {
+    "id": "project-kepler-vision",
+    "score": 0.342
+   },
+   {
+    "id": "project-hand-gesture",
+    "score": 0.306
+   },
+   {
+    "id": "skills",
+    "score": 0.241
+   },
+   {
+    "id": "experience",
+    "score": 0.229
+   },
+   {
+    "id": "about",
+    "score": 0.197
+   }
+  ]
+ },
+ {
+  "question": "What did you work on at SustainGRC?",
+  "retrievalMs": 9,
+  "hits": [
+   {
+    "id": "experience",
+    "score": 0.27
+   },
+   {
+    "id": "hire",
+    "score": 0.259
+   },
+   {
+    "id": "project-storefy",
+    "score": 0.19
+   },
+   {
+    "id": "project-restai",
+    "score": 0.187
+   },
+   {
+    "id": "resume",
+    "score": 0.175
+   }
+  ]
+ },
+ {
+  "question": "How is Text-to-SQL kept safe?",
+  "retrievalMs": 10,
+  "hits": [
+   {
+    "id": "project-text2sql",
+    "score": 0.326
+   },
+   {
+    "id": "experience",
+    "score": 0.193
+   },
+   {
+    "id": "insights",
+    "score": 0.181
+   },
+   {
+    "id": "project-storefy",
+    "score": 0.181
+   },
+   {
+    "id": "about",
+    "score": 0.177
+   }
+  ]
+ }
+]

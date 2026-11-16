@@ -1,0 +1,385 @@
+{
+ "model": "all-MiniLM-L6-v2",
+ "dim": 384,
+ "nodes": [
+  {
+   "id": "project-restai",
+   "label": "RestAI",
+   "title": "RestAI — LLM & Forecasting",
+   "group": "project",
+   "side": "r",
+   "x": 0.1301,
+   "y": 0.5238
+  },
+  {
+   "id": "project-storefy",
+   "label": "Storefy",
+   "title": "Storefy — Backend & Agentic AI",
+   "group": "project",
+   "side": "b",
+   "x": 0.08,
+   "y": 0.552
+  },
+  {
+   "id": "project-text2sql",
+   "label": "Text-to-SQL Generator",
+   "title": "Text-to-SQL Generator — LLM & Backend",
+   "group": "project",
+   "side": "r",
+   "x": 0.191,
+   "y": 0.92
+  },
+  {
+   "id": "project-hand-gesture",
+   "label": "Hand Gesture Recognition",
+   "title": "Hand Gesture Recognition — Computer Vision",
+   "group": "project",
+   "side": "r",
+   "x": 0.4286,
+   "y": 0.8409
+  },
+  {
+   "id": "project-book-recommender",
+   "label": "Semantic Book Recommender",
+   "title": "Semantic Book Recommender — Recommendation",
+   "group": "project",
+   "side": "r",
+   "x": 0.5206,
+   "y": 0.6966
+  },
+  {
+   "id": "project-kepler-vision",
+   "label": "Kepler Vision",
+   "title": "Kepler Vision — Computer Vision",
+   "group": "project",
+   "side": "l",
+   "x": 0.3093,
+   "y": 0.8685
+  },
+  {
+   "id": "resume",
+   "label": "Resume",
+   "title": "Resume summary",
+   "group": "profile",
+   "side": "r",
+   "x": 0.8813,
+   "y": 0.2332
+  },
+  {
+   "id": "stats",
+   "label": "Stats",
+   "title": "Key statistics",
+   "group": "profile",
+   "side": "r",
+   "x": 0.6598,
+   "y": 0.08
+  },
+  {
+   "id": "skills",
+   "label": "Skills",
+   "title": "Skills by discipline",
+   "group": "profile",
+   "side": "r",
+   "x": 0.4665,
+   "y": 0.2081
+  },
+  {
+   "id": "principles",
+   "label": "Principles",
+   "title": "Engineering principles",
+   "group": "profile",
+   "side": "r",
+   "x": 0.1606,
+   "y": 0.7504
+  },
+  {
+   "id": "experience",
+   "label": "Experience",
+   "title": "Work experience",
+   "group": "profile",
+   "side": "r",
+   "x": 0.3608,
+   "y": 0.1321
+  },
+  {
+   "id": "trajectory",
+   "label": "Trajectory",
+   "title": "Career trajectory",
+   "group": "profile",
+   "side": "r",
+   "x": 0.2862,
+   "y": 0.3975
+  },
+  {
+   "id": "insights",
+   "label": "Insights",
+   "title": "Writing and research",
+   "group": "profile",
+   "side": "r",
+   "x": 0.4014,
+   "y": 0.6438
+  },
+  {
+   "id": "hire",
+   "label": "Hire",
+   "title": "Why hire Mohamed",
+   "group": "profile",
+   "side": "r",
+   "x": 0.5649,
+   "y": 0.3108
+  },
+  {
+   "id": "about",
+   "label": "About",
+   "title": "About Mohamed",
+   "group": "profile",
+   "side": "r",
+   "x": 0.3325,
+   "y": 0.5938
+  },
+  {
+   "id": "linkedin",
+   "label": "LinkedIn",
+   "title": "LinkedIn and links",
+   "group": "profile",
+   "side": "l",
+   "x": 0.92,
+   "y": 0.3345
+  },
+  {
+   "id": "ar-hire",
+   "label": "لماذا محمد؟",
+   "title": "لماذا توظف محمد",
+   "group": "arabic",
+   "side": "r",
+   "x": 0.5917,
+   "y": 0.4717
+  },
+  {
+   "id": "ar-about",
+   "label": "نبذة عني",
+   "title": "نبذة عن محمد",
+   "group": "arabic",
+   "side": "r",
+   "x": 0.2524,
+   "y": 0.6691
+  },
+  {
+   "id": "ar-resume",
+   "label": "السيرة الذاتية",
+   "title": "ملخص السيرة الذاتية",
+   "group": "arabic",
+   "side": "l",
+   "x": 0.8182,
+   "y": 0.2769
+  },
+  {
+   "id": "ar-skills",
+   "label": "المهارات",
+   "title": "المهارات حسب التخصص",
+   "group": "arabic",
+   "side": "r",
+   "x": 0.4972,
+   "y": 0.372
+  },
+  {
+   "id": "ar-experience",
+   "label": "الخبرة",
+   "title": "الخبرة العملية",
+   "group": "arabic",
+   "side": "r",
+   "x": 0.2275,
+   "y": 0.1601
+  },
+  {
+   "id": "ar-linkedin",
+   "label": "LinkedIn",
+   "title": "التواصل والروابط",
+   "group": "arabic",
+   "side": "r",
+   "x": 0.8567,
+   "y": 0.4383
+  },
+  {
+   "id": "ar-stats",
+   "label": "الأرقام",
+   "title": "الأرقام الرئيسية",
+   "group": "arabic",
+   "side": "r",
+   "x": 0.6879,
+   "y": 0.1841
+  }
+ ],
+ "edges": [
+  [
+   0,
+   1,
+   0.559
+  ],
+  [
+   0,
+   17,
+   0.638
+  ],
+  [
+   0,
+   19,
+   0.626
+  ],
+  [
+   1,
+   12,
+   0.539
+  ],
+  [
+   2,
+   5,
+   0.493
+  ],
+  [
+   2,
+   17,
+   0.491
+  ],
+  [
+   3,
+   5,
+   0.535
+  ],
+  [
+   3,
+   14,
+   0.561
+  ],
+  [
+   4,
+   12,
+   0.566
+  ],
+  [
+   4,
+   19,
+   0.507
+  ],
+  [
+   5,
+   14,
+   0.553
+  ],
+  [
+   5,
+   19,
+   0.553
+  ],
+  [
+   6,
+   15,
+   0.805
+  ],
+  [
+   6,
+   18,
+   0.882
+  ],
+  [
+   7,
+   13,
+   0.555
+  ],
+  [
+   7,
+   22,
+   0.925
+  ],
+  [
+   8,
+   13,
+   0.71
+  ],
+  [
+   8,
+   19,
+   0.755
+  ],
+  [
+   9,
+   14,
+   0.507
+  ],
+  [
+   9,
+   17,
+   0.527
+  ],
+  [
+   10,
+   11,
+   0.801
+  ],
+  [
+   10,
+   20,
+   0.942
+  ],
+  [
+   11,
+   14,
+   0.797
+  ],
+  [
+   11,
+   17,
+   0.716
+  ],
+  [
+   11,
+   20,
+   0.791
+  ],
+  [
+   12,
+   14,
+   0.719
+  ],
+  [
+   12,
+   17,
+   0.704
+  ],
+  [
+   13,
+   16,
+   0.763
+  ],
+  [
+   13,
+   19,
+   0.761
+  ],
+  [
+   13,
+   22,
+   0.584
+  ],
+  [
+   14,
+   17,
+   0.956
+  ],
+  [
+   15,
+   21,
+   0.674
+  ],
+  [
+   16,
+   19,
+   0.731
+  ],
+  [
+   18,
+   21,
+   0.653
+  ]
+ ]
+}
