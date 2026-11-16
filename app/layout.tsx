@@ -1,37 +1,27 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import dynamic from "next/dynamic";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Atkinson_Hyperlegible_Next, JetBrains_Mono } from "next/font/google";
 import { getSiteUrl } from "@/lib/site";
 import { ThemeInit } from "@/components/theme-init";
 import { CommandPalette } from "@/components/command-palette";
-import { Splash } from "@/components/splash";
+import { CopilotLoader } from "@/components/copilot-loader";
 import { MotionProvider } from "@/components/motion-provider";
 import { Footer } from "@/components/footer";
 import "./globals.css";
 
-const sans = Geist({
+// Prose: Atkinson Hyperlegible keeps identifiers like GPT-4o, l/1/I unambiguous.
+const sans = Atkinson_Hyperlegible_Next({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-atkinson",
   display: "swap",
 });
 
-const mono = Geist_Mono({
+// Instrument voice: the profile banner's face (name, headings, UI, terminal).
+const mono = JetBrains_Mono({
   subsets: ["latin"],
-  variable: "--font-mono",
+  weight: ["400", "500", "700", "800"],
+  variable: "--font-jbm",
   display: "swap",
-});
-
-const serif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-  style: ["italic"],
-  variable: "--font-serif",
-  display: "swap",
-});
-
-const Copilot = dynamic(() => import("@/components/copilot").then((m) => m.Copilot), {
-  loading: () => null,
 });
 
 const siteUrl = getSiteUrl();
@@ -39,11 +29,11 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Mohamed Ashour — AI Engineer",
+    default: "Mohamed Ashour | AI Engineer",
     template: "%s · Mohamed Ashour",
   },
   description:
-    "Mohamed Ashour — AI Engineer building production LLM applications, RAG systems, recommendation engines, computer vision, and forecasting. Shipped end-to-end, tested, and measured.",
+    "Mohamed Ashour, AI Engineer building production LLM applications, RAG systems, recommendation engines, computer vision, and forecasting. Shipped end-to-end, tested, and measured.",
   keywords: [
     "AI Engineer",
     "Machine Learning Engineer",
@@ -61,24 +51,24 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: siteUrl,
-    siteName: "Mohamed Ashour — AI Engineer",
-    title: "Mohamed Ashour — AI Engineer",
+    siteName: "Mohamed Ashour | AI Engineer",
+    title: "Mohamed Ashour | AI Engineer",
     description:
-      "Building production AI. LLMs · RAG · Computer Vision · MLOps · Data Engineering.",
+      "Production AI systems: LLMs, RAG, computer vision, MLOps, and data engineering.",
     images: [
       {
         url: `${siteUrl}/og.png`,
         width: 1200,
         height: 630,
-        alt: "Mohamed Ashour — Building production AI systems",
+        alt: "Mohamed Ashour, building production AI systems",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mohamed Ashour — AI Engineer",
+    title: "Mohamed Ashour | AI Engineer",
     description:
-      "Building production AI. LLMs · RAG · Computer Vision · MLOps · Data Engineering.",
+      "Production AI systems: LLMs, RAG, computer vision, MLOps, and data engineering.",
     images: [`${siteUrl}/og.png`],
   },
   robots: {
@@ -115,7 +105,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html
       lang="en"
       data-theme="dark"
-      className={`${sans.variable} ${mono.variable} ${serif.variable}`}
+      className={`${sans.variable} ${mono.variable}`}
+      suppressHydrationWarning
     >
       <head>
         <ThemeInit />
@@ -125,18 +116,17 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="bg-bg text-ink antialiased">
-        <div className="aurora" aria-hidden="true" />
-        <div className="grid-glow" aria-hidden="true" />
-        <Splash />
-        <CommandPalette />
-        <Copilot />
+        <CopilotLoader />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-bg"
         >
           Skip to content
         </a>
-        <MotionProvider>{children}</MotionProvider>
+        <MotionProvider>
+          <CommandPalette />
+          {children}
+        </MotionProvider>
         <Footer />
       </body>
     </html>

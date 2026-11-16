@@ -65,18 +65,18 @@ export default async function CaseStudyPage({
           {/* breadcrumb */}
           <Link
             href="/#work"
-            className="mb-8 inline-flex min-h-[2.75rem] items-center gap-1.5 rounded-lg px-2 py-2 font-mono text-xs uppercase tracking-[0.16em] text-ink-soft transition-colors hover:text-ink focus-visible:bg-surface-hover"
+            className="mb-8 inline-flex min-h-[2.75rem] items-center gap-1.5 px-1 py-2 font-mono text-[13px] text-ink-soft transition-colors hover:text-accent"
           >
             <span aria-hidden="true" className="inline-block rotate-180">
               <ArrowIcon className="h-3 w-3" />
             </span>
-            All products
+            All projects
           </Link>
 
           {/* header */}
           <header>
             <p className="eyebrow mb-3">Case study · {p.domain}</p>
-            <h1 className="text-4xl font-semibold leading-[1.05] tracking-tight text-ink md:text-6xl">
+            <h1 className="font-mono text-5xl font-extrabold leading-[1.02] tracking-[-0.045em] text-ink md:text-7xl">
               {p.title}
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink-soft">
@@ -115,15 +115,16 @@ export default async function CaseStudyPage({
             <div className="mt-6">
               <PipelineStrip flow={p.architecture} />
             </div>
-            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 font-mono text-[11px] uppercase tracking-wide text-ink-faint">
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 font-mono text-xs text-ink-faint">
               <span>source <span className="text-ink-soft">/</span> {p.domain}</span>
               <span>tests <span className="text-ink-soft">/</span> {p.performance.find((m) => m.label.includes("test"))?.value ?? "CI"}</span>
             </div>
           </header>
 
           {/* screenshot */}
-          <div className="mt-12 overflow-hidden rounded-[2rem] border border-line">
-            <div className="relative aspect-[16/9] overflow-hidden">
+          <div className="observer relative mt-14">
+            <span aria-hidden="true" className="hud pointer-events-none absolute -inset-3 z-10" />
+            <div className="relative aspect-[16/9] overflow-hidden border border-line">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={p.image}
@@ -219,7 +220,7 @@ export default async function CaseStudyPage({
                     <p className="text-xl font-semibold tracking-tight text-ink">
                       {m.value}
                     </p>
-                    <p className="mt-1 font-mono text-[11px] uppercase tracking-wide text-ink-faint">
+                    <p className="mt-1 font-mono text-xs text-ink-faint">
                       {m.label}
                     </p>
                   </div>
@@ -290,7 +291,7 @@ export default async function CaseStudyPage({
                   className="panel-strong group flex flex-col gap-2 rounded-2xl p-6 transition-colors hover:border-border-strong sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
-                    <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">
+                    <p className="font-mono text-xs text-ink-faint">
                       Next case study
                     </p>
                     <p className="mt-1 text-lg font-semibold text-ink">

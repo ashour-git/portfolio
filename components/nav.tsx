@@ -1,19 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { EASE, DURATION } from "@/lib/motion";
 import { profile } from "@/lib/data";
+import { ArrowRight, ChatCircleText } from "@phosphor-icons/react/dist/ssr";
 import { ThemeToggle } from "./theme-toggle";
 import { PaletteTrigger } from "./palette-trigger";
 
 const links = [
-  { label: "Products", href: "#work" },
-  { label: "Case Studies", href: "#case-studies" },
+  { label: "Work", href: "#work" },
   { label: "Experience", href: "#experience" },
   { label: "Stack", href: "#stack" },
   { label: "Principles", href: "#principles" },
-  { label: "Writing", href: "#notes" },
+  { label: "Notes", href: "#notes" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -26,15 +26,20 @@ export function Nav() {
   const toggleRef = useRef<HTMLButtonElement | null>(null);
   const firstMobileLinkRef = useRef<HTMLAnchorElement | null>(null);
 
+  // elevated state: watch a sentinel at the top of the hero instead of
+  // listening to every scroll frame
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const sentinel = document.getElementById("nav-sentinel");
+    if (!sentinel) {
+      setScrolled(true);
+      return;
+    }
+    const io = new IntersectionObserver(([entry]) => setScrolled(!entry.isIntersecting));
+    io.observe(sentinel);
+    return () => io.disconnect();
   }, []);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const observer = new IntersectionObserver(
       (entries) => {
         const visible = entries
@@ -81,23 +86,19 @@ export function Nav() {
   }, [open]);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50">
-      <div className="relative z-10 px-3 pt-4 sm:px-4 md:px-6">
-        <nav
-          aria-label="Primary"
-          className={`mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-2 rounded-2xl border px-3 backdrop-blur-xl transition-colors duration-300 sm:px-4 ${
-            open
-              ? "border-border-strong bg-surface-2/90 shadow-xl shadow-black/10"
-              : scrolled
-                ? "surface-strong shadow-lg shadow-black/10"
-                : "surface shadow-md shadow-black/5"
-          }`}
-        >
+    <header
+      className={`fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color] duration-300 ${
+        open ? "border-line bg-bg" : scrolled ? "border-line bg-bg" : "border-transparent bg-transparent"
+      }`}
+    >
+      <div className="relative z-10">
+        <nav aria-label="Primary" className="shell flex h-16 items-center justify-between gap-2">
           <a
             href="#top"
-            className="shrink-0 font-mono text-sm font-semibold tracking-tight text-ink transition-colors hover:text-accent"
+            aria-label="Mohamed Ashour, back to top"
+            className="shrink-0 font-mono text-[15px] font-extrabold tracking-tight text-ink transition-colors hover:text-accent"
           >
-            m.ashour<span className="text-accent">.</span>
+            ashour<span className="text-accent">@</span><span className="hidden sm:inline">event-horizon</span>
           </a>
 
           {/* desktop links — xl+: the full row needs ~1150px, it overflows at lg */}
@@ -109,16 +110,16 @@ export function Nav() {
                   key={l.href}
                   href={l.href}
                   aria-current={isActive ? "location" : undefined}
-                  className={`relative whitespace-nowrap rounded-lg px-2.5 py-2 text-[13px] transition-colors duration-300 focus-visible:bg-surface-hover ${
+                  className={`relative whitespace-nowrap px-3 py-2 font-mono text-[13px] transition-colors duration-300 focus-visible:bg-surface-hover ${
                     isActive ? "text-ink" : "text-ink-soft hover:text-ink"
                   }`}
                 >
                   {l.label}
                   {isActive && (
-                    <motion.span
+                    <m.span
                       layoutId="nav-underline"
                       transition={{ duration: DURATION.fast, ease: EASE }}
-                      className="absolute inset-x-3 -bottom-0.5 h-px bg-ink"
+                      className="absolute inset-x-3 -bottom-px h-0.5 bg-accent"
                     />
                   )}
                 </a>
@@ -126,35 +127,21 @@ export function Nav() {
             })}
           </div>
 
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1">
             <PaletteTrigger />
-            <button
-              type="button"
-              onClick={() => window.dispatchEvent(new Event("ma:open-copilot"))}
-              className="hidden min-h-[2.75rem] items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 font-mono text-xs text-ink-faint transition-colors hover:border-border-strong hover:text-ink focus-visible:border-accent md:flex"
-            >
-              <span aria-hidden="true" className="whitespace-nowrap text-ink-soft">Ctrl J</span>
-              copilot
-            </button>
-            <button
-              type="button"
-              onClick={() => window.dispatchEvent(new Event("ma:open-copilot"))}
-              className="flex min-h-[2.75rem] items-center rounded-xl border border-line bg-surface px-3.5 font-mono text-xs text-ink-faint transition-colors hover:text-ink md:hidden"
-            >
-              copilot
-            </button>
             <ThemeToggle />
-            <a
-              href="/resume.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden min-h-[2.75rem] items-center whitespace-nowrap rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-ink transition-colors hover:bg-ink hover:text-bg lg:inline-flex"
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event("ma:open-copilot"))}
+              title="Ask the portfolio copilot (Ctrl J)"
+              className="flex min-h-11 items-center gap-2 whitespace-nowrap border border-border-strong px-3 font-mono text-[13px] font-bold text-ink transition-colors hover:border-accent hover:text-accent focus-visible:border-accent"
             >
-              Resume
-            </a>
+              <ChatCircleText aria-hidden="true" size={18} className="text-accent" />
+              Ask AI
+            </button>
             <a
               href="#contact"
-              className="hidden min-h-[2.75rem] items-center whitespace-nowrap rounded-lg bg-ink px-3 py-1.5 text-sm font-medium text-bg transition-opacity hover:opacity-85 sm:inline-flex"
+              className="ml-1 hidden min-h-11 items-center whitespace-nowrap border border-ink bg-ink px-4 font-mono text-[13px] font-bold text-bg transition-colors hover:border-accent hover:bg-accent hover:text-accent-ink sm:inline-flex"
             >
               Hire me
             </a>
@@ -167,7 +154,7 @@ export function Nav() {
               aria-expanded={open}
               aria-controls="mobile-menu"
               aria-label={open ? "Close navigation menu" : "Open navigation menu"}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line bg-surface transition-colors hover:border-border-strong xl:hidden"
+              className="ml-1 flex h-11 w-11 shrink-0 items-center justify-center border border-border-strong transition-colors hover:border-ink xl:hidden"
             >
               <span
                 aria-hidden="true"
@@ -197,7 +184,7 @@ export function Nav() {
       {/* full-screen mobile menu — a dedicated composition, not a shrunken bar */}
       <AnimatePresence>
         {open && (
-          <motion.div
+          <m.div
             id="mobile-menu"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -206,12 +193,11 @@ export function Nav() {
             className="fixed inset-0 z-0 xl:hidden"
           >
             <div
-              className="absolute inset-0 bg-bg/95 backdrop-blur-xl"
+              className="absolute inset-0 bg-bg"
               aria-hidden="true"
             />
             <div className="relative flex h-full flex-col overflow-y-auto px-6 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-24">
               <nav aria-label="Mobile primary" className="mx-auto w-full max-w-6xl">
-                <p className="eyebrow mb-2">Navigate</p>
                 <ul className="flex flex-col">
                   {links.map((l, i) => {
                     const isActive = active === l.href.slice(1);
@@ -222,18 +208,11 @@ export function Nav() {
                           href={l.href}
                           onClick={() => setOpen(false)}
                           aria-current={isActive ? "location" : undefined}
-                          className={`group flex min-h-[3.5rem] items-baseline gap-4 rounded-lg py-5 focus-visible:bg-surface-hover ${
+                          className={`group flex min-h-[3.5rem] items-center gap-4 rounded-lg py-5 focus-visible:bg-surface-hover ${
                             isActive ? "text-ink" : "text-ink-soft"
                           }`}
                         >
-                          <span
-                            className={`font-mono text-xs ${
-                              isActive ? "text-accent" : "text-ink-faint"
-                            }`}
-                          >
-                            {String(i + 1).padStart(2, "0")}
-                          </span>
-                          <span className="text-2xl font-semibold tracking-tight transition-colors group-hover:text-ink">
+                          <span className="font-mono text-2xl font-extrabold tracking-tight transition-colors group-hover:text-ink">
                             {l.label}
                           </span>
                           <span
@@ -242,7 +221,7 @@ export function Nav() {
                               isActive ? "text-accent" : "text-ink-faint"
                             }`}
                           >
-                            →
+                            <ArrowRight size={20} />
                           </span>
                         </a>
                       </li>
@@ -273,7 +252,7 @@ export function Nav() {
                 {profile.email}
               </p>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </header>
