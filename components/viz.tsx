@@ -178,7 +178,7 @@ export function EmbeddingViz() {
       {TITLES.map((t, k) => (
         <text key={t} x="440" y={180 + k * 28} className="v-text" fontSize="16">{k + 1}  {t}</text>
       ))}
-      <text x="24" y="352" className="v-faint" fontSize="16">7,000+ books   ~67 ms per query   2d projection</text>
+      <text x="24" y="352" className="v-faint" fontSize="16">2d projection of book embeddings</text>
     </svg>
   );
 }
@@ -319,7 +319,6 @@ export function RagViz() {
         <text key={d} x="390" y={180 + k * 28} className="v-text" fontSize="15">{k + 1} {d}</text>
       ))}
       <text x="24" y="352" className="v-text" fontSize="16">answer cites 3 sources</text>
-      <text x="576" y="352" textAnchor="end" className="v-key" fontSize="16">~67 ms retrieval</text>
     </svg>
   );
 }
@@ -351,7 +350,6 @@ export function ForecastViz() {
       <circle cx={X(peak)} cy={r1(Y(fc[2]))} r="5" fill="var(--amber)" />
       <text x={X(peak) + 10} y={r1(Y(fc[2])) - 8} className="v-key" fontSize="15">peak 19:00</text>
       <text x="24" y="352" className="v-text" fontSize="16">lightgbm, optuna-tuned</text>
-      <text x="576" y="352" textAnchor="end" className="v-key" fontSize="16">162 tests</text>
     </svg>
   );
 }

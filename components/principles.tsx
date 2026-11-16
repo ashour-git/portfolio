@@ -3,7 +3,7 @@ import { tidy } from "@/lib/text";
 
 export function Principles() {
   return (
-    <section id="principles" aria-labelledby="principles-title" className="relative scroll-mt-20 py-24 md:py-32">
+    <section id="principles" aria-labelledby="principles-title" className="relative scroll-mt-20 py-20 md:py-24">
       <div className="shell grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1.5fr] lg:gap-20">
         {/* the heading stays pinned while the rules scroll past it */}
         <div className="lg:sticky lg:top-28 lg:self-start">

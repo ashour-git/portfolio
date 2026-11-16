@@ -379,11 +379,17 @@ html:not(.js) .js-only {
   pointer-events: none;
   background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.22) 2px 3px);
 }
-.crt svg {
+.crt svg:not(.glyph) {
   display: block;
   width: 100%;
   height: auto;
   filter: drop-shadow(0 0 2px rgba(168, 240, 126, 0.45));
+}
+.glyph {
+  flex: none;
+}
+.crt .glyph {
+  filter: drop-shadow(0 0 3px rgba(168, 240, 126, 0.55));
 }
 .crt-bar {
   display: flex;
@@ -1125,14 +1131,13 @@ html:not(.js) .bh-still,
     width: 21%;
     height: 70%;
     mix-blend-mode: screen;
-    opacity: 0.75;
     pointer-events: none;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 40%, #000 70%, transparent 96%);
-    mask-image: linear-gradient(90deg, transparent 0%, #000 40%, #000 70%, transparent 96%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 74%, transparent 97%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 74%, transparent 97%);
   }
 }
-.nw-edge { stroke: rgba(168, 240, 126, 0.16); stroke-width: 0.6; }
-.nw-node { fill: #0b0f0c; stroke: rgba(168, 240, 126, 0.55); stroke-width: 0.9; }
+.nw-edge { stroke: rgba(168, 240, 126, 0.24); stroke-width: 0.7; }
+.nw-node { fill: #0b0f0c; stroke: rgba(168, 240, 126, 0.85); stroke-width: 1; }
 .nw-pulse {
   fill: none;
   stroke: var(--amber);
@@ -1144,6 +1149,18 @@ html:not(.js) .bh-still,
   animation: nw-flow 4.5s linear infinite;
 }
 @keyframes nw-flow { to { stroke-dashoffset: 0; } }
+.nw-fire {
+  fill: var(--amber);
+  opacity: 0;
+  filter: drop-shadow(0 0 4px rgba(255, 191, 94, 0.95));
+  animation: nw-fire 4.5s linear infinite;
+}
+@keyframes nw-fire {
+  0% { opacity: 1; }
+  12% { opacity: 0; }
+  100% { opacity: 0; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .nw-pulse { display: none; }
+  .nw-pulse,
+  .nw-fire { display: none; }
 }

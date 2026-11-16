@@ -7,13 +7,13 @@ import { profile } from "@/lib/data";
 import { ArrowRight, ChatCircleText } from "@phosphor-icons/react/dist/ssr";
 import { ThemeToggle } from "./theme-toggle";
 import { PaletteTrigger } from "./palette-trigger";
+import { Mark } from "./nn-icons";
 
 const links = [
   { label: "Work", href: "#work" },
   { label: "Experience", href: "#experience" },
   { label: "Stack", href: "#stack" },
   { label: "Principles", href: "#principles" },
-  { label: "Notes", href: "#notes" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -95,10 +95,13 @@ export function Nav() {
         <nav aria-label="Primary" className="shell flex h-16 items-center justify-between gap-2">
           <a
             href="#top"
-            aria-label="ashour@event-horizon, back to top"
-            className="shrink-0 font-mono text-[15px] font-extrabold tracking-tight text-ink transition-colors hover:text-accent"
+            aria-label="Mohamed Ashour, back to top"
+            className="flex shrink-0 items-center gap-2.5 font-mono text-[15px] font-extrabold tracking-tight text-ink transition-colors hover:text-accent"
           >
-            ashour<span className="text-accent">@</span><span className="hidden sm:inline">event-horizon</span>
+            <Mark className="h-6 w-7" />
+            <span>
+              <span className="hidden sm:inline">Mohamed </span>Ashour
+            </span>
           </a>
 
           {/* desktop links — xl+: the full row needs ~1150px, it overflows at lg */}

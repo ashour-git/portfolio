@@ -37,10 +37,27 @@ const edges: { a: readonly [number, number]; b: readonly [number, number]; w: nu
 for (let l = 0; l < all.length - 1; l++)
   for (const a of all[l]) for (const b of all[l + 1]) edges.push({ a, b, w: r() });
 
-// a few forward passes: one node per layer, ending in the hole
-const pulses = [0, 2, 4, 6].map((start, k) => {
-  const pts = [nodes[0][start], nodes[1][(start + k) % 6], nodes[2][(start + 1) % 4], SINK];
-  return { d: "M" + pts.map((p) => p.join(" ")).join("L"), delay: k * 1.3, dur: 4.2 + k * 0.5 };
+// four forward passes: one node per layer, ending in the hole. Each node a
+// pass goes through fires (flashes amber) the moment the signal reaches it.
+const ROUTES = [
+  [0, 1, 0],
+  [2, 2, 1],
+  [4, 3, 2],
+  [6, 5, 3],
+];
+const pulses = ROUTES.map((route, k) => {
+  const pts = [...route.map((idx, l) => nodes[l][idx]), SINK];
+  const seg = pts.slice(1).map((p, i) => Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]));
+  const total = seg.reduce((a, b) => a + b, 0);
+  const delay = k * 1.3;
+  const dur = 4.2 + k * 0.5;
+  let run = 0;
+  const fires = pts.slice(0, -1).map((p, i) => {
+    const at = delay + (run / total) * dur;
+    run += seg[i];
+    return { x: p[0], y: p[1], at };
+  });
+  return { d: "M" + pts.map((p) => p.join(" ")).join("L"), delay, dur, fires };
 });
 
 export function NeuralWeb() {
@@ -61,6 +78,18 @@ export function NeuralWeb() {
       {nodes.flat().map(([x, y], i) => (
         <circle key={i} cx={x} cy={y} r={2.2} className="nw-node" />
       ))}
+      {pulses.flatMap((p, k) =>
+        p.fires.map((f, i) => (
+          <circle
+            key={`${k}-${i}`}
+            cx={f.x}
+            cy={f.y}
+            r={3.4}
+            className="nw-fire"
+            style={{ animationDelay: `${f.at.toFixed(2)}s`, animationDuration: `${p.dur}s` }}
+          />
+        )),
+      )}
     </svg>
   );
 }

@@ -2,11 +2,12 @@
 
 import { useState, type ReactNode } from "react";
 import { m, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Plus, TreeStructure } from "@phosphor-icons/react/dist/ssr";
-import { projects, projectFilters, type Project } from "@/lib/data";
+import { Plus } from "@phosphor-icons/react/dist/ssr";
+import { projects, type Project } from "@/lib/data";
 import { list, tidy } from "@/lib/text";
 import { ArchitectureDiagram } from "./architecture-diagram";
 import { ArrowIcon, ExternalIcon } from "./icons";
+import { Glyph, type GlyphName } from "./nn-icons";
 import { AttentionViz, EmbeddingViz, FeatureMapViz, ForecastViz, HandViz, RagViz, Screen, TenantViz } from "./viz";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -40,98 +41,52 @@ const SCREENS: Record<string, () => ReactNode> = {
   ),
 };
 
+// each project's mechanism, as a glyph in the site's node-and-edge language
+const GLYPH: Record<string, GlyphName> = {
+  RestAI: "retrieval",
+  Storefy: "tenants",
+  "Text-to-SQL Generator": "attention",
+  "Hand Gesture Recognition": "vision",
+  "Semantic Book Recommender": "neighbours",
+  "Kepler Vision": "vision",
+};
+
+// Home page shows the strongest five. Kepler Vision has no measured result
+// yet; its case study stays live at /case-studies/kepler-vision.
+const HIDDEN = new Set(["Kepler Vision"]);
+
 function studyHref(p: Project) {
   return p.study ? `/case-studies/${p.study.slug}` : p.href;
 }
 
 export function Projects() {
-  const [filter, setFilter] = useState("All");
   const featured = projects.find((p) => p.featured)!;
-  const rest = projects.filter((p) => !p.featured);
-  const visibleRest = rest.filter((p) => filter === "All" || p.domain.includes(filter));
+  const rest = projects.filter((p) => !p.featured && !HIDDEN.has(p.title));
 
   return (
-    <section id="work" aria-labelledby="work-title" className="relative scroll-mt-20 py-24 md:py-32">
+    <section id="work" aria-labelledby="work-title" className="relative scroll-mt-20 py-20 md:py-24">
       <div className="shell">
         <h2 id="work-title" className="display max-w-[20ch]">
           Systems that run in production
         </h2>
         <p className="lead mt-5 max-w-[56ch]">
-          Six projects, each shown as the mechanism it runs on, with its tradeoffs and the tests that prove it works.
+          Five projects, each shown as the mechanism it runs on. The case studies cover the tradeoffs and the tests.
         </p>
 
         <Flagship p={featured} />
 
         {/* `case-studies` anchor kept so older links and the palette still land here */}
-        <div id="case-studies" className="mt-24 scroll-mt-24 md:mt-32">
-          <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
-            <h3 className="font-mono text-2xl font-bold tracking-tight text-ink md:text-[1.75rem]">More observations</h3>
-            <div
-              className="no-scrollbar -mx-1 flex max-w-full flex-nowrap items-center gap-1.5 overflow-x-auto px-1 py-1"
-              role="group"
-              aria-label="Filter projects by domain"
-            >
-              {projectFilters.map((f) => {
-                const selected = filter === f;
-                return (
-                  <button
-                    key={f}
-                    type="button"
-                    onClick={() => setFilter(f)}
-                    aria-pressed={selected}
-                    className={`inline-flex min-h-10 shrink-0 items-center border px-3.5 font-mono text-[13px] transition-colors focus-visible:border-accent ${
-                      selected
-                        ? "border-ink bg-ink font-bold text-bg"
-                        : "border-line text-ink-soft hover:border-border-strong hover:text-ink"
-                    }`}
-                  >
-                    {f}
-                  </button>
-                );
-              })}
-            </div>
-            <p aria-live="polite" role="status" className="sr-only">
-              {filter === "All" ? `Showing all ${rest.length} projects` : `${visibleRest.length} projects in ${filter}`}
-            </p>
+        <div id="case-studies" className="mt-20 scroll-mt-24 md:mt-24">
+          <h3 className="font-mono text-2xl font-bold tracking-tight text-ink md:text-[1.75rem]">More projects</h3>
+          <div className="mt-10 grid grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-2">
+            {rest.map((p, i) => (
+              // an odd final card spans the row instead of leaving an empty cell
+              <ObservationCard key={p.index} p={p} wide={i === rest.length - 1 && rest.length % 2 === 1} />
+            ))}
           </div>
-
-          {visibleRest.length > 0 ? (
-            <m.div layout className="mt-10 grid grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-2">
-              <AnimatePresence mode="popLayout" initial={false}>
-                {visibleRest.map((p, i) => (
-                  <ObservationCard
-                    key={p.index}
-                    p={p}
-                    // an odd final card spans the row instead of leaving an empty cell
-                    wide={i === visibleRest.length - 1 && visibleRest.length % 2 === 1}
-                  />
-                ))}
-              </AnimatePresence>
-            </m.div>
-          ) : (
-            <div className="hud mt-10 px-6 py-14 text-center">
-              <p className="font-mono text-base text-ink">No observations in {filter} beyond the flagship yet.</p>
-              <button
-                type="button"
-                onClick={() => setFilter("All")}
-                className="mt-4 inline-flex min-h-11 items-center px-4 font-mono text-sm font-bold text-accent underline underline-offset-4"
-              >
-                Show all projects
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </section>
-  );
-}
-
-function Block({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div>
-      <h4 className="font-mono text-sm font-bold text-ink">{label}</h4>
-      <div className="mt-2.5">{children}</div>
-    </div>
   );
 }
 
@@ -149,7 +104,10 @@ function Flagship({ p }: { p: Project }) {
 
       <div className="mt-10 grid grid-cols-1 gap-x-14 gap-y-6 lg:grid-cols-[1fr_1.2fr] lg:items-end">
         <div>
-          <p className="font-mono text-sm text-accent">Flagship, {p.domain}</p>
+          <p className="flex items-center gap-2 font-mono text-sm text-accent">
+            <Glyph name={GLYPH[p.title] ?? "attention"} className="h-[18px] w-[18px] shrink-0" />
+            Flagship, {p.domain}
+          </p>
           <h3 id="flagship-title" className="mt-2 font-mono text-5xl font-extrabold tracking-[-0.04em] text-ink md:text-6xl">
             {p.title}
           </h3>
@@ -166,28 +124,6 @@ function Flagship({ p }: { p: Project }) {
           </div>
         ))}
       </dl>
-
-      <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1.05fr] lg:gap-16">
-        <div className="space-y-9">
-          <Block label="Problem">
-            <p className="max-w-[62ch] text-ink-soft">{tidy(p.problem)}</p>
-          </Block>
-          <Block label="Approach">
-            <p className="max-w-[62ch] text-ink-soft">{tidy(p.solution)}</p>
-          </Block>
-          <Block label="Key decisions">
-            <ul className="space-y-5">
-              {p.decisions.map((d) => (
-                <li key={d.title} className="border-l-2 border-accent pl-4">
-                  <p className="font-bold text-ink">{d.title}</p>
-                  <p className="mt-1 max-w-[62ch] text-[15px] text-ink-soft">{tidy(d.body)}</p>
-                </li>
-              ))}
-            </ul>
-          </Block>
-        </div>
-        <ArchitectureDiagram flow={p.architecture} />
-      </div>
 
       <div className="mt-10 flex flex-wrap items-center gap-x-3 gap-y-3">
         <a href={studyHref(p)} className="btn btn-primary">
@@ -211,19 +147,17 @@ function ObservationCard({ p, wide }: { p: Project; wide: boolean }) {
   const screen = SCREENS[p.title];
 
   return (
-    <m.article
+    <article
       id={`project-${p.index}`}
-      layout={!reduce}
-      initial={reduce ? false : { opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={reduce ? undefined : { opacity: 0, scale: 0.98, transition: { duration: 0.2, ease } }}
-      transition={{ duration: 0.4, ease }}
       className={`observe flex scroll-mt-24 flex-col ${wide ? "md:col-span-2 md:grid md:grid-cols-[1.15fr_1fr] md:gap-10" : ""}`}
     >
       {screen?.()}
 
       <div className={`flex flex-1 flex-col ${wide ? "pt-6 md:pt-2" : "pt-6"}`}>
-        <p className="font-mono text-[13px] text-accent">{p.domain}</p>
+        <p className="flex items-center gap-2 font-mono text-[13px] text-accent">
+          <Glyph name={GLYPH[p.title] ?? "attention"} className="h-4 w-4 shrink-0" />
+          {p.domain}
+        </p>
         <h4 className="mt-1.5 font-mono text-2xl font-extrabold tracking-[-0.03em] text-ink">{p.title}</h4>
         <p className="mt-2.5 text-ink-soft">{tidy(p.tagline)}</p>
 
@@ -246,7 +180,7 @@ function ObservationCard({ p, wide }: { p: Project; wide: boolean }) {
             className="flex min-h-11 w-full items-center justify-between gap-3 font-mono text-[13px] font-bold text-ink-soft transition-colors hover:text-ink"
           >
             <span className="inline-flex items-center gap-2">
-              <TreeStructure aria-hidden="true" size={16} className="text-accent" />
+              <Glyph name="dag" className="h-4 w-4 text-accent" />
               Architecture
             </span>
             <Plus aria-hidden="true" size={16} className={`transition-transform duration-200 ${showArch ? "rotate-45" : ""}`} />
@@ -301,6 +235,6 @@ function ObservationCard({ p, wide }: { p: Project; wide: boolean }) {
           )}
         </div>
       </div>
-    </m.article>
+    </article>
   );
 }

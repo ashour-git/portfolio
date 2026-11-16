@@ -1,4 +1,4 @@
-import { experience, trajectory } from "@/lib/data";
+import { experience } from "@/lib/data";
 import { list, period, tidy } from "@/lib/text";
 
 // a short, stable "commit hash" per role (decorative, derived from the text)
@@ -10,7 +10,7 @@ function hash(s: string) {
 
 export function Experience() {
   return (
-    <section id="experience" aria-labelledby="experience-title" className="relative scroll-mt-20 py-24 md:py-32">
+    <section id="experience" aria-labelledby="experience-title" className="relative scroll-mt-20 py-20 md:py-24">
       <div className="shell">
         <h2 id="experience-title" className="display max-w-[22ch]">
           From ML experiments to production AI
@@ -53,19 +53,6 @@ export function Experience() {
           </ol>
         </div>
 
-        <h3 className="mt-20 font-mono text-xl font-bold tracking-tight text-ink md:text-2xl">How the work changed</h3>
-        <ol className="mt-8 grid grid-cols-1 gap-x-8 gap-y-10 md:grid-cols-2 lg:grid-cols-4">
-          {trajectory.map((stage, i) => (
-            <li key={stage.title} className="border-t border-line pt-5">
-              <p className={`font-mono text-sm ${i === trajectory.length - 1 ? "font-bold text-accent" : "text-ink-faint"}`}>
-                {period(stage.period)}
-              </p>
-              <h4 className="mt-2 font-mono text-lg font-bold tracking-tight text-ink">{stage.title}</h4>
-              <p className="mt-2 text-[15px] leading-relaxed text-ink-soft">{tidy(stage.body)}</p>
-              <p className="mt-3 font-mono text-xs text-ink-faint">{list(stage.tags)}</p>
-            </li>
-          ))}
-        </ol>
       </div>
     </section>
   );

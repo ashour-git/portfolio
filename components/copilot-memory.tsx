@@ -2,7 +2,7 @@ import { MemoryMap } from "./memory-map";
 
 export function CopilotMemory() {
   return (
-    <section id="memory" aria-labelledby="memory-title" className="relative scroll-mt-20 py-24 md:py-32">
+    <section id="memory" aria-labelledby="memory-title" className="relative scroll-mt-20 py-20 md:py-24">
       <div className="shell">
         <h2 id="memory-title" className="display max-w-[22ch]">
           Inside this site&rsquo;s copilot

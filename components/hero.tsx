@@ -24,7 +24,7 @@ export function Hero() {
             <span>Ashour</span>
           </h1>
           <p className="mt-7 max-w-[36ch] text-lg leading-relaxed text-ink-soft md:text-xl">
-            AI engineer. I build LLM, NLP and computer-vision systems and ship them as production services.
+            AI engineer at SustainGRC, based in Cairo. I build LLM, NLP and computer-vision systems and ship them as production services.
           </p>
 
           <AskPrompt className="mt-9 max-w-[32rem]" />
@@ -67,20 +67,8 @@ export function Hero() {
           <dt>render</dt>
           <dd>live, in your browser</dd>
         </dl>
-        <dl className="hud-block" style={{ left: "76%", top: "71%" }}>
-          <dt>operator</dt>
-          <dd>mohamed ashour</dd>
-          <dt>class</dt>
-          <dd>ai engineer</dd>
-          <dt>fields</dt>
-          <dd>llm / nlp / cv</dd>
-          <dt>base</dt>
-          <dd>cairo, eg</dd>
-        </dl>
         <p className="hud-eq" style={{ left: "47%", top: "19%" }}>Attention(Q, K, V) = softmax(QKᵀ / √dₖ) V</p>
         <p className="hud-eq" style={{ left: "47%", top: "80%" }}>θ ← θ − η ∇θ L(θ)</p>
-        <p className="hud-eq" style={{ left: "57%", top: "89%" }}>ds² = −(1 − rₛ/r) c²dt² + dr² / (1 − rₛ/r) + r² dΩ²</p>
-        <p className="hud-eq" style={{ left: "52%", top: "29%" }}>x'' = −1.5 h² x / r⁵</p>
       </div>
     </section>
   );
