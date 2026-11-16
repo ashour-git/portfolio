@@ -719,7 +719,7 @@ export const experience: Role[] = [
   {
     title: "AI Engineer",
     company: "SustainGRC",
-    period: "2026 — Present",
+    period: "Jul 2025 — Present",
     context: "Production AI, shared across an enterprise SaaS platform",
     points: [
       "Ship AI features end to end — data pipelines, model serving, API surface, and observability.",
@@ -729,9 +729,9 @@ export const experience: Role[] = [
     ],
   },
   {
-    title: "Data Engineer",
+    title: "Data Engineer Intern",
     company: "SustainGRC",
-    period: "2025 — 2026",
+    period: "May 2025 — Jul 2025",
     points: [
       "Shipped a Text-to-SQL feature translating natural language into executable SQL via GPT-4o.",
       "Automated backup and disaster-recovery pipelines with integrity-validation checksums.",
@@ -770,15 +770,15 @@ export const trajectory: Progression[] = [
     tags: ["GPT-4o", "Validation", "CI"],
   },
   {
-    period: "2025 — 2026",
+    period: "2024 — 2025",
     title: "Applied ML in products",
     body: "Turned approaches into shippable AI: RAG assistants, semantic recommenders at 7k+ scale, forecasting, and multi-tenant AI e-commerce.",
     tags: ["RAG", "pgvector", "LightGBM", "Multi-tenancy"],
   },
   {
-    period: "2026+",
+    period: "Jul 2025+",
     title: "Production AI systems",
-    body: "Enterprise AI as a system: RAG and LLM apps on Azure AI Foundry, XR & computer vision at the edge, observability and evaluation as first-class.",
+    body: "Enterprise AI as a system: RAG and LLM apps on Azure AI Foundry, EU AI Act risk classification, observability and evaluation as first-class.",
     tags: ["Azure AI", "LLMOps", "Observability", "Eval"],
   },
 ];
