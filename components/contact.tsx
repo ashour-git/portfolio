@@ -14,7 +14,7 @@ const FACE = { x: 34.9, y: 20.7, w: 36.9, h: 30.9 };
 
 export function Contact() {
   return (
-    <section id="contact" aria-labelledby="contact-title" className="relative scroll-mt-20 py-24 md:py-32">
+    <section id="contact" aria-labelledby="contact-title" className="relative scroll-mt-20 py-20 md:py-24">
       <div className="shell grid grid-cols-1 gap-14 lg:grid-cols-[1.25fr_1fr] lg:items-center lg:gap-20">
         <div>
           <h2 id="contact-title" className="display max-w-[18ch]">

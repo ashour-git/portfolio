@@ -278,6 +278,12 @@ export function Copilot({
               update((r) => ({ ...r, plan: ev.plan }));
             } else if (ev.type === "sources") {
               update((r) => ({ ...r, sources: ev.sources }));
+              // lets the homepage memory map light up what was retrieved
+              window.dispatchEvent(
+                new CustomEvent("ma:retrieval", {
+                  detail: { question: text, hits: ev.sources.map((s) => ({ id: s.id, score: s.score })) },
+                }),
+              );
             } else if (ev.type === "card") {
               update((r) => ({ ...r, card: ev.card }));
             } else if (ev.type === "stats") {

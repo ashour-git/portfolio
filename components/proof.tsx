@@ -6,7 +6,6 @@ const byTitle = (t: string) => projects.find((p) => p.title === t);
 const readout = [
   { value: "162", label: "automated tests", source: byTitle("RestAI") },
   { value: "18/18", label: "security tests passed", source: byTitle("Text-to-SQL Generator") },
-  { value: "~67 ms", label: "average retrieval", source: byTitle("RestAI") },
   { value: "7,000+", label: "books in a semantic index", source: byTitle("Semantic Book Recommender") },
 ];
 
@@ -14,14 +13,14 @@ export function Proof() {
   return (
     <section aria-label="Measured results" className="relative">
       <div className="shell">
-        <ul className="grid grid-cols-2 border-y border-line md:grid-cols-4">
+        <ul className="grid grid-cols-3 border-y border-line">
           {readout.map((s, i) => (
             <li
               key={s.label}
-              className={`py-7 md:py-9 ${i % 2 ? "pl-5 md:pl-8" : "pr-5 md:pr-8"} ${i > 0 ? "md:border-l md:border-line md:pl-8" : ""} ${i === 1 ? "border-l border-line md:border-l" : ""} ${i === 3 ? "border-l border-line" : ""} ${i > 1 ? "border-t border-line md:border-t-0" : ""}`}
+              className={`min-w-0 py-7 md:py-9 ${i > 0 ? "border-l border-line pl-3 sm:pl-8" : "pr-3 sm:pr-8"}`}
             >
-              <p className="font-mono text-3xl font-extrabold tracking-tight text-ink md:text-[2.5rem]">{s.value}</p>
-              <p className="mt-1 text-[15px] text-ink-soft">{s.label}</p>
+              <p className="font-mono text-2xl font-extrabold tracking-tight text-ink sm:text-3xl md:text-[2.5rem]">{s.value}</p>
+              <p className="mt-1 text-[13px] text-ink-soft sm:text-[15px]">{s.label}</p>
               {s.source && (
                 <a
                   href={`#project-${s.source.index}`}

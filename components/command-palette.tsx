@@ -22,7 +22,6 @@ export function CommandPalette() {
     { id: "experience", label: "Experience", hint: "AI engineering timeline", action: () => { document.querySelector("#experience")?.scrollIntoView({ behavior: "smooth" }); close(); } },
     { id: "stack", label: "Tech stack", hint: "Skills grouped by discipline", action: () => { document.querySelector("#stack")?.scrollIntoView({ behavior: "smooth" }); close(); } },
     { id: "principles", label: "Engineering principles", hint: "How I decide", action: () => { document.querySelector("#principles")?.scrollIntoView({ behavior: "smooth" }); close(); } },
-    { id: "notes", label: "Writing & research", hint: "Write-ups & case studies", action: () => { document.querySelector("#notes")?.scrollIntoView({ behavior: "smooth" }); close(); } },
     { id: "contact", label: "Contact", hint: "Email & links", action: () => { document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" }); close(); } },
     {
       id: "copilot",

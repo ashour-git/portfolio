@@ -379,11 +379,17 @@ html:not(.js) .js-only {
   pointer-events: none;
   background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.22) 2px 3px);
 }
-.crt svg {
+.crt svg:not(.glyph) {
   display: block;
   width: 100%;
   height: auto;
   filter: drop-shadow(0 0 2px rgba(168, 240, 126, 0.45));
+}
+.glyph {
+  flex: none;
+}
+.crt .glyph {
+  filter: drop-shadow(0 0 3px rgba(168, 240, 126, 0.55));
 }
 .crt-bar {
   display: flex;
@@ -1070,4 +1076,91 @@ html:not(.js) .bh-still,
 }
 .observer:hover .detect {
   animation: detect-lock 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* ---------- copilot memory constellation ---------- */
+.memory-sky {
+  position: relative;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  background: radial-gradient(110% 90% at 60% 40%, #10140f 0%, #070908 70%);
+  color-scheme: dark;
+  --color-ink-faint: #879188;
+  --color-border: #222b25;
+}
+@media (max-width: 640px) {
+  .mm-label:not(.mm-label-on) { display: none; }
+  .memory-sky .mm-label-on { font-size: 19px; }
+}
+.memory-sky svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.mm-edge { stroke: rgba(232, 236, 228, 0.14); stroke-width: 1; }
+.mm-star { fill: #e8ece4; transition: r 0.3s ease, fill 0.3s ease; }
+.mm-profile { fill: #bac3b9; }
+.mm-arabic { fill: #879188; }
+.mm-on { fill: var(--amber); filter: drop-shadow(0 0 6px rgba(255, 191, 94, 0.8)); }
+.mm-label { fill: #bac3b9; font-family: var(--font-mono); font-size: 13px; }
+.mm-label-on { fill: #ffd9a6; font-weight: 700; }
+.mm-ray {
+  stroke: var(--amber);
+  stroke-width: 1.4;
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: mm-draw 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.mm-query { fill: var(--phosphor); filter: drop-shadow(0 0 8px rgba(168, 240, 126, 0.9)); }
+@keyframes mm-draw { to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .mm-ray { animation: none; stroke-dashoffset: 0; }
+}
+
+/* ---------- hero neural web: the cosmic web is a network feeding the hole ---------- */
+.neural-web {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .neural-web {
+    display: block;
+    position: absolute;
+    left: calc(var(--cx) - 21%);
+    top: 12%;
+    width: 21%;
+    height: 70%;
+    mix-blend-mode: screen;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 74%, transparent 97%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 74%, transparent 97%);
+  }
+}
+.nw-edge { stroke: rgba(168, 240, 126, 0.24); stroke-width: 0.7; }
+.nw-node { fill: #0b0f0c; stroke: rgba(168, 240, 126, 0.85); stroke-width: 1; }
+.nw-pulse {
+  fill: none;
+  stroke: var(--amber);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-dasharray: 3 97;
+  stroke-dashoffset: 100;
+  filter: drop-shadow(0 0 3px rgba(255, 191, 94, 0.9));
+  animation: nw-flow 4.5s linear infinite;
+}
+@keyframes nw-flow { to { stroke-dashoffset: 0; } }
+.nw-fire {
+  fill: var(--amber);
+  opacity: 0;
+  filter: drop-shadow(0 0 4px rgba(255, 191, 94, 0.95));
+  animation: nw-fire 4.5s linear infinite;
+}
+@keyframes nw-fire {
+  0% { opacity: 1; }
+  12% { opacity: 0; }
+  100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nw-pulse,
+  .nw-fire { display: none; }
 }
