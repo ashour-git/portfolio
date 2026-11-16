@@ -18,7 +18,9 @@ import { RateLimiter } from "@/lib/copilot/rate-limit";
 import { hashIp, logCopilotEvent } from "@/lib/copilot/observe";
 import type { ErrorKind } from "@/lib/copilot/types";
 
-export const DEFAULT_MODEL = "llama-3.3-70b-versatile";
+/** llama-3.3-70b-versatile was shut down for free/dev tiers on 2026-08-16;
+ *  Groq's recommended replacement is openai/gpt-oss-120b. */
+export const DEFAULT_MODEL = "openai/gpt-oss-120b";
 /** Configurable via GROQ_MODEL — never hardcode the model across the app. */
 export const MODEL = process.env.GROQ_MODEL || DEFAULT_MODEL;
 
@@ -248,7 +250,10 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
       };
       return;
     }
-    candidates = [modelCheckCache.model ?? model];
+    // Cached winner first; known chat models stay behind it so a per-model
+    // rate limit can still spill over without another /models round-trip.
+    const preferred = modelCheckCache.model ?? model;
+    candidates = [preferred, ...KNOWN_CHAT_FALLBACKS.filter((k) => k !== preferred)];
   } else {
     candidates = await resolveModelCandidates({
       apiKey,
@@ -314,12 +319,15 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
 
   let activeModel: string | null = null;
   let lastModelErr: GroqError | null = null;
+  let lastRateErr: { err: GroqError; model: string } | null = null;
   for (const candidate of candidates) {
     const tagFilter = new ThinkingTagFilter();
+    let streamed = false;
     try {
       for await (const ev of streamGroq({ apiKey, model: candidate, messages, signal: deps.signal, fetchImpl: deps.fetchImpl })) {
         if (ev.delta) {
           for (const out of tagFilter.push(ev.delta)) {
+            streamed = true;
             yield { type: "delta", text: out };
           }
         }
@@ -339,11 +347,21 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
         // A 400 "reduce the length of the messages or completion" is the
         // signature of a non-chat model (e.g. llama-prompt-guard) whose max
         // output tokens are tiny — treat it as unusable too.
+        // A 400 "decommissioned" is a retired model (Groq shut llama-3.3-70b
+        // down for free/dev tiers on 2026-08-16) — unusable, not a bad request.
         const unusable =
           err.kind === "model_unavailable" ||
-          (err.status === 400 && /reduce the length of the messages or completion/i.test(err.message));
+          (err.status === 400 &&
+            /reduce the length of the messages or completion|decommissioned|no longer supported/i.test(err.message));
         if (unusable) {
           lastModelErr = err;
+          continue;
+        }
+        // Free-tier TPM/RPM limits are per model, so a 429/413 on one model
+        // says nothing about the next: spill over instead of failing the
+        // visitor. Only before any text streamed — never splice two answers.
+        if (err.kind === "rate_limited" && !streamed) {
+          lastRateErr = { err, model: candidate };
           continue;
         }
         logCopilotEvent({
@@ -386,6 +404,26 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
     break;
   }
 
+  if (!activeModel && lastRateErr) {
+    // At least one model exists but every reachable one is at its limit —
+    // a calm, retryable rate-limit, never a "no model" denial (not cached).
+    logCopilotEvent({
+      req: id, ipHash, level: "error", mode, lang, model: lastRateErr.model,
+      errorKind: "rate_limited", retrievalMs,
+      totalMs: Date.now() - startedAt, historyCount, truncated,
+    });
+    yield {
+      type: "error",
+      code: 429,
+      kind: "rate_limited",
+      message: "The model provider is rate-limited right now. Wait a few seconds and try again.",
+      requestId: lastRateErr.err.requestId,
+      provider: "groq",
+      model: lastRateErr.model,
+    };
+    return;
+  }
+
   if (!activeModel) {
     // Every candidate streamed a model-unavailable-class failure — the key has
     // no usable chat model. Cache the denial so repeats fail fast.
@@ -409,7 +447,9 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
     };
     return;
   }
-  modelCheckCache = { at: Date.now(), ok: true, model: activeModel, available: [] };
+  // Remember a model that replaced an UNAVAILABLE one (skip the dead model for
+  // the TTL). A rate-limit spill is transient, so keep the preferred model.
+  modelCheckCache = { at: Date.now(), ok: true, model: lastModelErr ? activeModel : candidates[0], available: [] };
 
   const totalMs = Date.now() - startedAt;
   logCopilotEvent({
