@@ -32,8 +32,8 @@ function ResumePanel({ lang }: { lang: Lang }) {
       <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">{PANEL_TITLES[lang].resume}</p>
       <p className="mt-2 text-sm text-ink-soft">
         {lang === "ar"
-          ? "السيرة الذاتية الكاملة في رأس الموقع — أو اطلب ملخصًا في المحادثة."
-          : "The full resume is in the site header — or ask for a summary in the chat."}
+          ? "السيرة الذاتية الكاملة في رأس الموقع، أو اطلب ملخصًا في المحادثة."
+          : "The full resume is in the site header, or ask for a summary in the chat."}
       </p>
     </div>
   );
@@ -48,7 +48,7 @@ function ProjectPanel({ card, lang }: { card: Extract<CopilotCard, { kind: "proj
         <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">
           {project.index} · {project.domain}
         </p>
-        <h3 className="mt-1 font-serif text-lg italic text-ink">{project.title}</h3>
+        <h3 className="mt-1 text-lg font-semibold tracking-tight text-ink">{project.title}</h3>
         <p className="mt-1 text-sm text-ink-soft">{project.tagline}</p>
         <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.18em] text-ink-faint">{PANEL_TITLES[lang].tech}</p>
         <div className="mt-1 flex flex-wrap gap-2">
@@ -108,7 +108,7 @@ function TimelinePanel({ lang }: { lang: Lang }) {
         {experience.map((r) => (
           <li key={r.company} className="text-sm">
             <span className="text-ink">{r.title}</span>
-            <span className="text-ink-faint"> — {r.company} ({r.period})</span>
+            <span className="text-ink-faint"> · {r.company} ({r.period})</span>
           </li>
         ))}
       </ol>

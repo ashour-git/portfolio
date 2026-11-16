@@ -107,8 +107,19 @@ function ErrorState({ error, lang, onRetry }: { error: RunError; lang: Lang; onR
   );
 }
 
-export function Copilot() {
-  const [open, setOpen] = useState(false);
+/** `ma:open-copilot` may carry `{ question }`: open and ask it immediately. */
+export function questionFromEvent(e: Event): string | undefined {
+  const q = (e as CustomEvent<{ question?: unknown } | null>).detail?.question;
+  if (typeof q !== "string") return undefined;
+  const t = q.trim();
+  return t ? t.slice(0, 600) : undefined;
+}
+
+export function Copilot({
+  defaultOpen = false,
+  initialQuestion,
+}: { defaultOpen?: boolean; initialQuestion?: string } = {}) {
+  const [open, setOpen] = useState(defaultOpen);
   const [mode, setMode] = useState<CopilotMode>("general");
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -139,22 +150,44 @@ export function Copilot() {
     requestAnimationFrame(() => inputRef.current?.focus());
   }, []);
 
+  // Mounted lazily by CopilotLoader on the first open intent — focus the input
+  // that the triggering click/shortcut expected to land in.
+  useEffect(() => {
+    if (defaultOpen) requestAnimationFrame(() => inputRef.current?.focus());
+  }, [defaultOpen]);
+
+  // Lock page scroll behind the modal (mobile otherwise scrolls the page
+  // underneath when the conversation reaches its end).
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "j") {
         e.preventDefault();
         openModal();
       }
-      if (e.key === "Escape") setOpen(false);
+      // Same path as the close button/backdrop: also aborts an in-flight stream.
+      if (e.key === "Escape") close();
     };
-    const onOpenEvent = () => openModal();
+    const onOpenEvent = (e: Event) => {
+      openModal();
+      const q = questionFromEvent(e);
+      if (q) askRef.current(q);
+    };
     window.addEventListener("keydown", onKey);
     window.addEventListener("ma:open-copilot", onOpenEvent);
     return () => {
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("ma:open-copilot", onOpenEvent);
     };
-  }, [openModal]);
+  }, [openModal, close]);
 
   // keep the latest message in view; re-run when the keyboard resizes the viewport
   useEffect(() => {
@@ -207,6 +240,15 @@ export function Copilot() {
           body: JSON.stringify({ message: text, mode: runMode, history }),
           signal: controller.signal,
         });
+        if (!res.ok && res.status !== 400) {
+          // 4xx/5xx from the platform (not our NDJSON contract) — e.g. a
+          // Vercel 504 or 413 page. Map to a typed error instead of parsing HTML.
+          update((r) => ({
+            ...r,
+            error: { kind: res.status === 429 ? "rate_limited" : "unknown", message: `HTTP ${res.status}` },
+          }));
+          return;
+        }
         if (!res.body) throw new Error("no body");
 
         const reader = res.body.getReader();
@@ -221,11 +263,15 @@ export function Copilot() {
           while (nl !== -1) {
             const line = buffer.slice(0, nl);
             buffer = buffer.slice(nl + 1);
-            if (!line.trim()) {
-              nl = buffer.indexOf("\n");
+            nl = buffer.indexOf("\n");
+            if (!line.trim()) continue;
+            let ev: CopilotEvent;
+            try {
+              ev = JSON.parse(line) as CopilotEvent;
+            } catch {
+              // One malformed line must not discard an answer already streaming.
               continue;
             }
-            const ev = JSON.parse(line) as CopilotEvent;
             if (ev.type === "delta") {
               pending += ev.text;
             } else if (ev.type === "plan") {
@@ -250,12 +296,11 @@ export function Copilot() {
             } else if (ev.type === "error") {
               update((r) => ({
                 ...r,
-                error: { kind: ev.kind, message: ev.message, requestId: ev.requestId },
+                error: { kind: ev.kind ?? "unknown", message: ev.message, requestId: ev.requestId },
               }));
             } else if (ev.type === "done") {
               update((r) => ({ ...r, done: true }));
             }
-            nl = buffer.indexOf("\n");
           }
         }
       } catch (err) {
@@ -271,6 +316,24 @@ export function Copilot() {
     },
     [mode, streaming],
   );
+
+  // Questions handed in from outside (hero prompt, loader). If an answer is
+  // still streaming, prefill the input instead of dropping the question.
+  const ask = (q: string) => {
+    if (streaming) setInput(q);
+    else void run(q);
+  };
+  const askRef = useRef(ask);
+  askRef.current = ask;
+
+  // First open via CopilotLoader: the event fired before this mounted, so the
+  // loader passes the question in. Ref guard keeps StrictMode from asking twice.
+  const askedInitial = useRef(false);
+  useEffect(() => {
+    if (!initialQuestion || askedInitial.current) return;
+    askedInitial.current = true;
+    askRef.current(initialQuestion);
+  }, [initialQuestion]);
 
   const send = () => {
     const text = input.trim();
@@ -294,11 +357,10 @@ export function Copilot() {
   const chromeLang: Lang = lastRun?.lang ?? (detectLanguage(input) || "en");
   const dir = chromeLang === "ar" ? "rtl" : "ltr";
   const phase: "retrieving" | "writing" | null = streaming ? (lastRun?.plan ? "writing" : "retrieving") : null;
-  const explainOpen = explainId === lastRunId;
-
-  const toggleExplain = () => setExplainId(explainOpen ? null : (lastRunId ?? null));
-
-  const followups = lastRun?.plan ? (FOLLOWUPS[lastRun.plan.template] ?? []) : [];
+  // Explain-why and follow-ups are per answer: each message reads its own run,
+  // so older answers never show the latest answer's panel or chips.
+  const toggleExplain = (id: string) => setExplainId((cur) => (cur === id ? null : id));
+  const followupsFor = (r: Run | undefined) => (r?.plan ? (FOLLOWUPS[r.plan.template] ?? []) : []);
 
   return (
     <MotionConfig reducedMotion="user">
@@ -328,7 +390,7 @@ export function Copilot() {
             <div className="copilot-header flex items-center justify-between gap-3 border-b border-line px-4 pb-2.5 pt-[max(0.75rem,env(safe-area-inset-top))] md:px-6 md:pt-4">
               <div className="min-w-0">
                 <p className="label truncate text-accent">{chromeLang === "ar" ? "مساعد · راج مُسنَد" : "COPILOT · GROUNDED RAG"}</p>
-                <h2 className="mt-0.5 truncate font-serif text-lg italic text-ink md:text-xl">{DIALOG_LABEL[chromeLang]}</h2>
+                <h2 className="mt-0.5 truncate text-lg font-semibold tracking-tight text-ink md:text-xl">{DIALOG_LABEL[chromeLang]}</h2>
               </div>
               <button
                 type="button"
@@ -369,7 +431,7 @@ export function Copilot() {
                   {messages.length === 0 ? (
                     <div className="flex h-full flex-col items-center justify-center gap-6 px-6 py-10 text-center">
                       <div>
-                        <h3 className="font-serif text-2xl italic text-ink">{EMPTY_STATE[chromeLang].title}</h3>
+                        <h3 className="text-2xl font-semibold tracking-tight text-ink">{EMPTY_STATE[chromeLang].title}</h3>
                         <p className="mt-2 max-w-sm text-sm text-ink-soft">{EMPTY_STATE[chromeLang].subtitle}</p>
                       </div>
                       <div className="flex max-w-md flex-wrap justify-center gap-2">
@@ -399,6 +461,8 @@ export function Copilot() {
                         }
                         const runState = runs[m.id];
                         const failedEmpty = runState?.error && !m.text;
+                        const explainOpen = explainId === m.id;
+                        const followups = followupsFor(runState);
                         return (
                           <div key={m.id} className="copilot-msg max-w-full" dir={dir}>
                             {failedEmpty ? (
@@ -413,8 +477,8 @@ export function Copilot() {
                                 {runState?.done && !runState?.error && runState?.sources.length > 0 && m.text && (
                                   <div className="grounded-stamp mt-3" dir={dir}>
                                     {runState.lang === "ar"
-                                      ? `مُسنَد · ${runState.sources.length} مصادر · ${runState.stats?.retrievalMs ?? "—"}ms`
-                                      : `GROUNDED · ${runState.sources.length} sources · ${runState.stats?.retrievalMs ?? "—"}ms`}
+                                      ? `مُسنَد · ${runState.sources.length} مصادر${runState.stats ? ` · ${runState.stats.retrievalMs}ms` : ""}`
+                                      : `GROUNDED · ${runState.sources.length} sources${runState.stats ? ` · ${runState.stats.retrievalMs}ms` : ""}`}
                                   </div>
                                 )}
                                 {runState?.error && m.text && (
@@ -452,14 +516,14 @@ export function Copilot() {
                                 {runState && runState.done && !runState.error && (
                                   <button
                                     type="button"
-                                    onClick={toggleExplain}
-                                    aria-expanded={explainOpen && explainId === m.id}
+                                    onClick={() => toggleExplain(m.id)}
+                                    aria-expanded={explainOpen}
                                     className="label inline-flex min-h-[2.75rem] items-center text-accent transition-colors hover:underline"
                                   >
                                     {explainWhyLabel(runState.lang)}
                                   </button>
                                 )}
-                                {explainOpen && explainId === m.id && runState && (
+                                {explainOpen && runState && (
                                   <div className="panel mt-2 rounded-xl p-3" dir={dir} lang={runState.lang}>
                                     {explainWhyBody(runState.plan, runState.sources.map((s) => sourceLabel(s.source.kind, s.label, runState.lang)), runState.lang).map((line, i) => (
                                       <p key={i} className="text-sm leading-relaxed text-ink-soft">{line}</p>
@@ -467,7 +531,7 @@ export function Copilot() {
                                   </div>
                                 )}
                                 {/* contextual follow-ups (spec §24) */}
-                                {runState && runState.done && !runState.error && followups.length > 0 && explainId !== m.id && (
+                                {runState && runState.done && !runState.error && followups.length > 0 && !explainOpen && (
                                   <div className="mt-3 flex flex-wrap gap-2" dir={dir}>
                                     {followups.map((f) => {
                                       const action = f.action;

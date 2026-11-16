@@ -67,8 +67,9 @@
       "lang": "ar",
       "intent": "architecture",
       "template": "architecture",
-      "isolation": "ar"
-    }
+      "topSource": "project-restai"
+    },
+    "note": "Project write-ups are English-only; an Arabic turn that names a project is bridged to that project chunk (reply language stays Arabic)."
   },
   {
     "id": "en-project",
@@ -89,8 +90,9 @@
       "lang": "ar",
       "intent": "project",
       "template": "project",
-      "isolation": "ar"
-    }
+      "topSource": "project-restai"
+    },
+    "note": "Project write-ups are English-only; an Arabic turn that names a project is bridged to that project chunk (reply language stays Arabic)."
   },
   {
     "id": "en-resume",
@@ -208,17 +210,26 @@
   {
     "id": "en-casual-greeting",
     "message": "Hi",
-    "expect": { "casual": true, "lang": "en" }
+    "expect": {
+      "casual": true,
+      "lang": "en"
+    }
   },
   {
     "id": "ar-casual-greeting",
     "message": "أزيك يا محمد",
-    "expect": { "casual": true, "lang": "ar" }
+    "expect": {
+      "casual": true,
+      "lang": "ar"
+    }
   },
   {
     "id": "en-casual-thanks",
     "message": "Thanks a lot",
-    "expect": { "casual": true, "lang": "en" }
+    "expect": {
+      "casual": true,
+      "lang": "en"
+    }
   },
   {
     "id": "en-greeting-plus-substance",
@@ -252,6 +263,115 @@
       "lang": "ar",
       "intent": "general",
       "isolation": "ar"
+    }
+  },
+  {
+    "id": "multi-en-deictic-followup",
+    "history": [
+      {
+        "role": "user",
+        "content": "Why did you choose pgvector over Pinecone?"
+      },
+      {
+        "role": "assistant",
+        "content": "One Postgres instance keeps embeddings and operational data in a single source of truth [1]."
+      }
+    ],
+    "message": "what did it cost you?",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "expanded": true,
+      "topSource": "project-restai",
+      "isolation": "en",
+      "mustCite": true
+    }
+  },
+  {
+    "id": "multi-ar-deictic-followup",
+    "history": [
+      {
+        "role": "user",
+        "content": "احكيلي عن خبرتك"
+      },
+      {
+        "role": "assistant",
+        "content": "عمل محمد كمهندس ذكاء اصطناعي في SustainGRC."
+      }
+    ],
+    "message": "وإيه أهم حاجة فيها؟",
+    "expect": {
+      "casual": false,
+      "lang": "ar",
+      "expanded": true,
+      "intent": "experience",
+      "sourcesInclude": "ar-experience",
+      "isolation": "ar",
+      "mustCite": false
+    }
+  },
+  {
+    "id": "multi-assistant-only-no-expand",
+    "history": [
+      {
+        "role": "assistant",
+        "content": "RestAI is a RAG assistant grounded in live operational data."
+      }
+    ],
+    "message": "tell me more about it",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "expanded": false
+    }
+  },
+  {
+    "id": "en-literal-term-restai",
+    "message": "what is RestAI?",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "intent": "project",
+      "topSource": "project-restai",
+      "isolation": "en"
+    }
+  },
+  {
+    "id": "en-literal-term-text2sql",
+    "message": "what is text2sql?",
+    "expect": {
+      "casual": false,
+      "lang": "en",
+      "topSource": "project-text2sql",
+      "isolation": "en"
+    }
+  },
+  {
+    "id": "arabizi-project",
+    "message": "3ayez a3raf eh a7san project 3amalto?",
+    "expect": {
+      "casual": false,
+      "lang": "ar",
+      "intent": "project",
+      "isolation": "ar",
+      "mustCite": false
+    }
+  },
+  {
+    "id": "arabizi-casual-greeting",
+    "message": "ezayak",
+    "expect": {
+      "casual": true,
+      "lang": "ar"
+    }
+  },
+  {
+    "id": "ar-named-project-text2sql",
+    "message": "إزاي عملت مشروع text2sql؟",
+    "expect": {
+      "casual": false,
+      "lang": "ar",
+      "topSource": "project-text2sql"
     }
   }
 ]

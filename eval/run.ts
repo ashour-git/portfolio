@@ -28,9 +28,19 @@ type Expect = {
   mustCite?: boolean;
   deduped?: string;
   maxResults?: number;
+  /** Multi-turn: whether the retrieval query was anchored to a prior user turn. */
+  expanded?: boolean;
+  /** Retrieval must rank this chunk first / include it. */
+  topSource?: string;
+  sourcesInclude?: string;
 };
 
-type EvalCase = { id: string; message: string; expect: Expect };
+type EvalCase = {
+  id: string;
+  message: string;
+  history?: { role: "user" | "assistant"; content: string }[];
+  expect: Expect;
+};
 
 const ARABIC_RE = /[\u0600-\u06FF]/;
 const chunkText = new Map(loadIndex().chunks.map((c) => [c.id, c.text]));
@@ -52,7 +62,7 @@ async function runCase(c: EvalCase): Promise<string[]> {
   const { expect } = c;
 
   let message = c.message;
-  const validation = validateInput({ message });
+  const validation = validateInput({ message, history: c.history });
   if (!validation.ok) {
     fail(`input rejected: ${validation.error}`);
     return failures;
@@ -76,8 +86,9 @@ async function runCase(c: EvalCase): Promise<string[]> {
   // Casual turns must never reach retrieval.
   if (expect.casual) return failures;
 
-  const { results, plan, intent } = await retrieveAndPlan({
+  const { results, plan, intent, expanded, query } = await retrieveAndPlan({
     message,
+    history: validation.data.history,
     mode: "general",
     lang,
     getEmbedder,
@@ -91,6 +102,15 @@ async function runCase(c: EvalCase): Promise<string[]> {
   }
   if (expect.stance !== undefined && plan.stance !== expect.stance) {
     fail(`stance: expected ${expect.stance}, got ${plan.stance}`);
+  }
+  if (expect.expanded !== undefined && expanded !== expect.expanded) {
+    fail(`expanded: expected ${expect.expanded}, got ${expanded} (query "${query}")`);
+  }
+  if (expect.topSource !== undefined && results[0]?.id !== expect.topSource) {
+    fail(`topSource: expected ${expect.topSource}, got ${results.map((r) => r.id).join(", ") || "none"}`);
+  }
+  if (expect.sourcesInclude !== undefined && !results.some((r) => r.id === expect.sourcesInclude)) {
+    fail(`sources: expected ${expect.sourcesInclude}, got ${results.map((r) => r.id).join(", ") || "none"}`);
   }
   if (expect.maxResults !== undefined && results.length > expect.maxResults) {
     fail(`results: expected <= ${expect.maxResults}, got ${results.length}`);
@@ -111,7 +131,7 @@ async function runCase(c: EvalCase): Promise<string[]> {
   }
 
   if (expect.mustCite !== undefined) {
-    const messages = buildMessages({ message, results, plan, lang });
+    const messages = buildMessages({ message, results, plan, lang, history: validation.data.history });
     const ctx = contextMessage(messages, lang);
     if (!ctx) {
       fail("citation: grounded context message missing");

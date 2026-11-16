@@ -97,6 +97,8 @@ const CASUAL_PATTERNS: Record<CasualSubtype, string[]> = {
     "how are things", "how have you been", "what's up", "whats up", "wassup", "sup", "yo",
     "howdy", "greetings", "hi there", "hello there", "hey there", "قول أزيك", "قول ازيك",
     "عامل ايه يا محمد", "ازيك يا محمد",
+    // Franco-Arabic (Arabizi)
+    "ezayak", "ezayek", "ezzayak", "izayak", "ezayko", "ahlan", "3amel eh", "3amla eh", "ezayak ya mohamed",
   ],
   casual_question: [
     "how are you", "what's up", "what are you", "what r u", "عامل إيه", "أزيك",
@@ -110,6 +112,7 @@ const CASUAL_PATTERNS: Record<CasualSubtype, string[]> = {
   thanks: [
     "شكرا", "شكراً", "شكرا جزيلا", "شكراً جداً", "الف شكر", "متشكر", "متشكرة", "تسلم",
     "thanks", "thank you", "thank u", "thanx", "appreciate it", "much appreciated",
+    "shokran", "shukran", "mersi",
     "thanks a lot", "thank you so much", "thanks so much", "welcome", "you're welcome",
   ],
   acknowledgement: [

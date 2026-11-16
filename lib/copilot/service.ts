@@ -259,8 +259,11 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
   }
   const primaryModel = candidates[0];
 
-  const { results, plan, retrievalMs, strategy, intent, cache: cacheStatus } = await retrieveAndPlan({
+  // Retrieval runs on the (possibly anchored / Arabizi-glossed) retrieval
+  // query; the provider prompt below keeps the raw body.message.
+  const { results, plan, retrievalMs, strategy, intent, cache: cacheStatus, queryTokens } = await retrieveAndPlan({
     message: body.message,
+    history: body.history,
     mode,
     lang,
     getEmbedder: deps.getEmbedder,
@@ -291,7 +294,12 @@ export async function* runCopilot(body: RequestBody, deps: RunDeps = {}): AsyncG
   // Corpus chunks carry full case-study text — without budgeting, 5-7 of
   // them blow past Groq TPM tiers into 413/429s (measured 9193 chars vs the
   // 6000 budget). Cap here so the provider only ever sees a bounded payload.
-  const contextResults = capContext(results.map((r) => ({ ...r, text: textById.get(r.id) ?? "" })));
+  const contextResults = capContext(
+    results.map((r) => ({ ...r, text: textById.get(r.id) ?? "" })),
+    6000,
+    1200,
+    { queryTokens },
+  );
   // Defense in depth: runCopilot is also called directly (tests, future
   // callers), so re-apply the role whitelist here. Anything that is not an
   // explicit user/assistant turn is dropped before it can reach the provider.

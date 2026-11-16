@@ -4,10 +4,34 @@ import React, { Children, cloneElement, isValidElement, useState } from "react";
 import type { ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+// PrismLight + an explicit language list: the default `Prism` export bundles
+// every grammar (~700 KB) for a chat that only ever shows a handful.
+import SyntaxHighlighter from "react-syntax-highlighter/dist/esm/prism-light";
+import oneDark from "react-syntax-highlighter/dist/esm/styles/prism/one-dark";
+import python from "react-syntax-highlighter/dist/esm/languages/prism/python";
+import typescript from "react-syntax-highlighter/dist/esm/languages/prism/typescript";
+import tsx from "react-syntax-highlighter/dist/esm/languages/prism/tsx";
+import javascript from "react-syntax-highlighter/dist/esm/languages/prism/javascript";
+import jsx from "react-syntax-highlighter/dist/esm/languages/prism/jsx";
+import bash from "react-syntax-highlighter/dist/esm/languages/prism/bash";
+import json from "react-syntax-highlighter/dist/esm/languages/prism/json";
+import sql from "react-syntax-highlighter/dist/esm/languages/prism/sql";
+import yaml from "react-syntax-highlighter/dist/esm/languages/prism/yaml";
+import docker from "react-syntax-highlighter/dist/esm/languages/prism/docker";
 import type { Lang } from "@/lib/copilot/types";
 import { isolateLtrTokens } from "@/lib/copilot/language";
+
+const LANGUAGES = { python, typescript, tsx, javascript, jsx, bash, json, sql, yaml, docker } as const;
+for (const [name, grammar] of Object.entries(LANGUAGES)) SyntaxHighlighter.registerLanguage(name, grammar);
+const ALIASES: Record<string, string> = {
+  py: "python", ts: "typescript", js: "javascript", sh: "bash", shell: "bash", zsh: "bash",
+  console: "bash", yml: "yaml", dockerfile: "docker", postgres: "sql", postgresql: "sql",
+};
+const resolveLanguage = (l: string) => {
+  const key = (l || "").toLowerCase();
+  const name = ALIASES[key] ?? key;
+  return name in LANGUAGES ? name : "text";
+};
 
 function CodeBlock({ language, value }: { language: string; value: string }) {
   const [copied, setCopied] = useState(false);
@@ -35,7 +59,7 @@ function CodeBlock({ language, value }: { language: string; value: string }) {
         </button>
       </div>
       <SyntaxHighlighter
-        language={language || "text"}
+        language={resolveLanguage(language)}
         style={oneDark}
         customStyle={{ margin: 0, background: "transparent", fontSize: "0.8rem" }}
         codeTagProps={{ style: { fontFamily: "var(--font-mono)" } }}

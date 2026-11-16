@@ -1,5 +1,6 @@
-import type { CopilotEvent, RetrievalResult } from "@/lib/copilot/types";
-import { runCopilot, validateInput } from "@/lib/copilot/service";
+import type { CopilotEvent } from "@/lib/copilot/types";
+import { runCopilot, validateInput, type CacheEntry } from "@/lib/copilot/service";
+import { LruCache } from "@/lib/copilot/retrieval";
 import { RateLimiter } from "@/lib/copilot/rate-limit";
 import { hashIp, logCopilotEvent } from "@/lib/copilot/observe";
 
@@ -7,7 +8,17 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const limiter = new RateLimiter({ limitPerMinute: 10, limitPerHour: 60 });
-const cacheHits = new Map<string, { results: RetrievalResult[]; retrievalMs: number }>();
+// Keyed by user-controlled text, so it must be bounded: LRU-evicts past 200 entries.
+const cacheHits = new LruCache<string, CacheEntry>(200);
+
+/** Typed 400 so the client can render the localized bad_request message. */
+function badRequest(message: string): Response {
+  const event: CopilotEvent = { type: "error", code: 400, kind: "bad_request", message };
+  return new Response(JSON.stringify(event) + "\n", {
+    status: 400,
+    headers: { "content-type": "application/x-ndjson" },
+  });
+}
 
 function clientIp(req: Request): string {
   const fwd = req.headers.get("x-forwarded-for");
@@ -26,7 +37,7 @@ export async function POST(req: Request) {
     // Malformed bodies are abuse-shaped far more often than client bugs —
     // log the reject (no body content, ever) and answer the 400 contract.
     logCopilotEvent({ req: routeReq, ipHash, level: "warn", errorKind: "bad_request" });
-    return new Response("invalid json\n", { status: 400, headers: { "content-type": "application/x-ndjson" } });
+    return badRequest("invalid json");
   }
 
   const parsed = validateInput(body);
@@ -34,10 +45,7 @@ export async function POST(req: Request) {
     // Validation messages are static strings (no user data) — safe to count
     // by kind; probes and fuzzers show up here.
     logCopilotEvent({ req: routeReq, ipHash, level: "warn", errorKind: "bad_request" });
-    return new Response(JSON.stringify({ type: "error", code: 400, message: parsed.error }) + "\n", {
-      status: 400,
-      headers: { "content-type": "application/x-ndjson" },
-    });
+    return badRequest(parsed.error);
   }
 
   const stream = new ReadableStream<Uint8Array>({

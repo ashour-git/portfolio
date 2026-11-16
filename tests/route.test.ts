@@ -33,3 +33,28 @@ test("missing GROQ_API_KEY streams a stranded error event", async () => {
     if (prev) process.env.GROQ_API_KEY = prev;
   }
 });
+
+test("invalid JSON emits a typed bad_request error event", async () => {
+  const res = await POST(
+    new Request("http://localhost/api/copilot", { method: "POST", body: "{nope" }),
+  );
+  assert.equal(res.status, 400);
+  const ev = JSON.parse((await res.text()).trim());
+  assert.deepEqual(ev, { type: "error", code: 400, kind: "bad_request", message: "invalid json" });
+});
+
+test("validation failures emit a typed bad_request error event", async () => {
+  const res = await POST(
+    new Request("http://localhost/api/copilot", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ message: "" }),
+    }),
+  );
+  assert.equal(res.status, 400);
+  assert.equal(res.headers.get("content-type"), "application/x-ndjson");
+  const ev = JSON.parse((await res.text()).trim());
+  assert.equal(ev.type, "error");
+  assert.equal(ev.kind, "bad_request");
+  assert.equal(ev.message, "message is required");
+});

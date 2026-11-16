@@ -36,3 +36,21 @@ test("different IPs are isolated", () => {
   assert.equal(rl.check("a").ok, true);
   assert.equal(rl.check("b").ok, true);
 });
+test("idle IPs are pruned so the per-IP maps stay bounded", () => {
+  let t = 0;
+  const rl = new RateLimiter({ limitPerMinute: 10, limitPerHour: 60, now: () => t });
+  for (let i = 0; i < 50; i++) rl.check(`ip-${i}`);
+  assert.equal(rl.size, 50);
+  t += 3_600_000;
+  for (let i = 0; i < 200; i++) rl.check("steady");
+  assert.equal(rl.size, 1, "one-off visitors evicted by the periodic prune");
+});
+
+test("prune keeps IPs that are still inside the hour window", () => {
+  let t = 0;
+  const rl = new RateLimiter({ limitPerMinute: 10, limitPerHour: 3, now: () => t });
+  for (let i = 0; i < 3; i++) rl.check("busy");
+  t += 120_000;
+  rl.prune();
+  assert.equal(rl.check("busy").ok, false, "hour quota survives pruning");
+});
