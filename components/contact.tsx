@@ -1,7 +1,5 @@
-import type { CSSProperties } from "react";
 import { EnvelopeSimple, FileText, GithubLogo, LinkedinLogo } from "@phosphor-icons/react/dist/ssr";
 import { profile } from "@/lib/data";
-import art from "@/lib/space-art.json";
 import { ArrowIcon } from "./icons";
 
 const links = [
@@ -15,10 +13,8 @@ const links = [
 const FACE = { x: 34.9, y: 20.7, w: 36.9, h: 30.9 };
 
 export function Contact() {
-  const hz = art.horizon;
-  const [hw, hh] = hz.size;
   return (
-    <section id="contact" aria-labelledby="contact-title" className="relative scroll-mt-20 pt-24 md:pt-32">
+    <section id="contact" aria-labelledby="contact-title" className="relative scroll-mt-20 py-24 md:py-32">
       <div className="shell grid grid-cols-1 gap-14 lg:grid-cols-[1.25fr_1fr] lg:items-center lg:gap-20">
         <div>
           <h2 id="contact-title" className="display max-w-[18ch]">
@@ -54,18 +50,19 @@ export function Contact() {
           <p className="mt-6 text-sm text-ink-faint">References from teams I&rsquo;ve shipped with are available on request.</p>
         </div>
 
-        <figure className="observer relative mx-auto w-full max-w-[22rem] lg:mx-0 lg:justify-self-end">
+        <figure className="observer mx-auto w-full max-w-[22rem] lg:mx-0 lg:justify-self-end">
           <div className="relative">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/space/observer.jpg"
-              alt="Mohamed Ashour in a dark suit, arms crossed."
-              width={480}
-              height={600}
-              loading="lazy"
-              decoding="async"
-              className="block h-auto w-full"
-            />
+            <div className="observer-frame">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/space/observer.jpg"
+                alt="Mohamed Ashour in a dark suit, arms crossed."
+                width={480}
+                height={600}
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
             <div
               className="detect"
               style={{ left: `${FACE.x}%`, top: `${FACE.y}%`, width: `${FACE.w}%`, height: `${FACE.h}%` }}
@@ -75,26 +72,14 @@ export function Contact() {
             </div>
             <span aria-hidden="true" className="hud pointer-events-none absolute -inset-3" />
           </div>
-          <figcaption className="mt-6 font-mono text-[13px] text-ink-faint">Based in Cairo. Working with teams anywhere.</figcaption>
+          <figcaption className="mt-6 font-mono text-[12px] uppercase leading-relaxed tracking-[0.05em] text-ink-faint">
+            <span className="text-ink-soft">id</span> mohamed_ashour
+            <br />
+            <span className="text-ink-soft">class</span> ai engineer, sustaingrc
+            <br />
+            <span className="text-ink-soft">base</span> cairo, working with teams anywhere
+          </figcaption>
         </figure>
-      </div>
-
-      {/* Earthrise: the page ends where the GitHub profile does */}
-      <div className="relative mt-16 md:mt-20" aria-hidden="true">
-        <div className="plate" style={{ "--w": hw, "--h": hh } as CSSProperties}>
-          <div className="plate-film" style={{ "--ax": "76%" } as CSSProperties}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="theme-dark-only" src="/space/horizon-dark.png" alt="" width={hw} height={hh} loading="lazy" decoding="async" />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="theme-light-only" src="/space/horizon-light.png" alt="" width={hw} height={hh} loading="lazy" decoding="async" />
-            <div
-              className="detect"
-              style={{ left: `${hz.box.x}%`, top: `${hz.box.y}%`, width: `${hz.box.w}%`, height: `${hz.box.h}%` }}
-            >
-              <span className="detect-label">earth 0.97</span>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );

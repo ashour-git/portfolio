@@ -25,7 +25,7 @@ export function Proof() {
               {s.source && (
                 <a
                   href={`#project-${s.source.index}`}
-                  className="mt-2 inline-block font-mono text-xs text-ink-faint underline decoration-border-strong underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
+                  className="mt-2 inline-flex items-center gap-2 font-mono text-xs text-ink-faint underline decoration-border-strong underline-offset-4 transition-colors hover:text-accent"
                 >
                   {s.source.title}
                 </a>

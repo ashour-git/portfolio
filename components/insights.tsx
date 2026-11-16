@@ -21,7 +21,7 @@ export function Insights() {
                 className="group flex h-full gap-6 border-t border-line py-7"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="font-mono text-[13px] text-ink-faint">{note.tag}</p>
+                  <p className="font-mono text-[13px] text-accent">{note.tag}</p>
                   <h3 className="mt-1.5 font-mono text-lg font-bold tracking-tight text-ink transition-colors group-hover:text-accent">
                     {note.title}
                   </h3>

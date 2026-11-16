@@ -88,14 +88,14 @@ export function Nav() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color] duration-300 ${
-        open ? "border-line bg-bg" : scrolled ? "border-line bg-bg" : "border-transparent bg-transparent"
+        open ? "border-line bg-bg" : scrolled ? "border-line bg-bg" : "on-dark border-transparent bg-transparent"
       }`}
     >
       <div className="relative z-10">
         <nav aria-label="Primary" className="shell flex h-16 items-center justify-between gap-2">
           <a
             href="#top"
-            aria-label="Mohamed Ashour, back to top"
+            aria-label="ashour@event-horizon, back to top"
             className="shrink-0 font-mono text-[15px] font-extrabold tracking-tight text-ink transition-colors hover:text-accent"
           >
             ashour<span className="text-accent">@</span><span className="hidden sm:inline">event-horizon</span>
