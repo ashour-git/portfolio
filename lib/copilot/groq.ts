@@ -4,7 +4,19 @@ const DEFAULT_BASE_URL = "https://api.groq.com/openai/v1";
 /** Output budget per reply. Kept modest because free Groq tiers bill tokens per
  *  minute (input + max output); 8192 pushes a typical request over an 8000-TPM
  *  tier. The reasoning strip + final-answer directive keep real answers short. */
-const MAX_OUTPUT_TOKENS = 4096;
+const MAX_OUTPUT_TOKENS = 1800;
+
+/** Free tiers count the requested completion budget against an 8K TPM cap,
+ *  so it is sized to real answers (~600-900 tokens, Arabic included) plus a
+ *  little reasoning headroom; 4096 allowed ~1 request/minute per model. */
+export function modelParams(model: string): Record<string, string> {
+  // gpt-oss reasons into a separate `reasoning` field (ignored by the parser
+  // below) but those tokens still spend the completion budget — keep it low.
+  if (/gpt-oss/.test(model)) return { reasoning_effort: "low" };
+  // Qwen 3.x can reason inline in <think> tags; the answer never needs it.
+  if (/qwen3/.test(model)) return { reasoning_effort: "none" };
+  return {};
+}
 
 export type GroqErrorKind = "auth" | "model_unavailable" | "rate_limited" | "network" | "unknown";
 
@@ -85,17 +97,18 @@ export async function listGroqModels(input: {
  * Returns null when no chat-capable model is listed at all.
  */
 export const KNOWN_CHAT_FALLBACKS = [
+  // Served on Groq free/dev tiers as of 2026-11 (each has its own TPM bucket).
+  "openai/gpt-oss-120b",
+  "qwen/qwen3.8-27b",
+  "openai/gpt-oss-20b",
+  // Enterprise-only since 2026-08-16; kept last for keys that still have it.
   "llama-3.3-70b-versatile",
-  "llama-3.1-70b-versatile",
   "llama-3.1-8b-instant",
-  "llama3-70b-8192",
-  "llama3-8b-8192",
-  "llama-3.2-3b-preview",
 ];
 
 /** Classifier / audio / embedding ids are listed on /v1/models but cannot serve chat. */
-const NON_CHAT_RE = /guard|prompt-guard|whisper|tts|stt|asr|embedding|rerank/;
-const CHAT_FAMILY_RE = /llama|mistral|gemma|qwen|deepseek/;
+const NON_CHAT_RE = /guard|safeguard|whisper|tts|stt|asr|embedding|rerank/;
+const CHAT_FAMILY_RE = /llama|mistral|gemma|qwen|deepseek|gpt-oss/;
 
 export function isChatModelId(id: string): boolean {
   return CHAT_FAMILY_RE.test(id) && !NON_CHAT_RE.test(id);
@@ -143,6 +156,7 @@ export async function* streamGroq(input: {
       stream: true,
       stream_options: { include_usage: true },
       max_tokens: MAX_OUTPUT_TOKENS,
+      ...modelParams(input.model),
     }),
     signal: input.signal,
   });

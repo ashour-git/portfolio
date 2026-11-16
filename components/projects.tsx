@@ -7,43 +7,37 @@ import { projects, projectFilters, type Project } from "@/lib/data";
 import { list, tidy } from "@/lib/text";
 import { ArchitectureDiagram } from "./architecture-diagram";
 import { ArrowIcon, ExternalIcon } from "./icons";
-import { Plate, type PlateId } from "./plate";
+import { AttentionViz, EmbeddingViz, FeatureMapViz, ForecastViz, HandViz, RagViz, Screen, TenantViz } from "./viz";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-// Each project is observed as a celestial body; the detection label carries
-// one real, verifiable fact about it.
-const OBSERVATION: Record<string, { plate: PlateId; label: string; alt: string }> = {
-  RestAI: {
-    plate: "restai",
-    label: "restai 162 tests",
-    alt: "A dithered planet seen from orbit, city lights glowing orange on its night side.",
-  },
-  Storefy: {
-    plate: "storefy",
-    label: "storefy per-tenant",
-    alt: "A dithered planet with a small cratered moon.",
-  },
-  "Text-to-SQL Generator": {
-    plate: "text2sql",
-    label: "text2sql 18/18",
-    alt: "A cratered moon lit hard from one side, a thin crescent of light.",
-  },
-  "Hand Gesture Recognition": {
-    plate: "gesture",
-    label: "gesture real-time",
-    alt: "A dithered planet with cloud bands, lit from above.",
-  },
-  "Semantic Book Recommender": {
-    plate: "books",
-    label: "books 7,000+",
-    alt: "A globular star cluster, one point for each indexed book.",
-  },
-  "Kepler Vision": {
-    plate: "kepler",
-    label: "kepler transit",
-    alt: "A planet crossing the face of its star, the way the Kepler telescope found exoplanets.",
-  },
+// Each project is shown as the mechanism it is built on, on a CRT screen.
+const SCREENS: Record<string, () => ReactNode> = {
+  Storefy: () => (
+    <Screen title="storefy / tenant routing" meta="multi-tenant" label="Diagram: requests to three store subdomains resolve to a tenant, then read only that tenant's rows; a Groq agent generates storefronts.">
+      <TenantViz />
+    </Screen>
+  ),
+  "Text-to-SQL Generator": () => (
+    <Screen title="text2sql / attention" meta="gpt-4o" label="Attention map: each word of 'total sales last 30 days by country' attends most strongly to its SQL token, then three validators pass.">
+      <AttentionViz />
+    </Screen>
+  ),
+  "Hand Gesture Recognition": () => (
+    <Screen title="gesture / landmarks" meta="real-time" label="A 21-point hand skeleton, an open palm, inside a detection box labelled open_palm; fingertips are highlighted.">
+      <HandViz />
+    </Screen>
+  ),
+  "Semantic Book Recommender": () => (
+    <Screen title="books / embedding space" meta="chromadb" label="Embedding map: a query point linked to its five nearest books, led by The Sea, The Sea.">
+      <EmbeddingViz />
+    </Screen>
+  ),
+  "Kepler Vision": () => (
+    <Screen title="kepler / feature maps" meta="pytorch" label="An input frame passes through three layers of convolutional feature maps to detections labelled person and chair.">
+      <FeatureMapViz />
+    </Screen>
+  ),
 };
 
 function studyHref(p: Project) {
@@ -63,7 +57,7 @@ export function Projects() {
           Systems that run in production
         </h2>
         <p className="lead mt-5 max-w-[56ch]">
-          Six projects, each with its architecture, its tradeoffs and the tests that prove it works.
+          Six projects, each shown as the mechanism it runs on, with its tradeoffs and the tests that prove it works.
         </p>
 
         <Flagship p={featured} />
@@ -142,18 +136,20 @@ function Block({ label, children }: { label: string; children: ReactNode }) {
 }
 
 function Flagship({ p }: { p: Project }) {
-  const o = OBSERVATION[p.title];
   return (
     <article id={`project-${p.index}`} aria-labelledby="flagship-title" className="observe mt-14 scroll-mt-24 md:mt-20">
-      {o && (
-        <a href={studyHref(p)} aria-label={`${p.title} case study`} className="block">
-          <Plate id={o.plate} label={o.label} alt={o.alt} anchor="68%" />
-        </a>
-      )}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Screen title="restai / retrieval" meta="pgvector" label="Retrieval: the question 'how many salmon portions tonight?' pulls three sources (menu, orders, inventory) and the answer cites them.">
+          <RagViz />
+        </Screen>
+        <Screen title="restai / forecast" meta="lightgbm" label="Demand forecast for tonight: history until now, a dashed forecast with a confidence band, peaking at 19:00.">
+          <ForecastViz />
+        </Screen>
+      </div>
 
       <div className="mt-10 grid grid-cols-1 gap-x-14 gap-y-6 lg:grid-cols-[1fr_1.2fr] lg:items-end">
         <div>
-          <p className="font-mono text-sm text-ink-faint">Flagship, {p.domain}</p>
+          <p className="font-mono text-sm text-accent">Flagship, {p.domain}</p>
           <h3 id="flagship-title" className="mt-2 font-mono text-5xl font-extrabold tracking-[-0.04em] text-ink md:text-6xl">
             {p.title}
           </h3>
@@ -212,7 +208,7 @@ function ObservationCard({ p, wide }: { p: Project; wide: boolean }) {
   const [showArch, setShowArch] = useState(false);
   const reduce = useReducedMotion();
   const archId = `arch-${p.index}`;
-  const o = OBSERVATION[p.title];
+  const screen = SCREENS[p.title];
 
   return (
     <m.article
@@ -224,10 +220,10 @@ function ObservationCard({ p, wide }: { p: Project; wide: boolean }) {
       transition={{ duration: 0.4, ease }}
       className={`observe flex scroll-mt-24 flex-col ${wide ? "md:col-span-2 md:grid md:grid-cols-[1.15fr_1fr] md:gap-10" : ""}`}
     >
-      {o && <Plate id={o.plate} label={o.label} alt={o.alt} />}
+      {screen?.()}
 
       <div className={`flex flex-1 flex-col ${wide ? "pt-6 md:pt-2" : "pt-6"}`}>
-        <p className="font-mono text-[13px] text-ink-faint">{p.domain}</p>
+        <p className="font-mono text-[13px] text-accent">{p.domain}</p>
         <h4 className="mt-1.5 font-mono text-2xl font-extrabold tracking-[-0.03em] text-ink">{p.title}</h4>
         <p className="mt-2.5 text-ink-soft">{tidy(p.tagline)}</p>
 
