@@ -20,6 +20,16 @@ npm install
 npm run dev      # http://localhost:3000
 ```
 
+## Behavior evals
+
+```bash
+npm run eval     # deterministic, offline — no Groq key needed
+```
+
+Runs 24 bilingual cases through the real pipeline: conversation routing,
+input dedupe, intent, retrieval, language isolation, citation prompting, and
+narration filtering. The vendored MiniLM embedder keeps it reproducible.
+
 ## Environment
 
 Copy `.env.example` to `.env` for local work. Both variables are also

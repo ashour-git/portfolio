@@ -42,7 +42,7 @@ export type IntentResult = { primary: Intent; secondary?: Intent; confidence: nu
 
 export type DocAuthority = "first-party" | "metrics" | "external";
 
-export type RetrievalSignal = "cosine" | "keyword" | "intent" | "mode" | "priority" | "authority";
+export type RetrievalSignal = "cosine" | "bm25" | "keyword" | "intent" | "mode" | "priority" | "authority";
 
 export type SignalBreakdown = { signal: RetrievalSignal; value: number; weight: number };
 
@@ -80,7 +80,7 @@ export type RetrievalResult = {
   title: string;
   source: { kind: SourceKind; slug?: string; url?: string };
   score: number;
-  parts: { cosine?: number; keyword?: number; boost?: number };
+  parts: { cosine?: number; bm25?: number; keyword?: number; boost?: number };
   reasons: string[];
   breakdown: SignalBreakdown[];
 };
@@ -128,6 +128,7 @@ export type ErrorKind =
   | "retrieval"
   | "config"
   | "aborted"
+  | "bad_request"
   | "unknown";
 
 export type ChatMessage = { role: "system" | "user" | "assistant"; content: string };

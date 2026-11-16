@@ -11,7 +11,7 @@ export default function NotFound() {
           <div className="mx-auto w-full max-w-4xl px-6 md:px-10">
             <p className="eyebrow mb-5">404 · no such page</p>
             <h1 className="display max-w-2xl">
-              No grounded answer <span className="serif-accent text-ink-soft">here.</span>
+              No grounded answer <span className="emph">here.</span>
             </h1>
             <p className="lead mt-6 max-w-xl">
               This page doesn&rsquo;t exist. The work does — start from the

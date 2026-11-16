@@ -8,10 +8,12 @@
     "build:kb": "tsx scripts/build-kb.ts",
     "start": "next start",
     "lint": "next lint",
-    "test": "tsx --test \"tests/**/*.test.ts\""
+    "test": "tsx --test \"tests/**/*.test.ts\"",
+    "eval": "tsx eval/run.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",
+    "@phosphor-icons/react": "^2.1.7",
     "framer-motion": "^13.0.0",
     "next": "^15.1.6",
     "react": "^19.0.0",

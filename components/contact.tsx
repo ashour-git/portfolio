@@ -1,61 +1,100 @@
-"use client";
-
-import { motion } from "framer-motion";
+import type { CSSProperties } from "react";
+import { EnvelopeSimple, FileText, GithubLogo, LinkedinLogo } from "@phosphor-icons/react/dist/ssr";
 import { profile } from "@/lib/data";
+import art from "@/lib/space-art.json";
 import { ArrowIcon } from "./icons";
-import { Reveal } from "./reveal";
+
+const links = [
+  { label: "Email", value: profile.email, href: `mailto:${profile.email}`, Icon: EnvelopeSimple },
+  { label: "LinkedIn", value: "in/mohamedashour-ai", href: profile.linkedin, Icon: LinkedinLogo },
+  { label: "GitHub", value: "github.com/ashour-git", href: profile.github, Icon: GithubLogo },
+  { label: "Resume", value: "Download PDF", href: profile.resume, Icon: FileText },
+];
+
+// face position inside public/space/observer.jpg, in percent
+const FACE = { x: 34.9, y: 20.7, w: 36.9, h: 30.9 };
 
 export function Contact() {
-  const links = [
-    { label: "Email", href: `mailto:${profile.email}`, value: profile.email },
-    { label: "GitHub", href: profile.github, value: "github.com/ashour-git" },
-    { label: "LinkedIn", href: profile.linkedin, value: "in/mohamedashour-ai" },
-    { label: "Resume", href: profile.resume, value: "Download PDF" },
-  ];
-
+  const hz = art.horizon;
+  const [hw, hh] = hz.size;
   return (
-    <section id="contact" className="relative scroll-mt-24 py-28 md:py-36">
-      <div className="mx-auto w-full max-w-4xl px-6 md:px-10">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <Reveal>
-            <p className="eyebrow mb-5">Open → Build</p>
-            <h2 className="display max-w-2xl">Have an AI system worth building?</h2>
-            <p className="lead mt-6 max-w-xl">
-              I design and ship production AI — RAG, LLM systems, ML pipelines,
-              and computer vision — measured in production and verifiable on
-              GitHub. If the problem is real, I&rsquo;m glad to talk.
-            </p>
-          </Reveal>
-
-          <ul className="mt-12 border-t border-line">
-            {links.map((l) => (
-              <li key={l.label} className="border-b border-line">
-                <a
-                  href={l.href}
-                  target={l.href.startsWith("mailto:") ? undefined : "_blank"}
-                  rel="noopener noreferrer"
-                  className="group flex min-h-[4.5rem] items-center justify-between gap-4 rounded-lg px-2 py-5 transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover"
-                >
-                  <span className="eyebrow w-24 shrink-0">{l.label}</span>
-                  <span className="flex min-w-0 flex-1 items-center justify-end gap-2 break-all text-right text-base font-medium text-ink transition-colors group-hover:text-accent sm:break-normal">
-                    {l.value}
-                    <ArrowIcon className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
-
-          <p className="mt-8 font-mono text-xs leading-relaxed text-ink-faint">
-            References from internships and collaborators available on request via
-            LinkedIn — verified by the teams I&rsquo;ve shipped with.
+    <section id="contact" aria-labelledby="contact-title" className="relative scroll-mt-20 pt-24 md:pt-32">
+      <div className="shell grid grid-cols-1 gap-14 lg:grid-cols-[1.25fr_1fr] lg:items-center lg:gap-20">
+        <div>
+          <h2 id="contact-title" className="display max-w-[18ch]">
+            Have an AI system worth building?
+          </h2>
+          <p className="lead mt-6 max-w-[46ch]">
+            I design and ship production AI: RAG, LLM systems, ML pipelines and computer vision. If the problem is
+            real, I&rsquo;m glad to talk.
           </p>
-        </motion.div>
+
+          <ul className="mt-10 border-t border-line">
+            {links.map(({ label, value, href, Icon }) => {
+              const newTab = href.startsWith("http") || href.endsWith(".pdf");
+              return (
+                <li key={label} className="border-b border-line">
+                  <a
+                    href={href}
+                    target={newTab ? "_blank" : undefined}
+                    rel={newTab ? "noopener noreferrer" : undefined}
+                    className="group flex min-h-16 items-center gap-4"
+                  >
+                    <Icon aria-label={label} size={20} className="shrink-0 text-ink-faint transition-colors group-hover:text-accent" />
+                    <span className="hidden w-20 shrink-0 font-mono text-sm text-ink-faint sm:inline">{label}</span>
+                    <span className="min-w-0 flex-1 truncate font-mono text-[15px] font-bold text-ink transition-colors group-hover:text-accent sm:text-right">
+                      {value}
+                    </span>
+                    <ArrowIcon className="h-4 w-4 shrink-0 text-ink-faint transition-transform group-hover:translate-x-0.5 group-hover:text-accent" />
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-6 text-sm text-ink-faint">References from teams I&rsquo;ve shipped with are available on request.</p>
+        </div>
+
+        <figure className="observer relative mx-auto w-full max-w-[22rem] lg:mx-0 lg:justify-self-end">
+          <div className="relative">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/space/observer.jpg"
+              alt="Mohamed Ashour in a dark suit, arms crossed."
+              width={480}
+              height={600}
+              loading="lazy"
+              decoding="async"
+              className="block h-auto w-full"
+            />
+            <div
+              className="detect"
+              style={{ left: `${FACE.x}%`, top: `${FACE.y}%`, width: `${FACE.w}%`, height: `${FACE.h}%` }}
+              aria-hidden="true"
+            >
+              <span className="detect-label">mohamed_ashour</span>
+            </div>
+            <span aria-hidden="true" className="hud pointer-events-none absolute -inset-3" />
+          </div>
+          <figcaption className="mt-6 font-mono text-[13px] text-ink-faint">Based in Cairo. Working with teams anywhere.</figcaption>
+        </figure>
+      </div>
+
+      {/* Earthrise: the page ends where the GitHub profile does */}
+      <div className="relative mt-16 md:mt-20" aria-hidden="true">
+        <div className="plate" style={{ "--w": hw, "--h": hh } as CSSProperties}>
+          <div className="plate-film" style={{ "--ax": "76%" } as CSSProperties}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="theme-dark-only" src="/space/horizon-dark.png" alt="" width={hw} height={hh} loading="lazy" decoding="async" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="theme-light-only" src="/space/horizon-light.png" alt="" width={hw} height={hh} loading="lazy" decoding="async" />
+            <div
+              className="detect"
+              style={{ left: `${hz.box.x}%`, top: `${hz.box.y}%`, width: `${hz.box.w}%`, height: `${hz.box.h}%` }}
+            >
+              <span className="detect-label">earth 0.97</span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

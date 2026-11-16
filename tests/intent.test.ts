@@ -99,3 +99,13 @@ test("English messages still classify to their intended intents", () => {
     assert.notEqual(r.primary, "general", `expected non-general for ${q}`);
   }
 });
+
+test("naming a project maps to project intent", () => {
+  assert.equal(classifyByRules("Tell me about RestAI").primary, "project");
+  assert.equal(classifyByRules("احكيلي عن RestAI").primary, "project");
+});
+
+test("architecture outranks project when a project is named inside an architecture question", () => {
+  assert.equal(classifyByRules("Explain the RestAI architecture").primary, "architecture");
+  assert.equal(classifyByRules("اشرح لي مشروع RestAI").primary, "architecture");
+});

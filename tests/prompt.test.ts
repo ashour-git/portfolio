@@ -138,3 +138,45 @@ test("system prompt demands a final-answer-only reply and forbids process narrat
     "Arabic answer-only directive must be the final block",
   );
 });
+const ctxResults: RetrievalResult[] = [
+  { id: "project-restai", label: "RestAI", title: "RestAI", source: { kind: "project" }, score: 0.9, parts: {}, reasons: [], breakdown: [] },
+];
+const OUTPUT_ONLY_RE = /^Final-answer-only rule/;
+const AR_OUTPUT_ONLY_RE = /^قاعدة الرد النهائي فقط/;
+const lastBlock = (p: string) => p.split("\n\n").at(-1) ?? "";
+
+test("English prompt forbids talking about 'the context' and keeps OUTPUT_ONLY last", () => {
+  const p = buildSystemPrompt("general", { template: "general", stance: "high", card: "none" });
+  assert.ok(/never mention "the context"/i.test(p));
+  assert.ok(/suggest a related question/i.test(p));
+  assert.ok(OUTPUT_ONLY_RE.test(lastBlock(p)));
+  const msgs = buildMessages({ message: "What is RestAI?", results: ctxResults });
+  const ctx = msgs.find((m) => m.content.startsWith("Relevant context:"))!;
+  assert.ok(/citing source numbers like \[1\]/.test(ctx.content));
+  assert.ok(/do not refer to "the context"/i.test(ctx.content));
+  assert.ok(!/Answer only from this context/.test(ctx.content));
+});
+
+test("Egyptian colloquial input switches the Arabic style to Egyptian; MSA otherwise", () => {
+  const eg = buildMessages({ message: "عايز اعرف ايه احسن مشروع", lang: "ar", results: ctxResults })[0].content;
+  assert.ok(eg.includes("بالعامية المصرية"));
+  assert.ok(!eg.includes("اللغة العربية الفصحى"));
+  assert.ok(AR_OUTPUT_ONLY_RE.test(lastBlock(eg)));
+  const franco = buildMessages({ message: "3ayez a3raf eh a7san project 3amalto?", lang: "ar", results: ctxResults })[0].content;
+  assert.ok(franco.includes("بالعامية المصرية"));
+  const msa = buildMessages({ message: "ما هي أهم مهاراتك التقنية؟", lang: "ar", results: ctxResults })[0].content;
+  assert.ok(msa.includes("اللغة العربية الفصحى"));
+  assert.ok(!msa.includes("بالعامية المصرية"));
+});
+
+test("Latin-script non-English turns get a fluent reply-language directive", () => {
+  const fr = buildMessages({ message: "Quel est le meilleur projet de Mohamed ?", results: ctxResults })[0].content;
+  assert.ok(fr.includes("Answer fully and fluently in natural, idiomatic French"));
+  assert.ok(fr.includes("[N] source citations"));
+  assert.ok(/Never mention "the context"/.test(fr));
+  assert.ok(OUTPUT_ONLY_RE.test(lastBlock(fr)), "OUTPUT_ONLY stays last");
+  const es = buildMessages({ message: "¿Cuál es el mejor proyecto de Mohamed?", results: ctxResults })[0].content;
+  assert.ok(es.includes("idiomatic Spanish"));
+  const en = buildMessages({ message: "What is the best project?", results: ctxResults })[0].content;
+  assert.ok(!en.includes("The visitor wrote in"));
+});

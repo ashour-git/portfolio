@@ -56,7 +56,9 @@ export const AUTHORITY_REASON: Record<DocAuthority, string> = {
   external: "authority: external",
 };
 
-export const DEFAULT_WEIGHTS = { cosine: 0.45, keyword: 0.2, intent: 0.15, mode: 0.1, priority: 0.1 };
+/** Sums to 1.0. BM25 carries literal-term evidence (e.g. "restai") that the
+ *  English MiniLM cosine underweights; keyword overlap is now a light tiebreaker. */
+export const DEFAULT_WEIGHTS = { cosine: 0.45, bm25: 0.15, keyword: 0.05, intent: 0.15, mode: 0.1, priority: 0.1 };
 
 export type RetrieveOpts = {
   k?: number;
@@ -65,7 +67,18 @@ export type RetrieveOpts = {
   mode?: CopilotMode;
   intent?: Intent;
   embeddings: Record<string, Float32Array>;
+  /** Normalized (0..1) BM25 score per chunk id, already bound to the retrieval query tokens. */
+  bm25?: (chunkId: string) => number;
 };
+
+function safeScore(fn: (id: string) => number, id: string): number {
+  try {
+    const v = fn(id);
+    return Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0;
+  } catch {
+    return 0;
+  }
+}
 
 export function retrieveTopK(
   queryVec: Float32Array,
@@ -85,12 +98,14 @@ export function retrieveTopK(
     .map((chunk): RetrievalResult => {
       const vec = opts.embeddings[chunk.id];
       const cosineScore = vec ? cosine(queryVec, vec) : 0;
+      const bm25Score = opts.bm25 ? safeScore(opts.bm25, chunk.id) : 0;
       const keywordScore = keywordOverlap(queryTokens, chunk.keywords);
       const intentScore = intentBoost[chunk.source.kind] ?? 0;
       const modeScore = modeBoost[chunk.source.kind] ?? 0;
       const priorityScore = chunk.priority ?? 0;
       const score =
         weights.cosine * cosineScore +
+        weights.bm25 * bm25Score +
         weights.keyword * keywordScore +
         weights.intent * intentScore +
         weights.mode * modeScore +
@@ -98,14 +113,16 @@ export function retrieveTopK(
 
       const breakdown: SignalBreakdown[] = [
         { signal: "cosine", value: cosineScore, weight: weights.cosine },
-        { signal: "keyword", value: keywordScore, weight: weights.keyword },
       ];
+      if (opts.bm25) breakdown.push({ signal: "bm25", value: bm25Score, weight: weights.bm25 });
+      breakdown.push({ signal: "keyword", value: keywordScore, weight: weights.keyword });
       if (intentScore > 0) breakdown.push({ signal: "intent", value: intentScore, weight: weights.intent });
       if (modeScore > 0) breakdown.push({ signal: "mode", value: modeScore, weight: weights.mode });
       breakdown.push({ signal: "priority", value: priorityScore, weight: weights.priority });
 
       const reasons: string[] = [];
       if (vec) reasons.push(`cosine ${cosineScore.toFixed(2)}`);
+      if (bm25Score > 0) reasons.push(`bm25 ${bm25Score.toFixed(2)}`);
       if (keywordScore > 0) reasons.push(`keyword '${queryTokens.join(" ")}'`);
       if (intentScore > 0) reasons.push(`intent: ${intent} boost`);
       if (modeScore > 0) reasons.push(`mode: ${mode} boost`);
@@ -120,6 +137,7 @@ export function retrieveTopK(
         score,
         parts: {
           cosine: vec ? cosineScore : undefined,
+          bm25: bm25Score > 0 ? bm25Score : undefined,
           keyword: keywordScore > 0 ? keywordScore : undefined,
           boost: intentScore + modeScore > 0 ? intentScore + modeScore : undefined,
         },

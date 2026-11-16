@@ -9,25 +9,26 @@ const links = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-border">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10 md:flex-row md:items-center md:justify-between md:px-10">
-        <p className="font-mono text-xs text-ink-faint">
-          © {new Date().getFullYear()} Mohamed Ashour
-          <span className="mx-2 text-border-strong">·</span>
-          <span className="text-ink-soft">Production AI Engineer</span>
+    <footer className="relative border-t border-line bg-bg">
+      <div className="shell flex flex-col gap-4 py-8 md:flex-row md:items-center md:justify-between">
+        <p className="font-mono text-[13px] text-ink-faint">
+          &copy; {new Date().getFullYear()} {profile.name}. The black hole is ray traced live in your browser.
         </p>
-        <nav aria-label="Contact links" className="flex flex-wrap items-center gap-x-1 gap-y-2">
-          {links.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              target={l.href.startsWith("http") ? "_blank" : undefined}
-              rel={l.href.startsWith("http") ? "noopener noreferrer" : undefined}
-              className="inline-flex min-h-[2.75rem] items-center rounded-lg px-3 font-mono text-xs text-ink-soft transition-colors hover:text-accent focus-visible:bg-surface-hover"
-            >
-              {l.label}
-            </a>
-          ))}
+        <nav aria-label="Footer" className="-mx-3 flex flex-wrap items-center">
+          {links.map((l) => {
+            const newTab = l.href.startsWith("http") || l.href.endsWith(".pdf");
+            return (
+              <a
+                key={l.label}
+                href={l.href}
+                target={newTab ? "_blank" : undefined}
+                rel={newTab ? "noopener noreferrer" : undefined}
+                className="inline-flex min-h-11 items-center px-3 font-mono text-[13px] text-ink-soft transition-colors hover:text-accent"
+              >
+                {l.label}
+              </a>
+            );
+          })}
         </nav>
       </div>
     </footer>

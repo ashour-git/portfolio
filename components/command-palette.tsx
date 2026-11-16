@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { projects } from "@/lib/data";
 
 type Item = { id: string; label: string; hint: string; action: () => void };
@@ -71,14 +71,14 @@ export function CommandPalette() {
     <>
       <AnimatePresence>
         {open && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[90] flex items-start justify-center bg-black/50 p-6 pt-24 backdrop-blur-sm"
             onClick={close}
           >
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.97, y: -8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.97, y: -8 }}
@@ -125,8 +125,8 @@ export function CommandPalette() {
                   </li>
                 ))}
               </ul>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
     </>

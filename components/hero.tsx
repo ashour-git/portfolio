@@ -1,93 +1,58 @@
-"use client";
-
-import { motion } from "framer-motion";
+import { FileArrowDown } from "@phosphor-icons/react/dist/ssr";
 import { profile } from "@/lib/data";
-import { Magnetic } from "@/components/magnetic";
-import { CommandCenter } from "./command-center";
+import { AskPrompt } from "./ask-prompt";
+import { BlackHole } from "./black-hole";
 
-const ease = [0.22, 1, 0.36, 1] as const;
-
-const stackRow = ["LLM", "RAG", "MLOps", "Computer Vision", "Forecasting"];
-
+/**
+ * The profile banner, made live: a terminal identity on the left, a
+ * ray-traced black hole behind it. The name paints immediately; the black
+ * hole develops in like an exposure once WebGL is ready.
+ */
 export function Hero() {
   return (
-    <section
-      id="top"
-      className="relative overflow-hidden pt-32 md:pt-40"
-    >
-      <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
-           {/* headline */}
-           <motion.div
-             initial={{ opacity: 0, y: 16 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.7, ease }}
-           >
-              <p className="eyebrow mb-6">Mohamed Ashour · Cairo</p>
-              <h1 className="display-xl">
-                I build
-                <br />
-                production AI systems,
-                <br />
-                <span className="serif-accent text-ink-soft">not just demos.</span>
-              </h1>
-              <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-soft">
-                LLMs, RAG, ML pipelines, and computer vision — engineered as
-                products, shipped end to end, and measured in production. The work
-                is real, and it is verifiable on GitHub.
-              </p>
-              <p
-                aria-label="Core specialties"
-                className="mt-6 font-mono text-xs uppercase leading-loose tracking-[0.18em] text-ink-faint"
-              >
-                {stackRow.join("  ·  ")}
-              </p>
-              <div className="mt-9 flex flex-wrap items-center gap-x-2 gap-y-3">
-                <Magnetic>
-                  <a
-                    href={profile.resume}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-primary"
-                  >
-                    Resume
-                  </a>
-                </Magnetic>
-                <a
-                  href={profile.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex min-h-[2.75rem] items-center rounded-lg px-3 py-2 text-sm font-medium text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline focus-visible:bg-surface-hover"
-                >
-                  GitHub
-                </a>
-                <a
-                  href="#work"
-                  className="inline-flex min-h-[2.75rem] items-center rounded-lg px-3 py-2 text-sm font-medium text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline focus-visible:bg-surface-hover"
-                >
-                  Projects
-                </a>
-                <a
-                  href={profile.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex min-h-[2.75rem] items-center rounded-lg px-3 py-2 text-sm font-medium text-ink-soft underline-offset-4 transition-colors hover:text-ink hover:underline focus-visible:bg-surface-hover"
-                >
-                  LinkedIn
-                </a>
-              </div>
-              <a
-                href="#work"
-                aria-label="See the evidence: 162 automated tests, 18 out of 18 security tests passing, 67 millisecond average retrieval"
-                className="audit-stamp mt-8"
-              >
-                <strong>Receipt</strong>
-                <span>162 tests · 18/18 gates · ~67ms retrieval</span>
-              </a>
-           </motion.div>
+    <section id="top" aria-labelledby="hero-title" className="relative isolate lg:flex lg:min-h-[100svh] lg:items-center">
+      <div id="nav-sentinel" aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-8" />
+      <BlackHole />
 
-          {/* portrait composition */}
-          <CommandCenter />
+      <div className="shell relative pb-16 pt-4 lg:py-28">
+        <div className="max-w-[35rem]">
+          <p className="prompt-line">
+            ashour@event-horizon:~<b>$</b> whoami
+          </p>
+          <h1 id="hero-title" className="hero-name mt-5">
+            <span>Mohamed</span>
+            <span>Ashour</span>
+          </h1>
+          <p className="mt-7 max-w-[36ch] text-lg leading-relaxed text-ink-soft md:text-xl">
+            AI engineer. I build LLM, NLP and computer-vision systems and ship them as production services.
+          </p>
+
+          <AskPrompt className="mt-9 max-w-[32rem]" />
+
+          <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <a href={profile.resume} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+              <FileArrowDown aria-hidden="true" size={18} weight="bold" />
+              Download resume
+            </a>
+            <span className="flex items-center gap-x-6">
+            <a
+              href={profile.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center font-mono text-sm text-ink-soft underline decoration-border-strong underline-offset-[6px] transition-colors hover:text-accent hover:decoration-accent"
+            >
+              GitHub
+            </a>
+            <a
+              href={profile.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-11 items-center font-mono text-sm text-ink-soft underline decoration-border-strong underline-offset-[6px] transition-colors hover:text-accent hover:decoration-accent"
+            >
+              LinkedIn
+            </a>
+            </span>
+          </div>
         </div>
       </div>
     </section>

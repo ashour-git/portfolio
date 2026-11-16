@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { EASE, DURATION } from "@/lib/motion";
 
 const initialPathname = typeof window === "undefined" ? "" : window.location.pathname;
@@ -30,12 +30,12 @@ export default function Template({ children }: { children: ReactNode }) {
   if (reduced || !animate) return <>{children}</>;
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: DURATION.base, ease: EASE }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }

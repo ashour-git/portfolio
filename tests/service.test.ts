@@ -195,10 +195,10 @@ test("provider-bound context is budgeted: total ≤6000 chars, per-chunk ≤1200
     (m: any) => m.role === "user" && typeof m.content === "string" && m.content.startsWith("Relevant context:"),
   );
   assert.ok(ctx, "a grounded context message must reach the provider");
-  const overhead =
-    "Relevant context:\n".length + "\n\nAnswer only from this context, citing source numbers like [1].".length;
   const serialized = String(ctx.content).slice("Relevant context:\n".length);
-  const payload = serialized.slice(0, serialized.lastIndexOf("\n\nAnswer only"));
+  const trailer = serialized.lastIndexOf("\n\nGround every claim");
+  assert.ok(trailer > 0, "context trailer instruction expected");
+  const payload = serialized.slice(0, trailer);
   assert.ok(payload.length <= 6000, `context payload ${payload.length} chars exceeds 6000 budget`);
   for (const section of payload.split(/\n\n(?=\[\d+\] )/).filter(Boolean)) {
     const text = section.replace(/^\[\d+\] [^\n]*\n/, "");
@@ -572,4 +572,43 @@ test("answers without a heading are streamed untouched", async () => {
   }
   const deltas = events.filter((e) => e.type === "delta").map((e) => e.text).join("");
   assert.equal(deltas, "FastAPI, PyTorch, and pgvector.", "non-heading answer must stream verbatim");
+});
+
+test("follow-ups retrieve with the anchored query while the provider keeps the raw message", async () => {
+  const classified: string[] = [];
+  const seenMessages: any[][] = [];
+  const captureImpl = ((async (_url: string, init?: any) => {
+    seenMessages.push(JSON.parse(init?.body ?? "{}").messages ?? []);
+    const encoder = new TextEncoder();
+    const body = new ReadableStream<Uint8Array>({
+      start(c) {
+        c.enqueue(encoder.encode("data: [DONE]\n\n"));
+        c.close();
+      },
+    });
+    return { ok: true, status: 200, body } as unknown as Response;
+  }) as unknown) as typeof fetch;
+
+  const history = [
+    { role: "user" as const, content: "Why did you choose pgvector over Pinecone?" },
+    { role: "assistant" as const, content: "A single Postgres source of truth." },
+  ];
+  for await (const _ev of runCopilot(
+    { message: "what did it cost you?", mode: "general", history },
+    {
+      apiKey: "k",
+      model: "m",
+      fetchImpl: captureImpl,
+      getEmbedder: async () => fastEmbed,
+      classifyIntent: (m) => {
+        classified.push(m);
+        return { primary: "decision", confidence: 0.6 };
+      },
+    },
+  )) {
+    /* drain */
+  }
+  assert.equal(classified[0], "Why did you choose pgvector over Pinecone? what did it cost you?");
+  const last = seenMessages[0].at(-1);
+  assert.deepEqual(last, { role: "user", content: "what did it cost you?" });
 });

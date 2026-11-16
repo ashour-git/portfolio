@@ -1,38 +1,50 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence, useReducedMotion } from "framer-motion";
+import { Plus, TreeStructure } from "@phosphor-icons/react/dist/ssr";
 import { projects, projectFilters, type Project } from "@/lib/data";
+import { list, tidy } from "@/lib/text";
 import { ArchitectureDiagram } from "./architecture-diagram";
-import { PipelineStrip } from "./pipeline-strip";
-import { ArrowIcon } from "./icons";
-import { SectionHeader } from "./section-header";
-
-function Cover({ p, className = "" }: { p: Project; className?: string }) {
-  if (p.image) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={p.image}
-        alt={`${p.title} interface`}
-        className={`object-cover ${className}`}
-        loading="lazy"
-        decoding="async"
-        draggable={false}
-      />
-    );
-  }
-  return (
-    <div
-      className={`relative flex items-center justify-center overflow-hidden bg-gradient-to-br ${p.gradient} ${className}`}
-      aria-hidden="true"
-    >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_45%)]" />
-    </div>
-  );
-}
+import { ArrowIcon, ExternalIcon } from "./icons";
+import { Plate, type PlateId } from "./plate";
 
 const ease = [0.22, 1, 0.36, 1] as const;
+
+// Each project is observed as a celestial body; the detection label carries
+// one real, verifiable fact about it.
+const OBSERVATION: Record<string, { plate: PlateId; label: string; alt: string }> = {
+  RestAI: {
+    plate: "restai",
+    label: "restai 162 tests",
+    alt: "A dithered planet seen from orbit, city lights glowing orange on its night side.",
+  },
+  Storefy: {
+    plate: "storefy",
+    label: "storefy per-tenant",
+    alt: "A dithered planet with a small cratered moon.",
+  },
+  "Text-to-SQL Generator": {
+    plate: "text2sql",
+    label: "text2sql 18/18",
+    alt: "A cratered moon lit hard from one side, a thin crescent of light.",
+  },
+  "Hand Gesture Recognition": {
+    plate: "gesture",
+    label: "gesture real-time",
+    alt: "A dithered planet with cloud bands, lit from above.",
+  },
+  "Semantic Book Recommender": {
+    plate: "books",
+    label: "books 7,000+",
+    alt: "A globular star cluster, one point for each indexed book.",
+  },
+  "Kepler Vision": {
+    plate: "kepler",
+    label: "kepler transit",
+    alt: "A planet crossing the face of its star, the way the Kepler telescope found exoplanets.",
+  },
+};
 
 function studyHref(p: Project) {
   return p.study ? `/case-studies/${p.study.slug}` : p.href;
@@ -42,24 +54,28 @@ export function Projects() {
   const [filter, setFilter] = useState("All");
   const featured = projects.find((p) => p.featured)!;
   const rest = projects.filter((p) => !p.featured);
-
-  const visibleRest = rest.filter(
-    (p) => filter === "All" || p.domain.includes(filter),
-  );
+  const visibleRest = rest.filter((p) => filter === "All" || p.domain.includes(filter));
 
   return (
-    <section id="work" className="relative scroll-mt-24 py-24 md:py-32">
-      <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
-        <div className="mb-12 md:mb-16">
-          <SectionHeader variant="statement" title="Built as systems," accent="shipped as products." />
-          <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-3">
-            <p id="project-filter-label" className="eyebrow">
-              Filter
-            </p>
+    <section id="work" aria-labelledby="work-title" className="relative scroll-mt-20 py-24 md:py-32">
+      <div className="shell">
+        <h2 id="work-title" className="display max-w-[20ch]">
+          Systems that run in production
+        </h2>
+        <p className="lead mt-5 max-w-[56ch]">
+          Six projects, each with its architecture, its tradeoffs and the tests that prove it works.
+        </p>
+
+        <Flagship p={featured} />
+
+        {/* `case-studies` anchor kept so older links and the palette still land here */}
+        <div id="case-studies" className="mt-24 scroll-mt-24 md:mt-32">
+          <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
+            <h3 className="font-mono text-2xl font-bold tracking-tight text-ink md:text-[1.75rem]">More observations</h3>
             <div
-              className="no-scrollbar -mx-1 flex max-w-full flex-nowrap items-center gap-2 overflow-x-auto px-1 py-1 md:flex-wrap"
+              className="no-scrollbar -mx-1 flex max-w-full flex-nowrap items-center gap-1.5 overflow-x-auto px-1 py-1"
               role="group"
-              aria-labelledby="project-filter-label"
+              aria-label="Filter projects by domain"
             >
               {projectFilters.map((f) => {
                 const selected = filter === f;
@@ -69,10 +85,10 @@ export function Projects() {
                     type="button"
                     onClick={() => setFilter(f)}
                     aria-pressed={selected}
-                    className={`inline-flex min-h-[2.75rem] shrink-0 items-center rounded-full border px-4 py-2 font-mono text-xs transition-colors focus-visible:border-accent ${
+                    className={`inline-flex min-h-10 shrink-0 items-center border px-3.5 font-mono text-[13px] transition-colors focus-visible:border-accent ${
                       selected
-                        ? "border-transparent bg-accent font-semibold text-bg"
-                        : "border-line bg-surface text-ink-soft hover:border-border-strong hover:text-ink"
+                        ? "border-ink bg-ink font-bold text-bg"
+                        : "border-line text-ink-soft hover:border-border-strong hover:text-ink"
                     }`}
                   >
                     {f}
@@ -80,338 +96,215 @@ export function Projects() {
                 );
               })}
             </div>
-            <p aria-live="polite" role="status" className="font-mono text-xs text-ink-faint">
-              {filter === "All"
-                ? `${projects.length} projects`
-                : `${visibleRest.length} in ${filter}`}
+            <p aria-live="polite" role="status" className="sr-only">
+              {filter === "All" ? `Showing all ${rest.length} projects` : `${visibleRest.length} projects in ${filter}`}
             </p>
           </div>
+
+          {visibleRest.length > 0 ? (
+            <m.div layout className="mt-10 grid grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-2">
+              <AnimatePresence mode="popLayout" initial={false}>
+                {visibleRest.map((p, i) => (
+                  <ObservationCard
+                    key={p.index}
+                    p={p}
+                    // an odd final card spans the row instead of leaving an empty cell
+                    wide={i === visibleRest.length - 1 && visibleRest.length % 2 === 1}
+                  />
+                ))}
+              </AnimatePresence>
+            </m.div>
+          ) : (
+            <div className="hud mt-10 px-6 py-14 text-center">
+              <p className="font-mono text-base text-ink">No observations in {filter} beyond the flagship yet.</p>
+              <button
+                type="button"
+                onClick={() => setFilter("All")}
+                className="mt-4 inline-flex min-h-11 items-center px-4 font-mono text-sm font-bold text-accent underline underline-offset-4"
+              >
+                Show all projects
+              </button>
+            </div>
+          )}
         </div>
-
-        <ProjectCard p={featured} prominence="flagship" />
-        <span className="hairline my-16 block" aria-hidden="true" />
-
-        {visibleRest.length > 0 ? (
-          <div className="grid gap-8 md:grid-cols-2">
-            <AnimatePresence mode="popLayout">
-              {visibleRest.map((p, i) => (
-                <ProjectCard key={p.index} p={p} prominence="showcase" index={i} />
-              ))}
-            </AnimatePresence>
-          </div>
-        ) : (
-          <p className="panel rounded-2xl p-8 text-center text-sm text-ink-soft">
-            No projects match this filter yet — try “All”.
-          </p>
-        )}
       </div>
     </section>
   );
 }
 
-function ProjectCard({
-  p,
-  prominence,
-  index = 0,
-}: {
-  p: Project;
-  prominence: "flagship" | "showcase";
-  index?: number;
-}) {
-  if (prominence === "flagship") return <FlagshipCard p={p} />;
-  return <ShowcaseCard p={p} index={index} />;
-}
-
-function NarrativeRow({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
+function Block({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="grid gap-4 border-b border-line py-9 md:grid-cols-[12rem_1fr] md:gap-10">
-      <span className="eyebrow pt-1">{label}</span>
-      <div className="max-w-2xl">{children}</div>
+    <div>
+      <h4 className="font-mono text-sm font-bold text-ink">{label}</h4>
+      <div className="mt-2.5">{children}</div>
     </div>
   );
 }
 
-function FlagshipCard({ p }: { p: Project }) {
+function Flagship({ p }: { p: Project }) {
+  const o = OBSERVATION[p.title];
   return (
-    <motion.div
-      id={`project-${p.index}`}
-      className="scroll-mt-28"
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.6, ease }}
-    >
-      {/* PRODUCT — large interface */}
-      <div className="group relative overflow-hidden rounded-[2rem] border border-line">
-        <div className="relative aspect-[16/9] w-full overflow-hidden sm:aspect-[16/8]">
-          <Cover
-            p={p}
-            className="h-full w-full transition-transform duration-700 group-hover:scale-[1.02]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/10 to-transparent" />
-        </div>
-      </div>
+    <article id={`project-${p.index}`} aria-labelledby="flagship-title" className="observe mt-14 scroll-mt-24 md:mt-20">
+      {o && (
+        <a href={studyHref(p)} aria-label={`${p.title} case study`} className="block">
+          <Plate id={o.plate} label={o.label} alt={o.alt} anchor="68%" />
+        </a>
+      )}
 
-      {/* THESIS */}
-      <div className="mt-10 grid gap-6 lg:grid-cols-[1.5fr_1fr] lg:items-end">
+      <div className="mt-10 grid grid-cols-1 gap-x-14 gap-y-6 lg:grid-cols-[1fr_1.2fr] lg:items-end">
         <div>
-          <p className="eyebrow mb-3">Flagship product · {p.domain}</p>
-          <h3 className="display max-w-xl">{p.title}</h3>
+          <p className="font-mono text-sm text-ink-faint">Flagship, {p.domain}</p>
+          <h3 id="flagship-title" className="mt-2 font-mono text-5xl font-extrabold tracking-[-0.04em] text-ink md:text-6xl">
+            {p.title}
+          </h3>
         </div>
-        <p className="lead">{p.tagline}</p>
+        <p className="lead max-w-[54ch]">{tidy(p.tagline)}</p>
       </div>
-      <p className="audit-stamp mt-8">
-        <strong>Receipt</strong>
-        <span>
-          {p.performance.map((m) => `${m.value} ${m.label}`).join("  ·  ")}
-        </span>
-      </p>
 
-      {/* NARRATIVE */}
-      <div className="mt-12 border-t border-line">
-        <NarrativeRow label="Problem">
-          <p className="text-[15px] leading-relaxed text-ink-soft md:text-base">
-            {p.problem}
-          </p>
-        </NarrativeRow>
-        <NarrativeRow label="Approach">
-          <p className="text-[15px] leading-relaxed text-ink-soft md:text-base">
-            {p.solution}
-          </p>
-        </NarrativeRow>
-
-        {/* DECISIONS */}
-        <div className="grid gap-6 border-b border-line py-10 md:grid-cols-[12rem_1fr] md:gap-10">
-          <span className="eyebrow pt-1">Decisions</span>
-          <div className="space-y-7">
-            {p.decisions.map((d, i) => (
-              <div
-                key={d.title}
-                className="grid gap-3 md:grid-cols-[2.5rem_1fr] md:gap-5"
-              >
-                <span className="font-mono text-sm text-ink-faint">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <div>
-                  <p className="text-base font-semibold tracking-tight text-ink">
-                    {d.title}
-                  </p>
-                  <p className="mt-1.5 text-[15px] leading-relaxed text-ink-soft">
-                    {d.body}
-                  </p>
-                </div>
-              </div>
-            ))}
+      <dl className="mt-10 grid grid-cols-3 border-y border-line">
+        {p.performance.map((m, i) => (
+          <div key={m.label} className={`py-6 ${i > 0 ? "border-l border-line pl-4 sm:pl-8" : "pr-4"}`}>
+            <dt className="sr-only">{m.label}</dt>
+            <dd className="font-mono text-2xl font-extrabold tracking-tight text-ink md:text-3xl">{m.value}</dd>
+            <dd className="mt-1 text-sm text-ink-soft">{m.label}</dd>
           </div>
-        </div>
+        ))}
+      </dl>
 
-        {/* ARCHITECTURE */}
-        <div className="grid gap-6 border-b border-line py-10 md:grid-cols-[12rem_1fr] md:gap-10">
-          <span className="eyebrow pt-1">Architecture</span>
-          <div>
-            <ArchitectureDiagram flow={p.architecture} />
-            {p.architecture.caption && (
-              <p className="mt-4 font-mono text-xs leading-relaxed text-ink-faint">
-                {p.architecture.caption}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* EVIDENCE */}
-        <div className="grid gap-6 border-b border-line py-10 md:grid-cols-[12rem_1fr] md:gap-10">
-          <span className="eyebrow pt-1">Evidence</span>
-          <div>
-            <div className="panel grid grid-cols-3 divide-x divide-border rounded-2xl">
-              {p.performance.map((m) => (
-                <div key={m.label} className="px-4 py-5 text-center sm:px-6">
-                  <p className="text-lg font-semibold tracking-tight text-ink sm:text-xl">
-                    {m.value}
-                  </p>
-                  <p className="mt-1 font-mono text-[11px] uppercase tracking-wide text-ink-faint">
-                    {m.label}
-                  </p>
-                </div>
+      <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1.05fr] lg:gap-16">
+        <div className="space-y-9">
+          <Block label="Problem">
+            <p className="max-w-[62ch] text-ink-soft">{tidy(p.problem)}</p>
+          </Block>
+          <Block label="Approach">
+            <p className="max-w-[62ch] text-ink-soft">{tidy(p.solution)}</p>
+          </Block>
+          <Block label="Key decisions">
+            <ul className="space-y-5">
+              {p.decisions.map((d) => (
+                <li key={d.title} className="border-l-2 border-accent pl-4">
+                  <p className="font-bold text-ink">{d.title}</p>
+                  <p className="mt-1 max-w-[62ch] text-[15px] text-ink-soft">{tidy(d.body)}</p>
+                </li>
               ))}
-            </div>
-            <div className="mt-5">
-              <PipelineStrip flow={p.architecture} />
-            </div>
-          </div>
+            </ul>
+          </Block>
         </div>
+        <ArchitectureDiagram flow={p.architecture} />
       </div>
 
-      {/* LINKS + STACK */}
-      <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-        <a
-          href={studyHref(p)}
-          className="btn btn-primary"
-        >
-          Case study
+      <div className="mt-10 flex flex-wrap items-center gap-x-3 gap-y-3">
+        <a href={studyHref(p)} className="btn btn-primary">
+          Read the case study
           <ArrowIcon className="h-4 w-4" />
         </a>
-        <a
-          href={p.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn-ghost"
-        >
-          GitHub
+        <a href={p.href} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
+          Source
+          <ExternalIcon className="h-4 w-4" />
         </a>
+        <p className="w-full pt-2 font-mono text-xs text-ink-faint sm:w-auto sm:pl-3 sm:pt-0">{list(p.stack)}</p>
       </div>
-      <p className="mt-5 font-mono text-xs text-ink-faint">
-        {p.stack.join("  ·  ")}
-      </p>
-    </motion.div>
+    </article>
   );
 }
 
-function ShowcaseCard({ p, index = 0 }: { p: Project; index?: number }) {
+function ObservationCard({ p, wide }: { p: Project; wide: boolean }) {
   const [showArch, setShowArch] = useState(false);
+  const reduce = useReducedMotion();
+  const archId = `arch-${p.index}`;
+  const o = OBSERVATION[p.title];
 
   return (
-    <motion.article
+    <m.article
       id={`project-${p.index}`}
-      layout
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.97, transition: { duration: 0.3, ease } }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{
-        duration: 0.55,
-        delay: (index % 2) * 0.08,
-        ease,
-      }}
-      whileHover={{ y: -4 }}
-      className="panel flex scroll-mt-28 flex-col overflow-hidden rounded-3xl transition-colors hover:border-border-strong focus-within:border-border-strong"
+      layout={!reduce}
+      initial={reduce ? false : { opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={reduce ? undefined : { opacity: 0, scale: 0.98, transition: { duration: 0.2, ease } }}
+      transition={{ duration: 0.4, ease }}
+      className={`observe flex scroll-mt-24 flex-col ${wide ? "md:col-span-2 md:grid md:grid-cols-[1.15fr_1fr] md:gap-10" : ""}`}
     >
-      {/* IMAGE — the primary evidence, kept clean of chrome */}
-      <div className="group relative aspect-[16/9] overflow-hidden">
-        <Cover
-          p={p}
-          className="h-full w-full transition-transform duration-700 group-hover:scale-[1.03]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[color:var(--color-panel)] via-transparent to-transparent opacity-70" />
-      </div>
+      {o && <Plate id={o.plate} label={o.label} alt={o.alt} />}
 
-      {/* BODY — identity → value → metrics → architecture → links (spec §10) */}
-      <div className="flex flex-1 flex-col p-6 sm:p-7">
-        <div className="flex items-baseline justify-between gap-3">
-          <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-faint">
-            {p.domain}
-          </p>
-          <span className="spec-mark" aria-label={`Project reference ${p.index}`}>
-            <span aria-hidden="true">REF&nbsp;</span>{p.index}
-          </span>
-        </div>
-        <h3 className="mt-2 text-xl font-semibold tracking-tight text-ink">
-          {p.title}
-        </h3>
-        <p className="mt-2 text-sm leading-relaxed text-ink-soft">{p.tagline}</p>
+      <div className={`flex flex-1 flex-col ${wide ? "pt-6 md:pt-2" : "pt-6"}`}>
+        <p className="font-mono text-[13px] text-ink-faint">{p.domain}</p>
+        <h4 className="mt-1.5 font-mono text-2xl font-extrabold tracking-[-0.03em] text-ink">{p.title}</h4>
+        <p className="mt-2.5 text-ink-soft">{tidy(p.tagline)}</p>
 
-        {/* metrics — quiet horizontal rule, not another box */}
-        <div className="mt-5 grid grid-cols-3 divide-x divide-border border-y border-line py-3.5">
+        <dl className="mt-5 grid grid-cols-3 gap-4 border-t border-line pt-4">
           {p.performance.map((m) => (
-            <div key={m.label} className="px-3 text-center first:pl-0 last:pr-0">
-              <p className="text-sm font-semibold tracking-tight text-ink">
-                {m.value}
-              </p>
-              <p className="mt-0.5 font-mono text-[11px] uppercase tracking-wide text-ink-faint">
-                {m.label}
-              </p>
+            <div key={m.label}>
+              <dt className="sr-only">{m.label}</dt>
+              <dd className="font-mono text-[15px] font-bold text-ink">{m.value}</dd>
+              <dd className="mt-0.5 text-xs leading-snug text-ink-faint">{m.label}</dd>
             </div>
           ))}
-        </div>
+        </dl>
 
-        {/* expandable architecture — tap/focus equivalent for the hover-free web */}
-        <div className="mt-2">
+        <div className="mt-4 border-t border-line">
           <button
             type="button"
-            onClick={() => setShowArch((o) => !o)}
+            onClick={() => setShowArch((v) => !v)}
             aria-expanded={showArch}
-            className="flex min-h-[2.75rem] w-full items-center justify-between gap-3 rounded-xl px-2 py-3 text-sm font-medium text-ink transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover"
+            aria-controls={archId}
+            className="flex min-h-11 w-full items-center justify-between gap-3 font-mono text-[13px] font-bold text-ink-soft transition-colors hover:text-ink"
           >
-            <span className="inline-flex items-center gap-2 text-ink-soft">
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 16 16"
-                fill="none"
-                className="h-4 w-4 text-accent"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <rect x="2.5" y="2.5" width="11" height="11" rx="2" />
-                <path d="M6 2.5v11M10 2.5v11M2.5 6h11M2.5 10h11" />
-              </svg>
+            <span className="inline-flex items-center gap-2">
+              <TreeStructure aria-hidden="true" size={16} className="text-accent" />
               Architecture
             </span>
-            <motion.span
-              animate={{ rotate: showArch ? 45 : 0 }}
-              transition={{ duration: 0.2 }}
-              className="font-mono text-lg leading-none text-ink-soft"
-              aria-hidden="true"
-            >
-              +
-            </motion.span>
+            <Plus aria-hidden="true" size={16} className={`transition-transform duration-200 ${showArch ? "rotate-45" : ""}`} />
           </button>
           <AnimatePresence initial={false}>
             {showArch && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
+              <m.div
+                id={archId}
+                initial={reduce ? false : { height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.35, ease }}
+                exit={reduce ? undefined : { height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease }}
                 className="overflow-hidden"
               >
-                <div className="pt-4">
-                  <ArchitectureDiagram flow={p.architecture} />
+                <div className="pb-3 pt-1">
+                  <ArchitectureDiagram flow={p.architecture} compact />
                 </div>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* stack — one quiet line, not a pill cloud */}
-        <p className="mt-4 font-mono text-[11px] leading-relaxed text-ink-faint">
-          {p.stack.slice(0, 5).join("  ·  ")}
-        </p>
+        <p className="mt-1 font-mono text-xs leading-relaxed text-ink-faint">{list(p.stack.slice(0, 5))}</p>
 
-        <div className="mt-6 flex flex-wrap items-center gap-x-2 gap-y-2 border-t border-line pt-4">
+        <div className="mt-auto flex flex-wrap items-center gap-x-5 pt-4">
           <a
             href={studyHref(p)}
-            className="inline-flex min-h-[2.75rem] items-center gap-1.5 rounded-lg px-2 py-1 text-sm font-medium text-ink transition-colors hover:text-accent focus-visible:bg-surface-hover"
+            className="inline-flex min-h-11 items-center gap-1.5 font-mono text-sm font-bold text-ink transition-colors hover:text-accent"
           >
             Case study
-            <ArrowIcon className="h-3.5 w-3.5" />
+            <ArrowIcon className="h-4 w-4" />
           </a>
           <a
             href={p.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-[2.75rem] items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-ink-soft transition-colors hover:text-accent focus-visible:bg-surface-hover"
+            className="inline-flex min-h-11 items-center gap-1.5 font-mono text-sm text-ink-soft transition-colors hover:text-accent"
           >
-            GitHub
-            <ArrowIcon className="h-3.5 w-3.5" />
+            Source
+            <ExternalIcon className="h-4 w-4" />
           </a>
           {p.demo && (
             <a
               href={p.demo}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-[2.75rem] items-center gap-1.5 rounded-lg px-2 py-1 text-sm text-ink-soft transition-colors hover:text-accent focus-visible:bg-surface-hover"
+              className="inline-flex min-h-11 items-center gap-1.5 font-mono text-sm text-ink-soft transition-colors hover:text-accent"
             >
               Live demo
-              <ArrowIcon className="h-3.5 w-3.5" />
+              <ExternalIcon className="h-4 w-4" />
             </a>
           )}
         </div>
       </div>
-    </motion.article>
+    </m.article>
   );
 }

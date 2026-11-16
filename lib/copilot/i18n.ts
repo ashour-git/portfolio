@@ -186,6 +186,10 @@ const ERROR_MESSAGES: Record<ErrorKind, { en: string; ar: string }> = {
     en: "Stopped.",
     ar: "تم الإيقاف.",
   },
+  bad_request: {
+    en: "That message couldn't be sent. Try rephrasing it a little shorter.",
+    ar: "تعذّر إرسال هذه الرسالة. جرّب صياغتها بشكل أقصر قليلًا.",
+  },
   unknown: {
     en: "Copilot is temporarily unavailable.",
     ar: "المساعد الهندسي غير متاح مؤقتًا.",
@@ -215,8 +219,8 @@ export function explainWhyBody(plan: Plan | null, labels: string[], lang: Lang):
   if (plan?.template === "casual") {
     return [
       lang === "ar"
-        ? "ردّ قصير محادثي — لا يتطلب استرجاعًا من قاعدة المعرفة."
-        : "A short conversational reply — no knowledge-base retrieval needed.",
+        ? "ردّ قصير محادثي، لا يتطلب استرجاعًا من قاعدة المعرفة."
+        : "A short conversational reply, no knowledge-base retrieval needed.",
     ];
   }
   return [
@@ -294,11 +298,11 @@ export const FOLLOWUPS: Partial<Record<PlanTemplate, { en: string; ar: string; a
 export const EMPTY_STATE: Record<Lang, { title: string; subtitle: string }> = {
   en: {
     title: "Engineering Copilot",
-    subtitle: "Explore Mohamed's work through natural language — projects, architecture, decisions, and evidence.",
+    subtitle: "Explore Mohamed's work through natural language: projects, architecture, decisions, and evidence.",
   },
   ar: {
     title: "المساعد الهندسي",
-    subtitle: "استكشف عمل محمد بلغة طبيعية — المشاريع، المعمارية، القرارات، والأدلة.",
+    subtitle: "استكشف عمل محمد بلغة طبيعية: المشاريع، المعمارية، القرارات، والأدلة.",
   },
 };
 

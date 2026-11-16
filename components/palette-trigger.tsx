@@ -1,15 +1,17 @@
 "use client";
 
+import { Command } from "@phosphor-icons/react/dist/ssr";
+
 export function PaletteTrigger() {
   return (
     <button
       type="button"
       onClick={() => window.dispatchEvent(new Event("ma:open-palette"))}
-      aria-label="Open command palette (Ctrl/⌘ + K)"
-      className="hidden min-h-[2.75rem] items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-surface px-3 py-1.5 font-mono text-xs text-ink-faint transition-colors hover:border-border-strong hover:text-ink focus-visible:border-accent lg:flex"
+      aria-label="Open command palette (Ctrl or Cmd + K)"
+      title="Command palette (Ctrl K)"
+      className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink-soft transition-colors hover:bg-surface-hover hover:text-ink focus-visible:bg-surface-hover lg:flex"
     >
-      <span aria-hidden="true" className="text-ink-soft">Ctrl K</span>
-      menu
+      <Command aria-hidden="true" size={18} />
     </button>
   );
 }
