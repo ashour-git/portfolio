@@ -1,0 +1,629 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-17T03:51:40.260Z",
+  "title": "Design System: Mohamed Ashour",
+  "extensions": {
+    "colorMeta": {
+      "void-black": {
+        "role": "neutral",
+        "displayName": "Void Black",
+        "canonical": "oklch(11.5% 0.000 89.9)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#808080",
+          "#a4a4a4",
+          "#cacaca",
+          "#eeeeee"
+        ]
+      },
+      "void-black-2": {
+        "role": "neutral",
+        "displayName": "Void Black Deep Step",
+        "canonical": "oklch(14.5% 0.000 89.9)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#808080",
+          "#a4a4a4",
+          "#cacaca",
+          "#eeeeee"
+        ]
+      },
+      "plate-black": {
+        "role": "neutral",
+        "displayName": "Plate Black",
+        "canonical": "oklch(12.9% 0.000 89.9)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#808080",
+          "#a4a4a4",
+          "#cacaca",
+          "#eeeeee"
+        ]
+      },
+      "panel-black": {
+        "role": "neutral",
+        "displayName": "Panel Black",
+        "canonical": "oklch(16.0% 0.002 286.2)",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#242425",
+          "#3f3f41",
+          "#5d5d5f",
+          "#808081",
+          "#a4a4a6",
+          "#cacacc",
+          "#eeeef0"
+        ]
+      },
+      "panel-black-2": {
+        "role": "neutral",
+        "displayName": "Panel Black Raised",
+        "canonical": "oklch(19.6% 0.002 286.2)",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#242425",
+          "#3f3f41",
+          "#5d5d5f",
+          "#808081",
+          "#a4a4a6",
+          "#cacacc",
+          "#eeeef0"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "oklch(26.9% 0.002 286.3)",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#242425",
+          "#404041",
+          "#5d5d5f",
+          "#808081",
+          "#a4a4a6",
+          "#cacacc",
+          "#eeeef0"
+        ]
+      },
+      "hairline-strong": {
+        "role": "neutral",
+        "displayName": "Hairline Strong",
+        "canonical": "oklch(36.1% 0.005 286.1)",
+        "tonalRamp": [
+          "#0b0b0d",
+          "#242426",
+          "#3f3f42",
+          "#5d5d60",
+          "#808083",
+          "#a4a4a8",
+          "#cacace",
+          "#eeeef2"
+        ]
+      },
+      "engraving-white": {
+        "role": "neutral",
+        "displayName": "Engraving White",
+        "canonical": "oklch(93.9% 0.007 97.4)",
+        "tonalRamp": [
+          "#0c0b08",
+          "#252420",
+          "#41403c",
+          "#5e5e59",
+          "#81807c",
+          "#a6a5a0",
+          "#cbcbc6",
+          "#f0eee9"
+        ]
+      },
+      "engraving-soft": {
+        "role": "neutral",
+        "displayName": "Engraving Soft",
+        "canonical": "oklch(77.9% 0.008 98.9)",
+        "tonalRamp": [
+          "#0c0b07",
+          "#252420",
+          "#41403b",
+          "#5f5e58",
+          "#81807b",
+          "#a6a59f",
+          "#cccbc5",
+          "#f0efe8"
+        ]
+      },
+      "engraving-faint": {
+        "role": "neutral",
+        "displayName": "Engraving Faint",
+        "canonical": "oklch(63.3% 0.007 97.4)",
+        "tonalRamp": [
+          "#0c0b08",
+          "#252420",
+          "#41403b",
+          "#5f5e59",
+          "#81807b",
+          "#a6a59f",
+          "#cccbc5",
+          "#f0efe9"
+        ]
+      },
+      "network-blue": {
+        "role": "primary",
+        "displayName": "Network Blue",
+        "canonical": "oklch(68.1% 0.168 261.4)",
+        "tonalRamp": [
+          "#00062c",
+          "#001b5e",
+          "#003496",
+          "#2056bb",
+          "#437ce3",
+          "#75a4f7",
+          "#acccff",
+          "#e0efff"
+        ]
+      },
+      "network-blue-glow": {
+        "role": "primary",
+        "displayName": "Network Blue Glow",
+        "canonical": "oklch(91.7% 0.040 263.7)",
+        "tonalRamp": [
+          "#040a1c",
+          "#1a2437",
+          "#354055",
+          "#525e75",
+          "#748099",
+          "#98a5be",
+          "#bdcbe5",
+          "#e1efff"
+        ]
+      },
+      "spacetime-magenta": {
+        "role": "secondary",
+        "displayName": "Spacetime Magenta",
+        "canonical": "oklch(68.2% 0.240 353.6)",
+        "tonalRamp": [
+          "#21000e",
+          "#4b0028",
+          "#7a0046",
+          "#ad0066",
+          "#cc4788",
+          "#e480ab",
+          "#f7b4cf",
+          "#ffe4f0"
+        ]
+      },
+      "detection-red": {
+        "role": "secondary",
+        "displayName": "Detection Red",
+        "canonical": "oklch(65.4% 0.232 28.7)",
+        "tonalRamp": [
+          "#240000",
+          "#510000",
+          "#820000",
+          "#b80000",
+          "#d6493c",
+          "#ec8274",
+          "#fdb6ac",
+          "#ffe5df"
+        ]
+      },
+      "horizon-gold": {
+        "role": "tertiary",
+        "displayName": "Horizon Gold",
+        "canonical": "oklch(84.5% 0.135 75.4)",
+        "tonalRamp": [
+          "#1d0300",
+          "#441300",
+          "#672f00",
+          "#884f00",
+          "#ae7200",
+          "#d49735",
+          "#ebc38c",
+          "#ffebd1"
+        ]
+      },
+      "cursor-green": {
+        "role": "tertiary",
+        "displayName": "Cursor Green",
+        "canonical": "oklch(88.2% 0.163 135.0)",
+        "tonalRamp": [
+          "#001100",
+          "#002f00",
+          "#075000",
+          "#2d7000",
+          "#51941b",
+          "#80b75f",
+          "#b3d7a0",
+          "#e3f5da"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "oklch(94.5% 0.004 106.5)",
+        "tonalRamp": [
+          "#0b0b09",
+          "#242422",
+          "#40403d",
+          "#5e5e5b",
+          "#80807e",
+          "#a5a5a2",
+          "#cbcbc8",
+          "#efefec"
+        ]
+      },
+      "paper-2": {
+        "role": "neutral",
+        "displayName": "Paper Shade",
+        "canonical": "oklch(92.1% 0.005 106.5)",
+        "tonalRamp": [
+          "#0b0b09",
+          "#242421",
+          "#40403d",
+          "#5e5e5a",
+          "#80807d",
+          "#a5a5a1",
+          "#cbcbc7",
+          "#efefeb"
+        ]
+      },
+      "paper-panel": {
+        "role": "neutral",
+        "displayName": "Paper Panel",
+        "canonical": "oklch(97.5% 0.004 106.5)",
+        "tonalRamp": [
+          "#0b0b09",
+          "#242422",
+          "#40403d",
+          "#5e5e5b",
+          "#80807e",
+          "#a5a5a2",
+          "#cbcbc8",
+          "#efefec"
+        ]
+      },
+      "paper-hairline": {
+        "role": "neutral",
+        "displayName": "Paper Hairline",
+        "canonical": "oklch(86.2% 0.007 106.5)",
+        "tonalRamp": [
+          "#0b0b08",
+          "#242421",
+          "#40403c",
+          "#5e5e5a",
+          "#80807c",
+          "#a5a5a0",
+          "#cbcbc6",
+          "#efefea"
+        ]
+      },
+      "paper-hairline-strong": {
+        "role": "neutral",
+        "displayName": "Paper Hairline Strong",
+        "canonical": "oklch(73.0% 0.009 106.6)",
+        "tonalRamp": [
+          "#0b0b08",
+          "#242420",
+          "#40403b",
+          "#5e5e59",
+          "#81817b",
+          "#a5a59f",
+          "#cbcbc5",
+          "#efefe8"
+        ]
+      },
+      "print-ink": {
+        "role": "neutral",
+        "displayName": "Print Ink",
+        "canonical": "oklch(15.0% 0.002 286.1)",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#242425",
+          "#3f3f41",
+          "#5d5d5f",
+          "#808081",
+          "#a4a4a6",
+          "#cacacc",
+          "#eeeef0"
+        ]
+      },
+      "print-ink-soft": {
+        "role": "neutral",
+        "displayName": "Print Ink Soft",
+        "canonical": "oklch(33.1% 0.009 285.9)",
+        "tonalRamp": [
+          "#0b0b0f",
+          "#232328",
+          "#3f3f44",
+          "#5d5d62",
+          "#7f7f85",
+          "#a4a4aa",
+          "#cacad0",
+          "#eeeef4"
+        ]
+      },
+      "print-ink-faint": {
+        "role": "neutral",
+        "displayName": "Print Ink Faint",
+        "canonical": "oklch(47.3% 0.008 286.1)",
+        "tonalRamp": [
+          "#0b0b0e",
+          "#242328",
+          "#3f3f44",
+          "#5d5d62",
+          "#808085",
+          "#a4a4a9",
+          "#cacad0",
+          "#eeeef4"
+        ]
+      },
+      "print-blue": {
+        "role": "primary",
+        "displayName": "Print Blue",
+        "canonical": "oklch(50.4% 0.204 263.1)",
+        "tonalRamp": [
+          "#00052c",
+          "#021b5e",
+          "#083396",
+          "#184fce",
+          "#4479ea",
+          "#78a3f7",
+          "#aecbff",
+          "#e1efff"
+        ]
+      },
+      "print-gold": {
+        "role": "tertiary",
+        "displayName": "Print Gold",
+        "canonical": "oklch(53.1% 0.119 65.1)",
+        "tonalRamp": [
+          "#1f0000",
+          "#470c00",
+          "#682d00",
+          "#8a4c00",
+          "#b06f24",
+          "#d8944d",
+          "#f1c090",
+          "#ffead3"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The name in the hero only: Bodoni Moda 900 capitals, one line per word."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section titles, sentence case, balanced, 18-22ch."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Project and role names; the flagship at 700 and 4.5rem."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Prose in Atkinson Hyperlegible Next, 54-68ch."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "The one paragraph under a section headline, Engraving Soft, max 56ch."
+      },
+      "numeral": {
+        "displayName": "Numeral",
+        "purpose": "Measured results in readouts, tabular mono 800."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Plate captions, coordinates, detection tags, instrument annotations; uppercase inside plates."
+      }
+    },
+    "shadows": [
+      {
+        "name": "emitted-blue",
+        "value": "drop-shadow(0 0 3px rgba(91, 149, 255, 0.95))",
+        "purpose": "Glow on network pulses and active memory stars only: emitted light, never elevation."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-acquire",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Lock-on overshoot, trajectory trace, line draw-in."
+      },
+      {
+        "name": "lock-on",
+        "value": "1.15s ease-acquire, once per load",
+        "purpose": "Detection boxes hunt and lock onto the black hole and the name."
+      },
+      {
+        "name": "trajectory-trace",
+        "value": "0.9s ease-acquire, 1.2s delay",
+        "purpose": "Dashed red path drawn between detections after the lock."
+      },
+      {
+        "name": "detect-relock",
+        "value": "0.42s ease-acquire",
+        "purpose": "Portrait detection box re-locks on hover."
+      },
+      {
+        "name": "ambient-draw",
+        "value": "3.6s ease-acquire; 9s cubic-bezier(0.3, 0.1, 0.2, 1) for slow paths",
+        "purpose": "Ambient diagrams draw once when in view."
+      },
+      {
+        "name": "orbit-drift",
+        "value": "200s linear infinite",
+        "purpose": "Slow drift of orbit bodies after the draw."
+      },
+      {
+        "name": "spacetime-fall",
+        "value": "10s linear infinite",
+        "purpose": "Magenta rings falling into the funnel."
+      },
+      {
+        "name": "network-flow",
+        "value": "4.5s linear infinite",
+        "purpose": "Blue pulses along network edges."
+      },
+      {
+        "name": "state",
+        "value": "0.18s ease",
+        "purpose": "Colour and border transitions on buttons, links and inputs."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Every animation shows its final or still state; the code stream renders one frame; continuous motion also pauses offscreen."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "xs",
+        "value": "480px"
+      },
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one decisive action per block, such as the resume download.",
+      "html": "<a class=\"ds-btn ds-btn-primary\" href=\"#\">Download resume</a>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;font-size:.9375rem;font-weight:700;line-height:1;padding:.85rem 1.25rem;min-height:2.75rem;border:1px solid transparent;border-radius:0;text-decoration:none;transition:background-color .18s ease,color .18s ease,border-color .18s ease,transform .12s ease}.ds-btn:active{transform:translateY(1px)}.ds-btn:focus-visible{outline:2px solid #5b95ff;outline-offset:3px}.ds-btn-primary{background:#ecebe6;color:#050505;border-color:#ecebe6}.ds-btn-primary:hover{background:#5b95ff;border-color:#5b95ff;color:#050505}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action beside a primary, such as Source.",
+      "html": "<a class=\"ds-btn-ghost\" href=\"#\">Source</a>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;gap:.5rem;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;font-size:.9375rem;font-weight:700;line-height:1;padding:.85rem 1.25rem;min-height:2.75rem;background:transparent;color:#ecebe6;border:1px solid #3d3d40;border-radius:0;text-decoration:none;transition:border-color .18s ease}.ds-btn-ghost:hover{border-color:#ecebe6}.ds-btn-ghost:focus-visible{outline:2px solid #5b95ff;outline-offset:3px}"
+    },
+    {
+      "name": "Ask Prompt",
+      "kind": "input",
+      "refersTo": "ask-prompt",
+      "description": "Terminal line that sends a question to the copilot; green prompt glyph and caret, blue focus.",
+      "html": "<form class=\"ds-ask\"><span class=\"ds-ask-prefix\"><b>&gt;</b> ask</span><input placeholder=\"what has he shipped?\" aria-label=\"Ask the copilot\"><button type=\"button\">Ask</button></form>",
+      "css": ".ds-ask{display:flex;align-items:stretch;border:1px solid #3d3d40;background:#050505;max-width:32rem;transition:border-color .18s ease}.ds-ask:focus-within{border-color:#5b95ff}.ds-ask-prefix{display:flex;align-items:center;gap:.4rem;padding:0 .5rem 0 .9rem;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.875rem;color:#8b8a85;white-space:nowrap}.ds-ask-prefix b{color:#a8f07e}.ds-ask input{flex:1;min-width:0;background:transparent;border:0;outline:0;padding:.85rem .25rem;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.9375rem;color:#ecebe6;caret-color:#a8f07e}.ds-ask input::placeholder{color:#8b8a85}.ds-ask button{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.875rem;font-weight:700;padding:0 1.1rem;background:transparent;color:#ecebe6;border:0;border-left:1px solid #3d3d40;cursor:pointer;transition:background-color .18s ease,color .18s ease}.ds-ask button:hover,.ds-ask button:focus-visible{background:#5b95ff;color:#050505;outline:none}"
+    },
+    {
+      "name": "Plate",
+      "kind": "card",
+      "refersTo": "plate",
+      "description": "A framed, numbered figure: hairline frame, registration corners, Fig. N caption; engraved white on black in both themes.",
+      "html": "<figure class=\"ds-plate\"><figcaption class=\"ds-plate-bar\"><span><b>Fig. 2</b> restai / retrieval</span><span>pgvector</span></figcaption><svg viewBox=\"0 0 320 120\" role=\"img\" aria-label=\"Retrieval sketch\"><path d=\"M20 90 Q160 10 300 90\" fill=\"none\" stroke=\"rgba(236,235,230,0.26)\"/><path d=\"M60 72L160 50L260 72\" fill=\"none\" stroke=\"#5b95ff\"/><circle cx=\"60\" cy=\"72\" r=\"4\" fill=\"#ecebe6\"/><circle cx=\"160\" cy=\"50\" r=\"4\" fill=\"#5b95ff\"/><circle cx=\"260\" cy=\"72\" r=\"4\" fill=\"#ecebe6\"/><text x=\"160\" y=\"110\" text-anchor=\"middle\" fill=\"#ecebe6\" font-family=\"JetBrains Mono, monospace\" font-size=\"10\">QUERY</text></svg></figure>",
+      "css": ".ds-plate{position:relative;margin:0;overflow:hidden;background:#070707;border:1px solid rgba(236,235,230,.14);color:#ecebe6;font-family:'JetBrains Mono',ui-monospace,monospace;max-width:28rem}.ds-plate::after{--c:rgba(236,235,230,.55);--a:9px;content:'';position:absolute;inset:6px;pointer-events:none;background:linear-gradient(var(--c),var(--c)) top left/var(--a) 1px no-repeat,linear-gradient(var(--c),var(--c)) top left/1px var(--a) no-repeat,linear-gradient(var(--c),var(--c)) top right/var(--a) 1px no-repeat,linear-gradient(var(--c),var(--c)) top right/1px var(--a) no-repeat,linear-gradient(var(--c),var(--c)) bottom left/var(--a) 1px no-repeat,linear-gradient(var(--c),var(--c)) bottom left/1px var(--a) no-repeat,linear-gradient(var(--c),var(--c)) bottom right/var(--a) 1px no-repeat,linear-gradient(var(--c),var(--c)) bottom right/1px var(--a) no-repeat}.ds-plate-bar{display:flex;justify-content:space-between;gap:1rem;padding:.65rem 1rem;border-bottom:1px solid rgba(236,235,230,.12);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:rgba(236,235,230,.62)}.ds-plate-bar b{color:#ecebe6;font-weight:700}.ds-plate svg{display:block;width:100%;height:auto}"
+    },
+    {
+      "name": "Detection Box",
+      "kind": "custom",
+      "refersTo": "detection-box",
+      "description": "Signature CV overlay: red box, red-pip tag with confidence, live x/y coordinates; red is reserved for this.",
+      "html": "<div class=\"ds-stage\"><div class=\"ds-detect\"><span class=\"ds-detect-tag\">ai_engineer 0.97</span><span class=\"ds-detect-xy\">x: 412  y: 268</span></div></div>",
+      "css": ".ds-stage{position:relative;background:#050505;height:9rem;padding:2.5rem 2rem}.ds-detect{position:relative;width:12rem;height:4rem;border:1px solid #ff3b30;transition:transform .42s cubic-bezier(.16,1,.3,1)}.ds-stage:hover .ds-detect{transform:scale(1.03)}.ds-detect-tag,.ds-detect-xy{position:absolute;font-family:'JetBrains Mono',ui-monospace,monospace;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums;padding:3px 5px 2px;margin:-3px -5px -2px;background:rgba(5,5,5,.72)}.ds-detect-tag{left:-1px;bottom:calc(100% + 6px);display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;font-weight:500;color:#ecebe6}.ds-detect-tag::before{content:'';width:6px;height:6px;background:#ff3b30}.ds-detect-xy{right:-1px;top:calc(100% + 6px);font-size:.6875rem;color:rgba(236,235,230,.7)}@media (prefers-reduced-motion:reduce){.ds-detect{transition:none}}"
+    },
+    {
+      "name": "Readout",
+      "kind": "custom",
+      "refersTo": "readout",
+      "description": "Measured results between hairlines: mono numeral, prose label, source link.",
+      "html": "<ul class=\"ds-readout\"><li><p class=\"ds-num\">162</p><p class=\"ds-lbl\">automated tests</p><a href=\"#\">RestAI</a></li><li><p class=\"ds-num\">18/18</p><p class=\"ds-lbl\">security tests passed</p><a href=\"#\">Text-to-SQL Generator</a></li><li><p class=\"ds-num\">7,000+</p><p class=\"ds-lbl\">books in a semantic index</p><a href=\"#\">Semantic Book Recommender</a></li></ul>",
+      "css": ".ds-readout{display:grid;grid-template-columns:repeat(3,1fr);list-style:none;margin:0;padding:0;border-top:1px solid #262627;border-bottom:1px solid #262627;background:#050505}.ds-readout li{padding:1.75rem 2rem;min-width:0}.ds-readout li+li{border-left:1px solid #262627}.ds-num{margin:0;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:2rem;font-weight:800;letter-spacing:-.025em;color:#ecebe6;font-variant-numeric:tabular-nums}.ds-lbl{margin:.25rem 0 0;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;font-size:.9375rem;color:#b8b7b1}.ds-readout a{display:inline-block;margin-top:.5rem;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.75rem;color:#8b8a85;text-decoration:underline;text-decoration-color:#3d3d40;text-underline-offset:4px;transition:color .18s ease}.ds-readout a:hover,.ds-readout a:focus-visible{color:#5b95ff;outline:none}"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Brand mark (three blue inputs converging on a gold horizon) plus sans links; ink on the active section, blue focus.",
+      "html": "<nav class=\"ds-nav\"><span class=\"ds-mark\"><svg viewBox=\"0 0 28 24\" width=\"28\" height=\"24\" aria-hidden=\"true\"><g stroke=\"#5b95ff\" stroke-width=\"1.5\" stroke-linecap=\"round\" fill=\"none\"><path d=\"M4 5 L13.2 10.4\"/><path d=\"M3 12 H12.5\"/><path d=\"M4 19 L13.2 13.6\"/></g><g fill=\"#5b95ff\"><circle cx=\"4\" cy=\"5\" r=\"2\"/><circle cx=\"3\" cy=\"12\" r=\"2\"/><circle cx=\"4\" cy=\"19\" r=\"2\"/></g><circle cx=\"19\" cy=\"12\" r=\"6.2\" fill=\"#050505\" stroke=\"#ffbf5e\" stroke-width=\"2\"/><circle cx=\"19\" cy=\"12\" r=\"2.6\" fill=\"none\" stroke=\"#ffbf5e\" stroke-opacity=\"0.45\"/></svg></span><a href=\"#\" aria-current=\"true\">Work</a><a href=\"#\">Experience</a><a href=\"#\">Stack</a><a href=\"#\">Contact</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:.25rem;padding:.75rem 1.25rem;background:#050505;border-bottom:1px solid #262627}.ds-mark{display:inline-flex;margin-right:1rem}.ds-nav a{padding:.5rem .75rem;font-family:'Atkinson Hyperlegible Next',system-ui,sans-serif;font-size:15px;color:#b8b7b1;text-decoration:none;transition:color .3s ease}.ds-nav a:hover,.ds-nav a[aria-current]{color:#ecebe6}.ds-nav a:focus-visible{outline:2px solid #5b95ff;outline-offset:3px;background:rgba(91,149,255,.08)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Observatory Plate",
+    "overview": "The page is a printed science plate of one engineer's universe: engraved white linework on true black, captioned figures, instrument annotations in the margins, and a machine-vision overlay that locks onto its subject. Every visual either is the mechanism or shows it. The black hole is ray traced live; the project figures draw the actual algorithms (attention, retrieval, landmarks, routing); the numbers come from repositories with tests in CI.\n\nDensity is editorial and sparse. Sections breathe on a 76rem shell, headlines are set like the title block of a 19th-century plate, and colour is rationed by job rather than spread as decoration. The world refuses the near-black-plus-one-neon developer template and the green cassette CRT it replaced: green survives only as the blinking terminal cursor.\n\nThe light theme is not a new palette. It is the same plate printed in ink on paper: paper ground, near-black ink, a deeper print blue. Figures (plates, the hero, the memory map, code blocks) stay engraved white on black in both themes, the way a photographic plate is still black when bound into a white book.",
+    "keyCharacteristics": [
+      "True black ground, warm-white engraved hairlines, no gradients behind content.",
+      "Colour by role: blue data, magenta spacetime, red detection, gold the black hole, green the cursor.",
+      "Three voices: Bodoni Moda headlines, Atkinson Hyperlegible prose, JetBrains Mono for measurement.",
+      "Plates: hairline frame, registration corners, \"Fig. N\" captions numbered by the page.",
+      "Square corners; depth by tone and line, not shadow.",
+      "One authored lock-on per load; everything else is ambient and pauses or stops."
+    ],
+    "rules": [
+      {
+        "name": "The One Job Rule",
+        "body": "Each role colour has exactly one job. Red on anything that is not a detection, magenta on anything that is not a spacetime wireframe, gold on anything that is not the black hole, green on anything that is not the cursor: each is a bug.",
+        "section": "colors"
+      },
+      {
+        "name": "The Emitted Light Rule",
+        "body": "Role colours are light emitted inside a figure, so their values are identical in both themes inside plates and the hero. Only blue and gold have print counterparts, and only for page-level UI on paper.",
+        "section": "colors"
+      },
+      {
+        "name": "The Warm Ink Rule",
+        "body": "Ink is #ecebe6, never #ffffff; ground is #050505, never a tinted navy or grey.",
+        "section": "colors"
+      },
+      {
+        "name": "The Measurement Rule",
+        "body": "Mono appears only for code, coordinates, scores, numerals, periods and instrument annotations. Never for prose, headings or buttons.",
+        "section": "typography"
+      },
+      {
+        "name": "The Plate Title Rule",
+        "body": "Headlines are Bodoni Moda. The name alone is 900 capitals; every other headline is 600-700 in sentence case.",
+        "section": "typography"
+      },
+      {
+        "name": "The No Kicker Rule",
+        "body": "Nothing sits above a headline. No eyebrow, no section number, no category tag; captions belong to figures, not to sections.",
+        "section": "typography"
+      },
+      {
+        "name": "The Engraved Depth Rule",
+        "body": "Surfaces never cast shadows. A plate is separated from the page by its hairline frame and one tonal step, not by elevation.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do assign colour by role: blue #5b95ff for networks, data, links and focus; magenta #ff3fa4 for spacetime wireframes; red #ff3b30 for CV detection; gold #ffbf5e for the black hole; green #a8f07e for the terminal cursor.",
+      "Do keep the ground true black (#050505) and the ink warm white (#ecebe6); print the light theme as #0b0b0c ink on #ededea paper with #1f57d6 blue.",
+      "Do frame every figure as a plate: hairline border, registration corners, a \"Fig. N\" caption from the CSS counter.",
+      "Do set headlines in Bodoni Moda, the name in 900 capitals, and reserve JetBrains Mono for code, coordinates, scores and numerals.",
+      "Do give every animation a reduced-motion path and pause continuous motion offscreen.",
+      "Do keep detection labels readable over bright content with a dark label chip."
+    ],
+    "donts": [
+      "Don't place kickers, eyebrows, section numbers or category tags above headings.",
+      "Don't use red, magenta, gold or green outside their single role, and don't add a sixth accent.",
+      "Don't add drop shadows, rounded cards or gradient panels; depth is tone and hairline.",
+      "Don't set prose, headings or buttons in mono.",
+      "Don't play the lock-on more than once per load or add a second authored animation competing with it.",
+      "Don't use pure white (#ffffff) ink or a tinted ground on the dark plate."
+    ]
+  }
+}
