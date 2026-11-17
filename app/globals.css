@@ -1,38 +1,43 @@
 @import "tailwindcss";
 
 /*
-  Mission control for an AI engineer (cassette futurism).
-  One phosphor colour on a warm near-black, gunmetal structure, and amber
-  reserved for heat: the black hole, and whatever a model is attending to.
-  Space appears once (the hero); everything else is the machine.
+  Observatory plate. Engraved white linework on true black, a modern serif
+  in the line of 19th-century science plates for headlines, and mono only
+  for code and measurement. Colour has jobs, never decoration:
+    blue     networks, data, links, focus
+    magenta  spacetime wireframes
+    red      computer-vision detection
+    gold     the black hole
+  Green survives as the terminal cursor alone.
 */
 @theme {
-  --color-bg: #070908;          /* warm near-black */
-  --color-bg-2: #0a0d0b;
-  --color-panel: #0e1210;       /* gunmetal */
-  --color-panel-2: #141a16;
-  --color-surface: rgba(232, 236, 228, 0.04);
-  --color-surface-2: rgba(232, 236, 228, 0.07);
-  --color-surface-3: rgba(232, 236, 228, 0.1);
-  --color-surface-hover: rgba(168, 240, 126, 0.07);
-  --color-surface-active: rgba(168, 240, 126, 0.13);
-  --color-border: #222b25;
-  --color-border-strong: #36433a;
-  --color-line: #222b25;
+  --color-bg: #050505;
+  --color-bg-2: #0a0a0a;
+  --color-panel: #0d0d0e;
+  --color-panel-2: #151516;
+  --color-surface: rgba(236, 235, 230, 0.04);
+  --color-surface-2: rgba(236, 235, 230, 0.07);
+  --color-surface-3: rgba(236, 235, 230, 0.1);
+  --color-surface-hover: rgba(91, 149, 255, 0.08);
+  --color-surface-active: rgba(91, 149, 255, 0.14);
+  --color-border: #262627;
+  --color-border-strong: #3d3d40;
+  --color-line: #262627;
 
-  --color-ink: #e8ece4;
-  --color-ink-soft: #bac3b9;
-  --color-ink-faint: #879188;
+  --color-ink: #ecebe6;
+  --color-ink-soft: #b8b7b1;
+  --color-ink-faint: #8b8a85;
 
-  --color-accent: #a8f07e;      /* P1 phosphor */
-  --color-accent-ink: #070908;
-  --color-accent-2: #ffbf5e;    /* amber: heat, attention */
-  --color-accent-soft: rgba(168, 240, 126, 0.1);
+  --color-accent: #5b95ff;      /* blue: networks, data, links */
+  --color-accent-ink: #050505;
+  --color-accent-2: #ffbf5e;    /* gold: the black hole */
+  --color-accent-soft: rgba(91, 149, 255, 0.12);
   --color-brass: #ffbf5e;
   --color-brass-strong: #ffbf5e;
   --color-brass-soft: rgba(255, 191, 94, 0.12);
 
   --font-sans: var(--font-atkinson), "Atkinson Hyperlegible Next", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-display: var(--font-bodoni), "Bodoni Moda", "Bodoni 72", Didot, Georgia, serif;
   --font-mono: var(--font-jbm), "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-arabic: "Noto Sans Arabic", "IBM Plex Sans Arabic", "Segoe UI", "Tahoma", system-ui, sans-serif;
 
@@ -46,28 +51,29 @@
   --radius-4xl: 4px;
 }
 
+/* light: the same plate printed in ink on paper */
 :root[data-theme="light"] {
-  --color-bg: #eef0ec;
-  --color-bg-2: #e7eae5;
-  --color-panel: #ffffff;
-  --color-panel-2: #e4e8e2;
-  --color-surface: rgba(13, 17, 14, 0.03);
-  --color-surface-2: rgba(13, 17, 14, 0.05);
-  --color-surface-3: rgba(13, 17, 14, 0.08);
-  --color-surface-hover: rgba(47, 122, 31, 0.07);
-  --color-surface-active: rgba(47, 122, 31, 0.12);
-  --color-border: #d3d9d1;
-  --color-border-strong: #adb7ab;
-  --color-line: #d3d9d1;
+  --color-bg: #ededea;
+  --color-bg-2: #e5e5e1;
+  --color-panel: #f7f7f4;
+  --color-panel-2: #e2e2de;
+  --color-surface: rgba(10, 10, 12, 0.03);
+  --color-surface-2: rgba(10, 10, 12, 0.05);
+  --color-surface-3: rgba(10, 10, 12, 0.08);
+  --color-surface-hover: rgba(31, 87, 214, 0.07);
+  --color-surface-active: rgba(31, 87, 214, 0.12);
+  --color-border: #d2d2cd;
+  --color-border-strong: #a8a8a2;
+  --color-line: #d2d2cd;
 
-  --color-ink: #0d110e;
-  --color-ink-soft: #343d36;
-  --color-ink-faint: #56605a;
+  --color-ink: #0b0b0c;
+  --color-ink-soft: #35353a;
+  --color-ink-faint: #5b5b60;
 
-  --color-accent: #2f7a1f;
+  --color-accent: #1f57d6;
   --color-accent-ink: #ffffff;
   --color-accent-2: #9a5b00;
-  --color-accent-soft: rgba(47, 122, 31, 0.1);
+  --color-accent-soft: rgba(31, 87, 214, 0.1);
   --color-brass: #9a5b00;
   --color-brass-strong: #9a5b00;
   --color-brass-soft: rgba(154, 91, 0, 0.1);
@@ -76,10 +82,14 @@
 /* ---------- base ---------- */
 :root {
   color-scheme: dark;
-  /* phosphor and amber as rendered on a CRT: the same in both themes */
-  --phosphor: #a8f07e;
-  --phosphor-dim: rgba(168, 240, 126, 0.32);
-  --amber: #ffbf5e;
+  /* role colours as emitted light, identical in both themes */
+  --blue: #5b95ff;
+  --magenta: #ff3fa4;
+  --red: #ff3b30;
+  --gold: #ffbf5e;
+  --amber: var(--gold);
+  --cursor: #a8f07e;
+  --plate-ink: #ecebe6;
 }
 :root[data-theme="light"] {
   color-scheme: light;
@@ -98,6 +108,7 @@
 
 html {
   scroll-behavior: smooth;
+  scrollbar-color: var(--color-border-strong) transparent;
   -webkit-text-size-adjust: 100%;
   scroll-padding-top: 5rem;
 }
@@ -177,20 +188,20 @@ html:not(.js) .js-only {
 
 /* code and log blocks stay dark in both themes so syntax colors keep contrast */
 .terminal {
-  --color-panel: #0e1210;
-  --color-panel-2: #141a16;
-  --color-surface: rgba(232, 236, 228, 0.04);
-  --color-surface-2: rgba(232, 236, 228, 0.07);
-  --color-border: #222b25;
-  --color-border-strong: #36433a;
-  --color-ink: #e8ece4;
-  --color-ink-soft: #bac3b9;
-  --color-ink-faint: #879188;
-  --color-accent: #a8f07e;
+  --color-panel: #0d0d0e;
+  --color-panel-2: #151516;
+  --color-surface: rgba(236, 235, 230, 0.04);
+  --color-surface-2: rgba(236, 235, 230, 0.07);
+  --color-border: #262627;
+  --color-border-strong: #3d3d40;
+  --color-ink: #ecebe6;
+  --color-ink-soft: #b8b7b1;
+  --color-ink-faint: #8b8a85;
+  --color-accent: #5b95ff;
   --color-accent-2: #ffbf5e;
-  --color-accent-soft: rgba(168, 240, 126, 0.1);
-  --color-line: #222b25;
-  background-color: #070908;
+  --color-accent-soft: rgba(91, 149, 255, 0.12);
+  --color-line: #262627;
+  background-color: #050505;
   border: 1px solid var(--color-border);
   color-scheme: dark;
 }
@@ -221,11 +232,11 @@ html:not(.js) .js-only {
   color: var(--color-ink-faint);
 }
 .display {
-  font-family: var(--font-mono);
-  font-size: clamp(2rem, 4.2vw, 3.25rem);
-  line-height: 1.08;
-  letter-spacing: -0.035em;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 4.8vw, 3.9rem);
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  font-weight: 600;
   color: var(--color-ink);
 }
 .lead {
@@ -257,11 +268,11 @@ html:not(.js) .js-only {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
   font-weight: 700;
   line-height: 1;
-  padding: 0.85rem 1.2rem;
+  padding: 0.85rem 1.25rem;
   min-height: 2.75rem;
   border: 1px solid transparent;
   white-space: nowrap;
@@ -337,24 +348,31 @@ html:not(.js) .js-only {
     linear-gradient(var(--hud), var(--hud)) bottom right / var(--sw) var(--arm) no-repeat;
 }
 
-/* computer-vision detection box */
+/* computer-vision detection box: red is reserved for this */
 .detect {
   position: absolute;
-  border: 1.5px solid var(--phosphor);
+  border: 1px solid var(--red);
   pointer-events: none;
 }
 .detect-label {
   position: absolute;
-  left: -1.5px;
-  bottom: 100%;
-  padding: 0.28rem 0.45rem 0.24rem;
-  background: var(--phosphor);
-  color: #070908;
+  left: -1px;
+  bottom: calc(100% + 5px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--plate-ink);
   font-family: var(--font-mono);
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1;
   white-space: nowrap;
+}
+.detect-label::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: var(--red);
 }
 @keyframes detect-lock {
   0% { opacity: 0; transform: scale(1.35); }
@@ -362,58 +380,66 @@ html:not(.js) .js-only {
   100% { opacity: 1; transform: scale(1); }
 }
 
-/* the CRT screen: phosphor on black, scanlines, faint glow. Dark in both themes. */
+/* the plate: a framed figure, engraved white on black in both themes,
+   registration marks in the corners like a printed science plate */
 .crt {
   position: relative;
   overflow: hidden;
-  background: radial-gradient(120% 90% at 50% 40%, #0b1a0f 0%, #060a07 70%);
-  border: 1px solid #1d3324;
-  color: var(--phosphor);
+  background: #070707;
+  border: 1px solid rgba(236, 235, 230, 0.14);
+  color: var(--plate-ink);
   font-family: var(--font-mono);
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(168, 240, 126, 0.04);
 }
 .crt::after {
+  --c: rgba(236, 235, 230, 0.55);
+  --a: 9px;
   content: "";
   position: absolute;
-  inset: 0;
+  inset: 6px;
   pointer-events: none;
-  background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0) 0 2px, rgba(0, 0, 0, 0.22) 2px 3px);
+  background:
+    linear-gradient(var(--c), var(--c)) top left / var(--a) 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) top left / 1px var(--a) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--a) 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / 1px var(--a) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--a) 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / 1px var(--a) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--a) 1px no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / 1px var(--a) no-repeat;
 }
 .crt svg:not(.glyph) {
   display: block;
   width: 100%;
   height: auto;
-  filter: drop-shadow(0 0 2px rgba(168, 240, 126, 0.45));
 }
 .glyph {
   flex: none;
-}
-.crt .glyph {
-  filter: drop-shadow(0 0 3px rgba(168, 240, 126, 0.55));
 }
 .crt-bar {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.6rem 0.9rem;
-  border-bottom: 1px solid #1d3324;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid rgba(236, 235, 230, 0.12);
   font-size: 0.72rem;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(168, 240, 126, 0.75);
+  color: rgba(236, 235, 230, 0.62);
 }
 .crt-bar b {
-  color: var(--phosphor);
+  color: var(--plate-ink);
   font-weight: 700;
 }
-/* SVG vocabulary inside screens */
-.v-text { fill: var(--phosphor); font-family: var(--font-mono); text-transform: uppercase; }
-.v-faint { fill: rgba(168, 240, 126, 0.55); font-family: var(--font-mono); text-transform: uppercase; }
-.v-key { fill: var(--amber); font-family: var(--font-mono); text-transform: uppercase; }
+/* SVG vocabulary inside plates */
+.v-text { fill: var(--plate-ink); font-family: var(--font-mono); text-transform: uppercase; }
+.v-faint { fill: rgba(236, 235, 230, 0.5); font-family: var(--font-mono); text-transform: uppercase; }
+.v-key { fill: var(--blue); font-family: var(--font-mono); text-transform: uppercase; }
+.v-cv { fill: var(--red); font-family: var(--font-mono); text-transform: uppercase; }
 .v-case { text-transform: none; }
-.v-stroke { stroke: var(--phosphor); fill: none; }
-.v-stroke-dim { stroke: rgba(168, 240, 126, 0.3); fill: none; }
-.v-stroke-key { stroke: var(--amber); fill: none; }
+.v-stroke { stroke: var(--plate-ink); fill: none; }
+.v-stroke-dim { stroke: rgba(236, 235, 230, 0.26); fill: none; }
+.v-stroke-key { stroke: var(--blue); fill: none; }
+.v-stroke-cv { stroke: var(--red); fill: none; }
 .observe .crt svg .v-hl {
   transition: opacity 0.25s ease;
 }
@@ -422,21 +448,21 @@ html:not(.js) .js-only {
 /* dark tokens for anything over the hero (the hero, and the nav floating on it) */
 .on-dark,
 .hero-window {
-  --color-bg: #070908;
-  --color-panel: #0e1210;
-  --color-border: #222b25;
-  --color-border-strong: #36433a;
-  --color-line: #222b25;
-  --color-ink: #e8ece4;
-  --color-ink-soft: #bac3b9;
-  --color-ink-faint: #879188;
-  --color-accent: #a8f07e;
-  --color-accent-ink: #070908;
-  --color-surface-hover: rgba(168, 240, 126, 0.07);
+  --color-bg: #050505;
+  --color-panel: #0d0d0e;
+  --color-border: #262627;
+  --color-border-strong: #3d3d40;
+  --color-line: #262627;
+  --color-ink: #ecebe6;
+  --color-ink-soft: #b8b7b1;
+  --color-ink-faint: #8b8a85;
+  --color-accent: #5b95ff;
+  --color-accent-ink: #050505;
+  --color-surface-hover: rgba(91, 149, 255, 0.08);
   color-scheme: dark;
 }
 .hero-window {
-  background: #070908;
+  background: #050505;
   color: var(--color-ink);
 }
 .bh {
@@ -446,7 +472,7 @@ html:not(.js) .js-only {
   max-height: 400px;
   overflow: hidden;
   container-type: size;
-  background: #070908;
+  background: #050505;
   --cx: 50%;
   --cy: 56%;
   --f: min(58cqh, 56cqw);
@@ -506,21 +532,8 @@ html:not(.js) .bh-still,
 .bh-detect .detect {
   inset: 0;
 }
-.js .bh-detect {
-  opacity: 0;
-}
-.js .bh[data-ready] .bh-detect {
-  animation: detect-lock 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) 1.9s both;
-}
-.js .bh[data-fallback] .bh-detect {
-  opacity: 1;
-}
-@media (prefers-reduced-motion: reduce) {
-  .js .bh-detect,
-  .js .bh[data-ready] .bh-detect {
-    opacity: 1;
-    animation: none;
-  }
+.js .bh-detect .detect {
+  display: none;
 }
 
 /* scientific annotations around the object, like an observatory plate */
@@ -547,7 +560,7 @@ html:not(.js) .bh-still,
 .hud-block dt {
   display: inline-block;
   width: 7.5rem;
-  color: rgba(232, 236, 228, 0.45);
+  color: rgba(236, 235, 230, 0.45);
 }
 .hud-block dd {
   display: inline;
@@ -563,16 +576,17 @@ html:not(.js) .bh-still,
 .hud-eq {
   position: absolute;
   font-size: 0.8125rem;
-  color: rgba(232, 236, 228, 0.2);
+  color: rgba(236, 235, 230, 0.22);
   white-space: nowrap;
 }
 
 .hero-name {
-  font-family: var(--font-mono);
-  font-weight: 800;
-  font-size: clamp(3.25rem, 8.2vw, 7.25rem);
-  line-height: 0.92;
-  letter-spacing: -0.055em;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(3rem, 7.4vw, 6rem);
+  line-height: 0.88;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
 }
 .hero-name span {
   display: block;
@@ -584,7 +598,7 @@ html:not(.js) .bh-still,
   color: var(--color-ink-faint);
 }
 .prompt-line b {
-  color: var(--color-accent);
+  color: var(--cursor);
   font-weight: 700;
 }
 
@@ -610,7 +624,7 @@ html:not(.js) .bh-still,
   white-space: nowrap;
 }
 .ask-prefix b {
-  color: var(--color-accent);
+  color: var(--cursor);
 }
 .ask input {
   flex: 1;
@@ -622,7 +636,7 @@ html:not(.js) .bh-still,
   font-family: var(--font-mono);
   font-size: 0.9375rem;
   color: var(--color-ink);
-  caret-color: var(--color-accent);
+  caret-color: var(--cursor);
 }
 .ask input::placeholder {
   color: var(--color-ink-faint);
@@ -1007,10 +1021,10 @@ html:not(.js) .bh-still,
   left: 50%;
   top: 0;
   bottom: 0;
-  width: 1.5px;
+  width: 1px;
   translate: -50% 0;
-  background: var(--color-accent);
-  opacity: 0.45;
+  background: var(--color-ink-faint);
+  opacity: 0.6;
 }
 .gitlog-row:last-child .gitlog-rail::before {
   bottom: auto;
@@ -1023,59 +1037,39 @@ html:not(.js) .bh-still,
   width: 0.75rem;
   height: 0.75rem;
   translate: -50% 0;
-  border: 2px solid var(--color-accent);
+  border: 1.5px solid var(--color-ink);
   background: var(--color-bg);
   border-radius: 999px;
 }
 .gitlog-row[data-head] .gitlog-node {
   background: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
-/* ---------- the observer photo, as a CV frame ---------- */
+/* ---------- the observer photo: a black-and-white frame under detection ---------- */
 .observer {
   position: relative;
 }
 .observer-frame {
   position: relative;
   overflow: hidden;
-  background: #060a07;
+  background: #050505;
 }
 .observer-frame img {
   display: block;
   width: 100%;
   height: auto;
-  filter: grayscale(1) contrast(1.15) brightness(0.92);
+  filter: grayscale(1) contrast(1.18) brightness(0.94);
   transition: filter 0.35s ease;
 }
-.observer-frame::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: var(--phosphor);
-  mix-blend-mode: multiply;
-  pointer-events: none;
-  transition: opacity 0.35s ease;
-}
-.observer-frame::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(0, 0, 0, 0.25) 2px 3px);
-}
 .observer:hover .observer-frame img {
-  filter: none;
-}
-.observer:hover .observer-frame::before {
-  opacity: 0;
+  filter: grayscale(0.15) contrast(1.05);
 }
 .observer .detect {
   z-index: 3;
 }
 .observer:hover .detect {
-  animation: detect-lock 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: detect-lock 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* ---------- copilot memory constellation ---------- */
@@ -1083,10 +1077,10 @@ html:not(.js) .bh-still,
   position: relative;
   padding: 1rem;
   border: 1px solid var(--color-border);
-  background: radial-gradient(110% 90% at 60% 40%, #10140f 0%, #070908 70%);
+  background: radial-gradient(110% 90% at 60% 40%, #101012 0%, #050505 70%);
   color-scheme: dark;
-  --color-ink-faint: #879188;
-  --color-border: #222b25;
+  --color-ink-faint: #8b8a85;
+  --color-border: #262627;
 }
 @media (max-width: 640px) {
   .mm-label:not(.mm-label-on) { display: none; }
@@ -1098,69 +1092,212 @@ html:not(.js) .bh-still,
   height: auto;
   overflow: visible;
 }
-.mm-edge { stroke: rgba(232, 236, 228, 0.14); stroke-width: 1; }
-.mm-star { fill: #e8ece4; transition: r 0.3s ease, fill 0.3s ease; }
-.mm-profile { fill: #bac3b9; }
-.mm-arabic { fill: #879188; }
-.mm-on { fill: var(--amber); filter: drop-shadow(0 0 6px rgba(255, 191, 94, 0.8)); }
-.mm-label { fill: #bac3b9; font-family: var(--font-mono); font-size: 13px; }
-.mm-label-on { fill: #ffd9a6; font-weight: 700; }
+.mm-edge { stroke: rgba(236, 235, 230, 0.16); stroke-width: 1; }
+.mm-star { fill: #ecebe6; transition: r 0.3s ease, fill 0.3s ease; }
+.mm-profile { fill: #b8b7b1; }
+.mm-arabic { fill: #8b8a85; }
+.mm-on { fill: var(--blue); filter: drop-shadow(0 0 6px rgba(91, 149, 255, 0.85)); }
+.mm-label { fill: #b8b7b1; font-family: var(--font-mono); font-size: 13px; }
+.mm-label-on { fill: #d6e4ff; font-weight: 700; }
 .mm-ray {
-  stroke: var(--amber);
-  stroke-width: 1.4;
+  stroke: var(--blue);
+  stroke-width: 1.2;
   stroke-dasharray: 400;
   stroke-dashoffset: 400;
-  animation: mm-draw 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: mm-draw 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-.mm-query { fill: var(--phosphor); filter: drop-shadow(0 0 8px rgba(168, 240, 126, 0.9)); }
+.mm-query { fill: #ffffff; filter: drop-shadow(0 0 8px rgba(91, 149, 255, 0.95)); }
 @keyframes mm-draw { to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) {
   .mm-ray { animation: none; stroke-dashoffset: 0; }
 }
 
-/* ---------- hero neural web: the cosmic web is a network feeding the hole ---------- */
-.neural-web {
-  display: none;
+/* ---------- hero: the infall canvas (funnel + code), drawn in JS ---------- */
+.infall {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
-@media (min-width: 1024px) {
-  .neural-web {
-    display: block;
-    position: absolute;
-    left: calc(var(--cx) - 21%);
-    top: 12%;
-    width: 21%;
-    height: 70%;
-    mix-blend-mode: screen;
-    pointer-events: none;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 74%, transparent 97%);
-    mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 74%, transparent 97%);
-  }
+
+/* ---------- hero: CV lock-on (red = detection) ---------- */
+.lockon {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
 }
-.nw-edge { stroke: rgba(168, 240, 126, 0.24); stroke-width: 0.7; }
-.nw-node { fill: #0b0f0c; stroke: rgba(168, 240, 126, 0.85); stroke-width: 1; }
-.nw-pulse {
+.lk-path {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+.lk-path > path {
   fill: none;
-  stroke: var(--amber);
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-dasharray: 3 97;
-  stroke-dashoffset: 100;
-  filter: drop-shadow(0 0 3px rgba(255, 191, 94, 0.9));
-  animation: nw-flow 4.5s linear infinite;
+  stroke: var(--red);
+  stroke-width: 1;
+  stroke-dasharray: 3 6;
+  opacity: 0.85;
 }
-@keyframes nw-flow { to { stroke-dashoffset: 0; } }
-.nw-fire {
-  fill: var(--amber);
-  opacity: 0;
-  filter: drop-shadow(0 0 4px rgba(255, 191, 94, 0.95));
-  animation: nw-fire 4.5s linear infinite;
+.lk-mark path {
+  stroke: var(--red);
+  stroke-width: 1;
 }
-@keyframes nw-fire {
-  0% { opacity: 1; }
-  12% { opacity: 0; }
-  100% { opacity: 0; }
+.lk-mark text {
+  fill: rgba(236, 235, 230, 0.7);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.lk-box {
+  position: absolute;
+  border: 1px solid var(--red);
+}
+.lk-tag,
+.lk-xy {
+  position: absolute;
+  font-family: var(--font-mono);
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.lk-tag {
+  left: -1px;
+  bottom: calc(100% + 6px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--plate-ink);
+}
+.lk-tag::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: var(--red);
+}
+.lk-xy {
+  right: -1px;
+  top: calc(100% + 6px);
+  font-size: 0.6875rem;
+  color: rgba(236, 235, 230, 0.7);
+}
+.lk-xy-top {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+/* labels sit over a bright disk: give them a plate to stand on */
+.lk-tag,
+.lk-xy {
+  padding: 3px 5px 2px;
+  margin: -3px -5px -2px;
+  background: rgba(5, 5, 5, 0.72);
+}
+.lk-box {
+  animation: lk-acquire 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes lk-acquire {
+  0% { opacity: 0; transform: translate(22px, -14px) scale(1.55); }
+  18% { opacity: 1; transform: translate(-12px, 8px) scale(1.24); }
+  40% { transform: translate(7px, -5px) scale(1.09); }
+  65% { transform: translate(-3px, 2px) scale(1.02); }
+  100% { opacity: 1; transform: none; }
+}
+.lk-path {
+  animation: lk-trace 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.2s both;
+}
+@keyframes lk-trace {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .nw-pulse,
-  .nw-fire { display: none; }
+  .lk-box,
+  .lk-path { animation: none; }
+}
+
+/* ---------- ambient engraved diagrams behind sections ---------- */
+.ambient {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  color: var(--color-ink);
+  opacity: 0.17;
+  display: none;
+}
+@media (min-width: 768px) {
+  .ambient { display: block; }
+}
+.ambient svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.ambient-magenta {
+  color: var(--magenta);
+  opacity: 0.32;
+}
+.ad-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.ad-axis {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+  vector-effect: non-scaling-stroke;
+}
+.ad-label {
+  fill: currentColor;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.ad-body {
+  fill: currentColor;
+}
+.ad-orbit {
+  animation: ad-spin 200s linear infinite;
+}
+@keyframes ad-spin {
+  to { transform: rotate(360deg); }
+}
+/* lines draw themselves once in view; drawn outright without JS */
+.js .ambient [data-draw] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.js .ambient[data-on] [data-draw] {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 3.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.js .ambient[data-on] .ad-slow {
+  transition-duration: 9s;
+  transition-timing-function: cubic-bezier(0.3, 0.1, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .js .ambient [data-draw] { stroke-dashoffset: 0; transition: none; }
+  .ad-orbit { animation: none; }
+}
+
+/* plates are numbered figures, like a science plate */
+main { counter-reset: fig; }
+.crt { counter-increment: fig; }
+.crt-bar .fig::before { content: "Fig. " counter(fig) "  "; }
+.ambient { opacity: 0.26; }
+.ambient-magenta { opacity: 0.62; }
+/* small screens: the whole figure stays in view; the caption keeps one line */
+@media (max-width: 480px) {
+  .crt-bar > span + span { display: none; }
+}
+/* the attractor is the section's figure: engraved strength, not a watermark */
+.ambient-strong { opacity: 0.45; }
+
+/* the sharp core of the black hole: feathered in the shader, never masked */
+.bh-core {
+  -webkit-mask-image: none;
+  mask-image: none;
 }

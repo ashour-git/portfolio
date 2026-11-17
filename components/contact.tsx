@@ -37,7 +37,7 @@ export function Contact() {
                     className="group flex min-h-16 items-center gap-4"
                   >
                     <Icon aria-label={label} size={20} className="shrink-0 text-ink-faint transition-colors group-hover:text-accent" />
-                    <span className="hidden w-20 shrink-0 font-mono text-sm text-ink-faint sm:inline">{label}</span>
+                    <span className="hidden w-20 shrink-0 text-sm text-ink-faint sm:inline">{label}</span>
                     <span className="min-w-0 flex-1 truncate font-mono text-[15px] font-bold text-ink transition-colors group-hover:text-accent sm:text-right">
                       {value}
                     </span>

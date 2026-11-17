@@ -2,9 +2,10 @@ import type { ReactNode } from "react";
 
 /*
   Project screens: each one draws the mechanism the project is built on
-  (attention, embeddings, landmarks, feature maps, routing, retrieval), in
-  phosphor on a CRT. Amber marks what the model attends to. Deterministic,
-  so server and client render the same markup.
+  (attention, embeddings, landmarks, feature maps, routing, retrieval) as an
+  engraved plate: white linework, blue for the data a model attends to, red
+  for computer-vision detections. Deterministic, so server and client render
+  the same markup.
 */
 
 function rng(seed: number) {
@@ -27,7 +28,7 @@ export function Screen({ title, meta, children, label }: { title: string; meta?:
     <figure className="crt">
       <figcaption className="crt-bar" aria-hidden="true">
         <span>
-          <b>&gt;</b> {title}
+          <b className="fig" /> {title}
         </span>
         {meta && <span>{meta}</span>}
       </figcaption>
@@ -80,7 +81,7 @@ export function AttentionViz() {
                 y={y0 + i * ch}
                 width={cw - 3}
                 height={ch - 3}
-                fill={j === max ? "var(--amber)" : "var(--phosphor)"}
+                fill={j === max ? "var(--blue)" : "var(--plate-ink)"}
                 opacity={j === max ? Math.max(w, 0.7) : r1(w)}
               />
             ))}
@@ -119,19 +120,19 @@ export function HandViz() {
   return (
     <svg viewBox="0 0 640 380" aria-hidden="true">
       <Viewfinder w={640} h={380} />
-      <polygon points={palm} fill="var(--phosphor)" opacity="0.1" />
+      <polygon points={palm} fill="var(--plate-ink)" opacity="0.1" />
       {HAND_EDGES.map(([a, b]) => (
         <line key={`${a}-${b}`} x1={pts[a][0]} y1={pts[a][1]} x2={pts[b][0]} y2={pts[b][1]} className="v-stroke" strokeWidth="2" />
       ))}
       {pts.map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r={TIPS.includes(i) ? 5 : 3.5} fill={TIPS.includes(i) ? "var(--amber)" : "var(--phosphor)"} />
+        <circle key={i} cx={x} cy={y} r={TIPS.includes(i) ? 5 : 3.5} fill={TIPS.includes(i) ? "var(--red)" : "var(--plate-ink)"} />
       ))}
-      <rect x={bx} y={by} width={bw} height={bh} className="v-stroke" strokeWidth="1.5" />
-      <rect x={bx - 0.75} y={by - 22} width="104" height="22" fill="var(--phosphor)" />
-      <text x={bx + 6} y={by - 6} fontSize="16" fontWeight="700" fill="#070908" style={{ fontFamily: "var(--font-mono)" }}>OPEN_PALM</text>
+      <rect x={bx} y={by} width={bw} height={bh} className="v-stroke-cv" strokeWidth="1.5" />
+      <rect x={bx - 0.75} y={by - 22} width="104" height="22" fill="var(--red)" />
+      <text x={bx + 6} y={by - 6} fontSize="16" fontWeight="700" fill="#050505" style={{ fontFamily: "var(--font-mono)" }}>OPEN_PALM</text>
       <text x="460" y="110" className="v-faint" fontSize="16">classes</text>
       {classes.map((c, i) => (
-        <text key={c} x="460" y={142 + i * 30} className={i === 0 ? "v-key" : "v-faint"} fontSize="18">
+        <text key={c} x="460" y={142 + i * 30} className={i === 0 ? "v-cv" : "v-faint"} fontSize="18">
           {i === 0 ? "> " : "  "}{c}
         </text>
       ))}
@@ -162,17 +163,17 @@ export function EmbeddingViz() {
       <text x="24" y="40" className="v-faint" fontSize="16">query</text>
       <text x="90" y="40" className="v-key" fontSize="16">&quot;a calm novel about grief and the sea&quot;</text>
       {pts.map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r="2" fill="var(--phosphor)" opacity="0.45" />
+        <circle key={i} cx={x} cy={y} r="2" fill="var(--plate-ink)" opacity="0.45" />
       ))}
       {near.map(({ i }) => (
         <line key={`l${i}`} x1={q[0]} y1={q[1]} x2={pts[i][0]} y2={pts[i][1]} className="v-stroke-key" strokeWidth="1.2" />
       ))}
       {near.map(({ i }) => (
         <g key={`n${i}`}>
-          <circle cx={pts[i][0]} cy={pts[i][1]} r="4" fill="var(--phosphor)" />
+          <circle cx={pts[i][0]} cy={pts[i][1]} r="4" fill="var(--plate-ink)" />
         </g>
       ))}
-      <circle cx={q[0]} cy={q[1]} r="6" fill="var(--amber)" />
+      <circle cx={q[0]} cy={q[1]} r="6" fill="var(--blue)" />
       <circle cx={q[0]} cy={q[1]} r="12" className="v-stroke-key" strokeWidth="1" />
       <text x="440" y="150" className="v-faint" fontSize="16">nearest</text>
       {TITLES.map((t, k) => (
@@ -195,7 +196,7 @@ function FeatureTile({ x, y, s, n, seed }: { x: number; y: number; s: number; n:
       if (kind === 0) v = 0.5 + 0.5 * Math.sin(i * a + j * b + ph); // oriented edges
       else if (kind === 1) v = Math.exp(-((i - n * r()) ** 2 + (j - n / 2) ** 2) / (n * 1.2)); // blob
       else v = (Math.sin(i * a + ph) * Math.cos(j * b)) ** 2; // texture
-      cells.push(<rect key={`${i}-${j}`} x={r1(x + j * c)} y={r1(y + i * c)} width={r1(c - 0.6)} height={r1(c - 0.6)} fill="var(--phosphor)" opacity={r1(0.08 + v * 0.85)} />);
+      cells.push(<rect key={`${i}-${j}`} x={r1(x + j * c)} y={r1(y + i * c)} width={r1(c - 0.6)} height={r1(c - 0.6)} fill="var(--plate-ink)" opacity={r1(0.08 + v * 0.85)} />);
     }
   }
   return (
@@ -210,14 +211,14 @@ function Scene({ x, y, w, h, boxes }: { x: number; y: number; w: number; h: numb
     <g>
       <rect x={x} y={y} width={w} height={h} className="v-stroke" strokeWidth="1.5" />
       <line x1={x} y1={y + h * 0.72} x2={x + w} y2={y + h * 0.72} className="v-stroke-dim" />
-      <circle cx={x + w * 0.38} cy={y + h * 0.3} r={h * 0.09} fill="var(--phosphor)" opacity="0.7" />
-      <rect x={x + w * 0.31} y={y + h * 0.4} width={w * 0.14} height={h * 0.42} fill="var(--phosphor)" opacity="0.7" />
-      <rect x={x + w * 0.45} y={y + h * 0.44} width={w * 0.07} height={h * 0.2} fill="var(--phosphor)" opacity="0.45" />
+      <circle cx={x + w * 0.38} cy={y + h * 0.3} r={h * 0.09} fill="var(--plate-ink)" opacity="0.7" />
+      <rect x={x + w * 0.31} y={y + h * 0.4} width={w * 0.14} height={h * 0.42} fill="var(--plate-ink)" opacity="0.7" />
+      <rect x={x + w * 0.45} y={y + h * 0.44} width={w * 0.07} height={h * 0.2} fill="var(--plate-ink)" opacity="0.45" />
       <path d={`M${x + w * 0.66} ${y + h * 0.82}V${y + h * 0.58}H${x + w * 0.82}V${y + h * 0.82} M${x + w * 0.66} ${y + h * 0.68}H${x + w * 0.82}`} className="v-stroke-dim" strokeWidth="2" />
       {boxes && (
         <>
-          <rect x={x + w * 0.27} y={y + h * 0.17} width={w * 0.22} height={h * 0.7} className="v-stroke-key" strokeWidth="1.5" />
-          <text x={x + w * 0.27} y={y + h * 0.14} className="v-key" fontSize="13">person</text>
+          <rect x={x + w * 0.27} y={y + h * 0.17} width={w * 0.22} height={h * 0.7} className="v-stroke-cv" strokeWidth="1.5" />
+          <text x={x + w * 0.27} y={y + h * 0.14} className="v-cv" fontSize="13">person</text>
           <rect x={x + w * 0.62} y={y + h * 0.52} width={w * 0.24} height={h * 0.34} className="v-stroke" strokeWidth="1.2" />
           <text x={x + w * 0.62} y={y + h * 0.49} className="v-text" fontSize="13">chair</text>
         </>
@@ -276,7 +277,7 @@ export function TenantViz() {
             <rect x="434" y={y - 26} width="182" height="52" className={key ? "v-stroke-key" : "v-stroke"} strokeWidth="1.3" />
             <text x="446" y={y - 6} className={key ? "v-key" : "v-text"} fontSize="15">tenant_id = {t.split("-")[0]}</text>
             {[0, 1, 2].map((k) => (
-              <rect key={k} x={446 + k * 52} y={y + 6} width="44" height="8" fill="var(--phosphor)" opacity={key ? 0.8 : 0.35} />
+              <rect key={k} x={446 + k * 52} y={y + 6} width="44" height="8" fill="var(--plate-ink)" opacity={key ? 0.8 : 0.35} />
             ))}
           </g>
         );
@@ -304,16 +305,16 @@ export function RagViz() {
       <text x="24" y="40" className="v-faint" fontSize="16">ask</text>
       <text x="70" y="40" className="v-key" fontSize="16">&quot;how many salmon portions tonight?&quot;</text>
       {pts.map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r="2" fill="var(--phosphor)" opacity="0.4" />
+        <circle key={i} cx={x} cy={y} r="2" fill="var(--plate-ink)" opacity="0.4" />
       ))}
       {hits.map(([x, y], k) => (
         <g key={k}>
           <line x1={q[0]} y1={q[1]} x2={x} y2={y} className="v-stroke-key" strokeWidth="1.3" />
-          <circle cx={x} cy={y} r="4.5" fill="var(--phosphor)" />
+          <circle cx={x} cy={y} r="4.5" fill="var(--plate-ink)" />
           <text x={x + 8} y={y - 6} className="v-text" fontSize="15">{k + 1}</text>
         </g>
       ))}
-      <circle cx={q[0]} cy={q[1]} r="6" fill="var(--amber)" />
+      <circle cx={q[0]} cy={q[1]} r="6" fill="var(--blue)" />
       <text x="390" y="150" className="v-faint" fontSize="16">retrieved</text>
       {docs.map((d, k) => (
         <text key={d} x="390" y={180 + k * 28} className="v-text" fontSize="15">{k + 1} {d}</text>
@@ -344,10 +345,10 @@ export function ForecastViz() {
       ))}
       <line x1={X(5)} y1="70" x2={X(5)} y2="300" className="v-stroke-dim" strokeDasharray="3 5" />
       <text x={X(5) + 6} y="84" className="v-faint" fontSize="14">now</text>
-      <polygon points={band} fill="var(--phosphor)" opacity="0.13" />
+      <polygon points={band} fill="var(--plate-ink)" opacity="0.13" />
       <path d={histD} className="v-stroke" strokeWidth="2.2" />
       <path d={fcD} className="v-stroke-key" strokeWidth="2.2" strokeDasharray="6 5" />
-      <circle cx={X(peak)} cy={r1(Y(fc[2]))} r="5" fill="var(--amber)" />
+      <circle cx={X(peak)} cy={r1(Y(fc[2]))} r="5" fill="var(--blue)" />
       <text x={X(peak) + 10} y={r1(Y(fc[2])) - 8} className="v-key" fontSize="15">peak 19:00</text>
       <text x="24" y="352" className="v-text" fontSize="16">lightgbm, optuna-tuned</text>
     </svg>
