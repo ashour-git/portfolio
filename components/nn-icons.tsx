@@ -23,7 +23,7 @@ const N = ({ x, y, r = 1.8 }: { x: number; y: number; r?: number }) => (
 );
 
 // The brand mark: three inputs converge on the event horizon.
-// Network in phosphor, horizon in amber, the same story the hero tells.
+// Network in blue (data), horizon in gold (the black hole): the hero's story.
 export function Mark({ className = "" }: Props) {
   return (
     <svg viewBox="0 0 28 24" className={className} aria-hidden="true" focusable="false">
@@ -37,8 +37,8 @@ export function Mark({ className = "" }: Props) {
         <circle cx="3" cy="12" r="2" />
         <circle cx="4" cy="19" r="2" />
       </g>
-      <circle cx="19" cy="12" r="6.2" fill="#070908" stroke="var(--amber)" strokeWidth="2" />
-      <circle cx="19" cy="12" r="2.6" fill="none" stroke="var(--amber)" strokeOpacity="0.45" strokeWidth="1" />
+      <circle cx="19" cy="12" r="6.2" fill="#050505" stroke="var(--gold)" strokeWidth="2" />
+      <circle cx="19" cy="12" r="2.6" fill="none" stroke="var(--gold)" strokeOpacity="0.45" strokeWidth="1" />
     </svg>
   );
 }

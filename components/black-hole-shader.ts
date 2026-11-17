@@ -66,6 +66,8 @@ uniform float uRoll;
 uniform float uYaw;
 uniform float uExposure;  // 0..1, the image "developing"
 uniform vec2 uDim;        // backing-px x range where the sky fades in (text side)
+uniform vec3 uFeather;    // core layer: centre (backing px) and radius; z <= 0 = opaque
+uniform float uStars;     // 1 = draw lensed stars (core); the field gets crisp stars from the hero canvas
 
 out vec4 outColor;
 
@@ -73,6 +75,18 @@ const float DIST = 18.0;
 const float R_IN = 3.0;
 const float R_OUT = 11.5;
 const float B_CRIT = 2.598076;
+// nothing emits beyond this radius (disk < R_OUT, haze < R_OUT + 1.5), so
+// rays are only integrated inside it; outside, weak-field bending is analytic
+const float R_SKIP = R_OUT + 3.0;
+
+// weak-field deflection (rs = 1) accumulated along a straight segment,
+// from cosine c0 to c1 of the angle between the ray and the radius
+vec3 bend(vec3 x, vec3 v, float b, float c0, float c1) {
+  if (b < 1e-3) return v;
+  float delta = (c1 - c0) / b;
+  vec3 p = x - dot(x, v) * v;
+  return normalize(v * cos(delta) - normalize(p) * sin(delta));
+}
 
 ${NOISE}
 
@@ -126,19 +140,39 @@ void main() {
   vec3 v = normalize(fwd + s.x * right + s.y * up);
   vec3 hv = cross(x, v);
   float h2 = dot(hv, hv);
+  float b0 = sqrt(h2);
 
   vec3 col = vec3(0.0);
   float alpha = 0.0;
   float haze = 0.0;
   bool escaped = false;
 
-  for (int i = 0; i < 360; i++) {
+  float sx = dot(x, v);
+  float c0 = sx / length(x);
+  if (b0 >= R_SKIP) {
+    // never reaches anything that glows: bend it all the way out at once
+    v = bend(x, v, b0, c0, 1.0);
+    escaped = true;
+  } else {
+    // fly straight to the emitting region, bending on the way in
+    float t = -sx - sqrt(max(sx * sx - (dot(x, x) - R_SKIP * R_SKIP), 0.0));
+    vec3 xe = x + v * max(t, 0.0);
+    v = bend(x, v, b0, c0, dot(xe, v) / length(xe));
+    x = xe;
+    hv = cross(x, v);
+    h2 = dot(hv, hv);
+  }
+
+  for (int i = 0; i < 300; i++) {
+    if (escaped) break;
     float r = length(x);
-    float dt = clamp(0.06 * r * r / (1.0 + r), 0.015, 0.8);
-    vec3 a0 = -1.5 * h2 * x / pow(r, 5.0);
+    float dt = clamp(0.07 * r * r / (1.0 + r), 0.015, 0.8);
+    float r2 = r * r;
+    vec3 a0 = -1.5 * h2 * x / (r2 * r2 * r);
     vec3 x1 = x + v * dt + 0.5 * a0 * dt * dt;
     float r1 = length(x1);
-    vec3 v1 = v + 0.5 * (a0 - 1.5 * h2 * x1 / pow(r1, 5.0)) * dt;
+    float r12 = r1 * r1;
+    vec3 v1 = v + 0.5 * (a0 - 1.5 * h2 * x1 / (r12 * r12 * r1)) * dt;
 
     if (x.y * x1.y < 0.0) {
       vec3 pc = mix(x, x1, x.y / (x.y - x1.y));
@@ -156,8 +190,8 @@ void main() {
         float dop = 1.0 / (gam * (1.0 - dot(vel, -normalize(v))));
         float g = dop * sqrt(1.0 - 1.0 / rc);
         float tn = pow(R_IN / rc, 0.75) * pow(max(1.0 - sqrt(R_IN / rc), 0.0), 0.25) / 0.488;
-        vec3 bb = blackbody((1500.0 + 4300.0 * tn) * g);
-        bb = clamp(mix(vec3(dot(bb, vec3(0.2126, 0.7152, 0.0722))), bb, 1.3), 0.0, 1.0);
+        vec3 bb = blackbody((2300.0 + 5600.0 * tn) * g);
+        bb = clamp(mix(vec3(dot(bb, vec3(0.2126, 0.7152, 0.0722))), bb, 1.05), 0.0, 1.0);
         float edge = clamp((R_OUT - rc) / 3.0, 0.0, 1.0) * clamp((rc - R_IN) / 0.25, 0.0, 1.0);
         float I = max(prof * tex, 0.0) * dop * dop * dop * edge;
         col += (1.0 - alpha) * bb * I * 1.15;
@@ -165,14 +199,26 @@ void main() {
       }
     }
 
-    // thin glowing haze hugging the disk (cheap volumetric bloom)
-    float hw = smoothstep(R_OUT + 1.5, R_OUT - 3.0, r1) * smoothstep(R_IN * 0.7, R_IN, r1);
-    haze += hw * exp(-abs(x1.y) * 4.5) * min(dt, 0.25) * pow(r1, -2.2) * (1.0 - alpha);
+    // thin glowing haze hugging the disk (cheap volumetric bloom); it is
+    // negligible more than ~1.2 above the plane, so most steps skip it
+    float ay = abs(x1.y);
+    if (ay < 1.2) {
+      float hw = smoothstep(R_OUT + 1.5, R_OUT - 3.0, r1) * smoothstep(R_IN * 0.7, R_IN, r1);
+      haze += hw * exp(-ay * 4.5) * min(dt, 0.25) * pow(r1, -2.2) * (1.0 - alpha);
+    }
 
     x = x1;
     v = v1;
-    if (r1 < 1.0) break;
-    if (r1 > DIST * 1.6 && dot(x1, v1) > 0.0) { escaped = true; break; }
+    // inside the photon sphere and falling: it is captured, and nothing
+    // emits in there (the disk starts at R_IN)
+    if (r1 < 1.0 || (r1 < 1.5 && dot(x1, v1) < 0.0)) break;
+    if (r1 > R_SKIP && dot(x1, v1) > 0.0) {
+      // leaving the emitting region: the rest of the bend is analytic
+      vec3 vn = normalize(v1);
+      v = bend(x1, vn, length(cross(x1, vn)), dot(x1, vn) / r1, 1.0);
+      escaped = true;
+      break;
+    }
     if (alpha > 0.985) break;
   }
 
@@ -180,13 +226,13 @@ void main() {
   float dim = mix(0.18, 1.0, smoothstep(uDim.x, uDim.y, gl_FragCoord.x));
   vec3 sky = vec3(0.0);
   if (escaped && alpha < 0.985) {
-    sky = stars(normalize(v), pix) * dim;
+    sky = stars(normalize(v), pix) * dim * uStars;
   }
   // photon ring: light that skims the critical orbit
   float b = sqrt(h2);
-  vec3 ring = vec3(1.0, 0.72, 0.45) * exp(-abs(b - B_CRIT) * 9.0) * 0.55;
+  vec3 ring = vec3(1.0, 0.88, 0.68) * exp(-abs(b - B_CRIT) * 10.0) * 0.75;
 
-  vec3 glow = vec3(1.0, 0.62, 0.3) * haze * 1.4;
+  vec3 glow = vec3(1.0, 0.76, 0.46) * haze * 1.25;
   vec3 c = col + glow + sky * (1.0 - alpha) + ring * (1.0 - alpha * 0.6);
   c *= uExposure;
   // tone map on luminance (keeps hot gas gold, not clipped white), blended
@@ -195,7 +241,8 @@ void main() {
   vec3 hue = c * (1.0 - exp(-lum * 1.5)) / max(lum, 1e-4);
   c = mix(hue, 1.0 - exp(-c * 1.5), 0.3);
   c = pow(c, vec3(1.0 / 2.2));
-  vec3 voidc = vec3(0.027, 0.035, 0.031);
-  outColor = vec4(voidc + c * (1.0 - voidc), 1.0);
+  vec3 voidc = vec3(0.0196, 0.0196, 0.0196);
+  float a = uFeather.z > 0.0 ? 1.0 - smoothstep(uFeather.z * 0.62, uFeather.z, length(gl_FragCoord.xy - uFeather.xy)) : 1.0;
+  outColor = vec4((voidc + c * (1.0 - voidc)) * a, a);
 }
 `;

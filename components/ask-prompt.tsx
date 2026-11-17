@@ -31,7 +31,7 @@ export function AskPrompt({ className = "" }: { className?: string }) {
           id="hero-ask"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="How does RestAI ground its answers?"
+          placeholder="How is RestAI grounded?"
           autoComplete="off"
           enterKeyHint="send"
           maxLength={600}

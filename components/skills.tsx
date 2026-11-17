@@ -1,6 +1,7 @@
 import { skills } from "@/lib/data";
 import { list } from "@/lib/text";
 import { Glyph, type GlyphName } from "./nn-icons";
+import { WormholeDiagram } from "./diagrams";
 
 // lib/data.ts feeds the copilot, so groups are merged here, at render time.
 // Overlapping pairs become one row; a tool listed twice is shown once.
@@ -32,7 +33,8 @@ const groups = skills.reduce<{ title: string; items: string[] }[]>((acc, g) => {
 
 export function Skills() {
   return (
-    <section id="stack" aria-labelledby="stack-title" className="relative scroll-mt-20 py-20 md:py-24">
+    <section id="stack" aria-labelledby="stack-title" className="relative isolate scroll-mt-20 overflow-x-clip py-20 md:py-24">
+      <WormholeDiagram className="right-[max(-2rem,calc(50%-38rem))] top-2 w-[20rem]" />
       <div className="shell">
         <h2 id="stack-title" className="display max-w-[22ch]">
           The stack
@@ -42,18 +44,18 @@ export function Skills() {
         <div className="crt mt-12">
           <p className="crt-bar" aria-hidden="true">
             <span>
-              <b>&gt;</b> ashour --stack
+              <b className="fig" /> stack, by discipline
             </span>
             <span>{groups.reduce((n, g) => n + g.items.length, 0)} tools</span>
           </p>
           <dl className="grid grid-cols-1 gap-x-12 gap-y-6 p-6 md:grid-cols-2 md:p-8">
             {groups.map((group) => (
               <div key={group.title}>
-                <dt className="flex items-center gap-2.5 text-[13px] font-bold uppercase tracking-[0.06em] text-[color:var(--phosphor)]">
-                  <Glyph name={GLYPH[group.title] ?? "dag"} className="h-[18px] w-[18px] shrink-0" />
+                <dt className="flex items-center gap-2.5 text-[13px] font-bold uppercase tracking-[0.06em] text-[color:var(--plate-ink)]">
+                  <Glyph name={GLYPH[group.title] ?? "dag"} className="h-[18px] w-[18px] shrink-0 text-[color:rgba(236,235,230,0.7)]" />
                   {group.title}
                 </dt>
-                <dd className="mt-1.5 text-[15px] leading-relaxed text-[#d7dfd2]">{list(group.items)}</dd>
+                <dd className="mt-1.5 font-sans text-[15px] leading-relaxed text-[#d8d7d1]">{list(group.items)}</dd>
               </div>
             ))}
           </dl>

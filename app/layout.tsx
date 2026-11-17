@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Atkinson_Hyperlegible_Next, JetBrains_Mono } from "next/font/google";
+import { Atkinson_Hyperlegible_Next, Bodoni_Moda, JetBrains_Mono } from "next/font/google";
 import { getSiteUrl } from "@/lib/site";
 import { ThemeInit } from "@/components/theme-init";
 import { CommandPalette } from "@/components/command-palette";
@@ -16,7 +16,16 @@ const sans = Atkinson_Hyperlegible_Next({
   display: "swap",
 });
 
-// Instrument voice: the profile banner's face (name, headings, UI, terminal).
+// Plate voice: a modern serif in the line of 19th-century science plates
+// and engraved instrument drawings. Headlines only.
+const display = Bodoni_Moda({
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "900"],
+  variable: "--font-bodoni",
+  display: "swap",
+});
+
+// Measurement voice: code, coordinates, numbers, the terminal.
 const mono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "700", "800"],
@@ -105,7 +114,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html
       lang="en"
       data-theme="dark"
-      className={`${sans.variable} ${mono.variable}`}
+      className={`${sans.variable} ${display.variable} ${mono.variable}`}
       suppressHydrationWarning
     >
       <head>

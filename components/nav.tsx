@@ -96,7 +96,7 @@ export function Nav() {
           <a
             href="#top"
             aria-label="Mohamed Ashour, back to top"
-            className="flex shrink-0 items-center gap-2.5 font-mono text-[15px] font-extrabold tracking-tight text-ink transition-colors hover:text-accent"
+            className="flex shrink-0 items-center gap-2.5 font-display text-[17px] font-bold tracking-[-0.005em] text-ink transition-colors hover:text-accent"
           >
             <Mark className="h-6 w-7" />
             <span>
@@ -113,7 +113,7 @@ export function Nav() {
                   key={l.href}
                   href={l.href}
                   aria-current={isActive ? "location" : undefined}
-                  className={`relative whitespace-nowrap px-3 py-2 font-mono text-[13px] transition-colors duration-300 focus-visible:bg-surface-hover ${
+                  className={`relative whitespace-nowrap px-3 py-2 font-sans text-[15px] transition-colors duration-300 focus-visible:bg-surface-hover ${
                     isActive ? "text-ink" : "text-ink-soft hover:text-ink"
                   }`}
                 >
@@ -137,14 +137,14 @@ export function Nav() {
               type="button"
               onClick={() => window.dispatchEvent(new Event("ma:open-copilot"))}
               title="Ask the portfolio copilot (Ctrl J)"
-              className="flex min-h-11 items-center gap-2 whitespace-nowrap border border-border-strong px-3 font-mono text-[13px] font-bold text-ink transition-colors hover:border-accent hover:text-accent focus-visible:border-accent"
+              className="flex min-h-11 items-center gap-2 whitespace-nowrap border border-border-strong px-3 font-sans text-[14px] font-bold text-ink transition-colors hover:border-accent hover:text-accent focus-visible:border-accent"
             >
               <ChatCircleText aria-hidden="true" size={18} className="text-accent" />
               Ask AI
             </button>
             <a
               href="#contact"
-              className="ml-1 hidden min-h-11 items-center whitespace-nowrap border border-ink bg-ink px-4 font-mono text-[13px] font-bold text-bg transition-colors hover:border-accent hover:bg-accent hover:text-accent-ink sm:inline-flex"
+              className="ml-1 hidden min-h-11 items-center whitespace-nowrap border border-ink bg-ink px-4 font-sans text-[14px] font-bold text-bg transition-colors hover:border-accent hover:bg-accent hover:text-accent-ink sm:inline-flex"
             >
               Hire me
             </a>
@@ -215,7 +215,7 @@ export function Nav() {
                             isActive ? "text-ink" : "text-ink-soft"
                           }`}
                         >
-                          <span className="font-mono text-2xl font-extrabold tracking-tight transition-colors group-hover:text-ink">
+                          <span className="font-display text-3xl font-semibold transition-colors group-hover:text-ink">
                             {l.label}
                           </span>
                           <span

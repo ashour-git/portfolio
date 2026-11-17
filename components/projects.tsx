@@ -77,7 +77,7 @@ export function Projects() {
 
         {/* `case-studies` anchor kept so older links and the palette still land here */}
         <div id="case-studies" className="mt-20 scroll-mt-24 md:mt-24">
-          <h3 className="font-mono text-2xl font-bold tracking-tight text-ink md:text-[1.75rem]">More projects</h3>
+          <h3 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink md:text-[2.25rem]">More projects</h3>
           <div className="mt-10 grid grid-cols-1 gap-x-8 gap-y-14 md:grid-cols-2">
             {rest.map((p, i) => (
               // an odd final card spans the row instead of leaving an empty cell
@@ -104,13 +104,13 @@ function Flagship({ p }: { p: Project }) {
 
       <div className="mt-10 grid grid-cols-1 gap-x-14 gap-y-6 lg:grid-cols-[1fr_1.2fr] lg:items-end">
         <div>
-          <p className="flex items-center gap-2 font-mono text-sm text-accent">
+          <h3 id="flagship-title" className="font-display text-5xl font-bold tracking-[-0.01em] text-ink md:text-[4.5rem] md:leading-none">
+            {p.title}
+          </h3>
+          <p className="mt-3 flex items-center gap-2 text-[15px] text-ink-soft">
             <Glyph name={GLYPH[p.title] ?? "attention"} className="h-[18px] w-[18px] shrink-0" />
             Flagship, {p.domain}
           </p>
-          <h3 id="flagship-title" className="mt-2 font-mono text-5xl font-extrabold tracking-[-0.04em] text-ink md:text-6xl">
-            {p.title}
-          </h3>
         </div>
         <p className="lead max-w-[54ch]">{tidy(p.tagline)}</p>
       </div>
@@ -154,11 +154,11 @@ function ObservationCard({ p, wide }: { p: Project; wide: boolean }) {
       {screen?.()}
 
       <div className={`flex flex-1 flex-col ${wide ? "pt-6 md:pt-2" : "pt-6"}`}>
-        <p className="flex items-center gap-2 font-mono text-[13px] text-accent">
+        <h4 className="font-display text-[1.9rem] font-semibold leading-tight tracking-[-0.01em] text-ink">{p.title}</h4>
+        <p className="mt-1.5 flex items-center gap-2 text-sm text-ink-soft">
           <Glyph name={GLYPH[p.title] ?? "attention"} className="h-4 w-4 shrink-0" />
           {p.domain}
         </p>
-        <h4 className="mt-1.5 font-mono text-2xl font-extrabold tracking-[-0.03em] text-ink">{p.title}</h4>
         <p className="mt-2.5 text-ink-soft">{tidy(p.tagline)}</p>
 
         <dl className="mt-5 grid grid-cols-3 gap-4 border-t border-line pt-4">
@@ -177,7 +177,7 @@ function ObservationCard({ p, wide }: { p: Project; wide: boolean }) {
             onClick={() => setShowArch((v) => !v)}
             aria-expanded={showArch}
             aria-controls={archId}
-            className="flex min-h-11 w-full items-center justify-between gap-3 font-mono text-[13px] font-bold text-ink-soft transition-colors hover:text-ink"
+            className="flex min-h-11 w-full items-center justify-between gap-3 text-[14px] font-bold text-ink-soft transition-colors hover:text-ink"
           >
             <span className="inline-flex items-center gap-2">
               <Glyph name="dag" className="h-4 w-4 text-accent" />
@@ -208,7 +208,7 @@ function ObservationCard({ p, wide }: { p: Project; wide: boolean }) {
         <div className="mt-auto flex flex-wrap items-center gap-x-5 pt-4">
           <a
             href={studyHref(p)}
-            className="inline-flex min-h-11 items-center gap-1.5 font-mono text-sm font-bold text-ink transition-colors hover:text-accent"
+            className="inline-flex min-h-11 items-center gap-1.5 text-[15px] font-bold text-ink transition-colors hover:text-accent"
           >
             Case study
             <ArrowIcon className="h-4 w-4" />
@@ -217,7 +217,7 @@ function ObservationCard({ p, wide }: { p: Project; wide: boolean }) {
             href={p.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-11 items-center gap-1.5 font-mono text-sm text-ink-soft transition-colors hover:text-accent"
+            className="inline-flex min-h-11 items-center gap-1.5 text-[15px] text-ink-soft transition-colors hover:text-accent"
           >
             Source
             <ExternalIcon className="h-4 w-4" />
@@ -227,7 +227,7 @@ function ObservationCard({ p, wide }: { p: Project; wide: boolean }) {
               href={p.demo}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center gap-1.5 font-mono text-sm text-ink-soft transition-colors hover:text-accent"
+              className="inline-flex min-h-11 items-center gap-1.5 text-[15px] text-ink-soft transition-colors hover:text-accent"
             >
               Live demo
               <ExternalIcon className="h-4 w-4" />

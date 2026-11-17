@@ -2,6 +2,7 @@ import { FileArrowDown } from "@phosphor-icons/react/dist/ssr";
 import { profile } from "@/lib/data";
 import { AskPrompt } from "./ask-prompt";
 import { BlackHole } from "./black-hole";
+import { HeroLockOn } from "./hero-lockon";
 
 /**
  * The profile banner, made live: a terminal identity on the left, a
@@ -16,14 +17,11 @@ export function Hero() {
 
       <div className="shell relative pb-16 pt-4 lg:py-28">
         <div className="max-w-[35rem]">
-          <p className="prompt-line">
-            ashour@event-horizon:~<b>$</b> whoami
-          </p>
-          <h1 id="hero-title" className="hero-name mt-5">
+          <h1 id="hero-title" className="hero-name">
             <span>Mohamed</span>
             <span>Ashour</span>
           </h1>
-          <p className="mt-7 max-w-[36ch] text-lg leading-relaxed text-ink-soft md:text-xl">
+          <p className="mt-9 max-w-[36ch] text-lg leading-relaxed text-ink-soft md:text-xl">
             AI engineer at SustainGRC, based in Cairo. I build LLM, NLP and computer-vision systems and ship them as production services.
           </p>
 
@@ -39,7 +37,7 @@ export function Hero() {
               href={profile.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center font-mono text-sm text-ink-soft underline decoration-border-strong underline-offset-[6px] transition-colors hover:text-accent hover:decoration-accent"
+              className="inline-flex min-h-11 items-center font-sans text-[15px] text-ink-soft underline decoration-border-strong underline-offset-[6px] transition-colors hover:text-accent hover:decoration-accent"
             >
               GitHub
             </a>
@@ -47,7 +45,7 @@ export function Hero() {
               href={profile.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center font-mono text-sm text-ink-soft underline decoration-border-strong underline-offset-[6px] transition-colors hover:text-accent hover:decoration-accent"
+              className="inline-flex min-h-11 items-center font-sans text-[15px] text-ink-soft underline decoration-border-strong underline-offset-[6px] transition-colors hover:text-accent hover:decoration-accent"
             >
               LinkedIn
             </a>
@@ -67,9 +65,9 @@ export function Hero() {
           <dt>render</dt>
           <dd>live, in your browser</dd>
         </dl>
-        <p className="hud-eq" style={{ left: "47%", top: "19%" }}>Attention(Q, K, V) = softmax(QKᵀ / √dₖ) V</p>
         <p className="hud-eq" style={{ left: "47%", top: "80%" }}>θ ← θ − η ∇θ L(θ)</p>
       </div>
+      <HeroLockOn />
     </section>
   );
 }
