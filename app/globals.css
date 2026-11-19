@@ -1301,3 +1301,17 @@ main { counter-reset: fig; }
   -webkit-mask-image: none;
   mask-image: none;
 }
+
+/* the attractor as the principles figure: in flow, engraved strength, quick trace */
+.ambient.ambient-figure {
+  position: relative;
+  z-index: auto;
+  display: block;
+  opacity: 1;
+  color: var(--color-ink);
+}
+.ambient-figure .ad-line { stroke-opacity: 0.62; }
+.ambient-figure .ad-axis { stroke-opacity: 0.3; }
+.js .ambient-figure[data-on] [data-draw] {
+  transition: stroke-dashoffset 2.6s cubic-bezier(0.22, 1, 0.36, 1);
+}

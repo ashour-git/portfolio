@@ -25,17 +25,22 @@ function lorenz() {
 }
 const LORENZ = lorenz();
 
-export function AttractorDiagram({ className = "" }: { className?: string }) {
+// The same attractor as the principles section's own figure: in the column
+// under the heading, at engraving strength, tracing itself in once.
+export function AttractorFigure({ className = "" }: { className?: string }) {
   return (
-    <Ambient className={`ambient-strong ${className}`}>
-      <svg viewBox="0 0 600 600">
-        <path d={LORENZ} pathLength={1} data-draw className="ad-line ad-slow" />
-        <path d="M60 560H540M300 560V60" className="ad-axis" />
-        <text x="548" y="564" className="ad-label">x</text>
-        <text x="306" y="56" className="ad-label">z</text>
-        <text x="60" y="590" className="ad-label">dx/dt = σ(y − x)   dy/dt = x(ρ − z) − y   dz/dt = xy − βz</text>
-      </svg>
-    </Ambient>
+    <figure className={className}>
+      <Ambient className="ambient-figure">
+        <svg viewBox="40 40 520 530">
+          <path d="M60 560H540M300 560V60" className="ad-axis" />
+          <path d={LORENZ} pathLength={1} data-draw className="ad-line" />
+        </svg>
+      </Ambient>
+      <figcaption className="mt-4 max-w-[34ch] text-sm leading-relaxed text-ink-faint">
+        The Lorenz system. Move the starting point by a hair and the path ends somewhere else, which is why every rule
+        here ends in a measurement.
+      </figcaption>
+    </figure>
   );
 }
 
